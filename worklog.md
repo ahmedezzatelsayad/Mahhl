@@ -222,3 +222,44 @@ Stage Summary:
 - الموقع الآن موديل تجاري متكامل: تصميم premium + AI ديب سيك + صفحات هبوط
   بالذكاء + تقارير يومية + تحكم توصيل + تصدير منتجات
 - لتفعيل DeepSeek: لوحة الإدارة → محرك الذكاء → مفتاح DeepSeek → لصق sk-... → اختبار
+---
+Task ID: 5 (seo-geo)
+Agent: main
+Task: SEO كامل لكل المنتجات + تهيئة الصفحة الأولى + GEO لنماذج الذكاء الاصطناعي + رفع الريبو
+
+Work Log:
+- استعادة .env (النظام أعاد تعيينه): NEON_DATABASE_URL + DIRECT_URL + FOUNDER_* + NEXT_PUBLIC_SITE_URL
+- src/lib/seo.ts — نواة SEO: إعدادات SiteSetting("seo") وقت التشغيل + مولّد عناوين/أوصاف
+  كل منتج + بناة JSON-LD (Product/Offer KWD/ShippingDetails, Breadcrumb, ItemList,
+  Organization/OnlineStore, WebSite+SearchAction, FAQPage ببيانات توصيل حية)
+- مزامنة URL مع SPA: openProduct → /?p=slug، الفئة → /?cat=slug، البحث → /?q=،
+  الهبوط → /?l=slug، كل المنتجات → /?all=1 + popstate (زر رجوع/تقدم) + categoryMap
+- page.tsx أصبح Server Component: generateMetadata لكل نوع صفحة (title/desc/canonical/
+  OG/Twitter/robots) + SeoHtml (sr-only دلالي + JSON-LD خارج شجرة العميل) + StoreApp
+  يستقبل initial state من السيرفر (روابط عميقة تفتح العرض الصحيح فوراً)
+- layout.tsx: metadataBase + قالب %s + keywords + hreflang ar-KW + geo.region KW +
+  verification (Google/Bing من الإعدادات) + robots googleBot
+- sitemap.xml ديناميكي: 2,679 URL (2,638 منتج + 38 فئة + هبوط + رئيسية) revalidate 3600
+- robots.txt: سماح صريح لـ GPTBot/OAI-SearchBot/ChatGPT-User/ClaudeBot/PerplexityBot/
+  Google-Extended/meta-externalagent/CCBot/Bytespider... + Disallow /api/ + Sitemap
+- GEO لنماذج الذكاء: /llms.txt (معيار llmstxt.org بالعربية: معلومات المتجر + التوصيل
+  الحي + الفئات + 150 الأكثر مبيعاً بأسعارها) + /llms-full.txt (كل الكاتالوج 370KB
+  مجمّع حسب الفئة: اسم — سعر — رابط)
+- manifest.webmanifest (RTL عربي) — حذف public/robots.txt الثابت
+- لوحة SEO للإدارة: GET/PUT /api/admin/seo + admin-seo-view (عنوان/قالب/وصف/كلمات/
+  دومين/تحقق Google+Bing + روابط sitemap/robots/llms + قائمة خطوات الصفحة الأولى)
+- فوتر بروابط <a> حقيقية لـ 10 فئات + sitemap/llms + FAQ مرئي في الرئيسية بأسعار
+  توصيل حية من /api/settings/shipping
+- إصلاحات: شارة سلة hydration mismatch (useSyncExternalStore) + عنوان التبويب يتبع
+  المنتج + h1 لصفحة الفئة يظهر اسمها
+- اختبار بالمتصفح: روابط عميقة (منتج/فئة/بحث/هبوط) ✓ زر رجوع ✓ حفظ لوحة SEO
+  وينعكس فوراً على الموقع ✓ sitemap 2679 ✓ llms.txt/full ✓ موبايل بدون overflow ✓
+  صفر أخطاء hydration/console ✓ lint: 0 errors
+- commit 482a66f + push — الريبو محدث
+
+Stage Summary:
+- كل منتج له URL قابل للفهرسة مع Product schema كامل (سعر KWD + شحن + COD)
+- موقع مهيأ لعناكب Google ولعناكب نماذج الذكاء (ChatGPT/Perplexity/Claude)
+  مع llms.txt عربي بالأسعار الحية — عند السؤال "وين أشتري X بالكويت" النماذج
+  تجد الكاتالوج كاملاً بروابط وأسعار
+- بعد ربط الدومين: لوحة الإدارة → SEO والبحث → ضع الدومين + كود Google → أرسل sitemap.xml
