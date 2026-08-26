@@ -54,4 +54,4 @@ prompt
 
 server.log
 # Skills directory
-/skills/
+/skills/scripts/test-*.png
