@@ -18,6 +18,7 @@ export type View =
   | 'admin-orders'
   | 'admin-categories'
   | 'admin-insights'
+  | 'admin-facebook'
   | 'admin-add-product'
   | 'admin-edit-product';
 

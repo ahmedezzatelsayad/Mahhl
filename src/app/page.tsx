@@ -18,6 +18,8 @@ import { AdminInventoryView } from '@/components/admin/admin-inventory-view';
 import { AdminOrdersView } from '@/components/admin/admin-orders-view';
 import { AdminCategoriesView } from '@/components/admin/admin-categories-view';
 import { AdminInsightsView } from '@/components/admin/admin-insights-view';
+import { AdminFacebookView } from '@/components/admin/admin-facebook-view';
+import { FacebookPixel } from '@/components/store/facebook-pixel';
 
 export default function Home() {
   const view = useAppStore((s) => s.view);
@@ -55,6 +57,7 @@ export default function Home() {
   else if (view === 'admin-orders' && isAdmin) content = <AdminOrdersView />;
   else if (view === 'admin-categories' && isAdmin) content = <AdminCategoriesView />;
   else if (view === 'admin-insights' && isAdmin) content = <AdminInsightsView />;
+  else if (view === 'admin-facebook' && isAdmin) content = <AdminFacebookView />;
   else content = <HomeView />;
 
   if (isAdminView) {
@@ -73,6 +76,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <FacebookPixel />
       <Header />
       <main className="flex-1">{content}</main>
       <Footer />

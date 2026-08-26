@@ -11,6 +11,7 @@ import {
   Store,
   Home,
   Brain,
+  Facebook,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -27,6 +28,7 @@ const navItems: NavItem[] = [
   { view: 'admin-orders', label: 'الطلبات', icon: ShoppingCart },
   { view: 'admin-categories', label: 'الفئات', icon: Tags },
   { view: 'admin-insights', label: 'محرك الذكاء', icon: Brain },
+  { view: 'admin-facebook', label: 'تتبع فيسبوك', icon: Facebook },
 ];
 
 export function AdminSidebar() {

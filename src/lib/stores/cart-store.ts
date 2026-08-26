@@ -4,6 +4,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { trackEvent } from '@/lib/behavior-tracker';
+import { trackFB } from '@/lib/facebook-pixel';
 
 export interface CartItem {
   productId: string;
@@ -47,6 +48,16 @@ export const useCartStore = create<CartState>()(
             trackEvent('add_to_cart', {
               productId: item.productId,
               metadata: { qty, name: item.name, price: item.price, variations: item.variations },
+            });
+            // Facebook Pixel — AddToCart
+            trackFB('AddToCart', {
+              content_ids: [item.sku || item.productId],
+              content_name: item.name,
+              content_type: 'product',
+              value: item.price * qty,
+              currency: 'KWD',
+              contents: [{ id: item.sku || item.productId, quantity: qty, item_price: item.price }],
+              num_items: qty,
             });
           }
           if (existing) {

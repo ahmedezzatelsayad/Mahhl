@@ -21,6 +21,7 @@ import {
 import { ProductCard } from '@/components/store/product-card';
 import { UpsellWidget } from '@/components/store/upsell-widget';
 import { trackEvent } from '@/lib/behavior-tracker';
+import { trackFB } from '@/lib/facebook-pixel';
 
 interface Variation {
   label: string;
@@ -78,6 +79,14 @@ export function ProductView() {
           setRelated(data.related || []);
           // Track product_view event (fire and forget)
           trackEvent('product_view', { productId: data.product.id });
+          // Facebook Pixel — ViewContent
+          trackFB('ViewContent', {
+            content_ids: [data.product.sku || data.product.id],
+            content_name: data.product.name,
+            content_type: 'product',
+            value: data.product.salePrice || data.product.price,
+            currency: 'KWD',
+          });
           // Pre-select first variation values
           if (data.product.variations) {
             try {

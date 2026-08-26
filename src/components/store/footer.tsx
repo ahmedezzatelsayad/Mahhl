@@ -17,7 +17,7 @@ export function Footer() {
               className="flex items-center gap-2 font-bold text-lg text-primary mb-3"
             >
               <Store className="h-6 w-6" />
-              إي ميرج
+              محل شوب
             </button>
             <p className="text-sm text-muted-foreground leading-relaxed">
               متجر إلكتروني عربي احترافي يقدم آلاف المنتجات بأسعار تنافسية مع خدمة توصيل سريعة ودفع آمن عند الاستلام.
@@ -73,7 +73,7 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2 text-muted-foreground">
                 <Mail className="h-4 w-4 text-primary" />
-                <span>info@ecomerg.com</span>
+                <span>info@mahalshop.com</span>
               </li>
               <li className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="h-4 w-4 text-primary" />
@@ -84,7 +84,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 pt-6 border-t text-center text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} إي ميرج. جميع الحقوق محفوظة.</p>
+          <p>© {new Date().getFullYear()} محل شوب. جميع الحقوق محفوظة.</p>
         </div>
       </div>
     </footer>

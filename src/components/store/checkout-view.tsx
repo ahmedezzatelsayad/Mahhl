@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { ArrowLeft, CheckCircle, Loader2, ShoppingBag } from 'lucide-react';
 import { UpsellWidget } from '@/components/store/upsell-widget';
 import { trackEvent } from '@/lib/behavior-tracker';
+import { trackFB } from '@/lib/facebook-pixel';
 
 const KUWAIT_GOVERNORATES = [
   'محافظة العاصمة',
@@ -45,6 +46,21 @@ export function CheckoutView() {
   // Track checkout_start once on mount
   useEffect(() => {
     trackEvent('checkout_start', { metadata: { itemsCount: items.length, subtotal } });
+    // Facebook Pixel — InitiateCheckout (with cart contents)
+    if (items.length > 0) {
+      trackFB('InitiateCheckout', {
+        value: subtotal + (subtotal > 50 ? 0 : 2),
+        currency: 'KWD',
+        content_type: 'product',
+        content_ids: items.map((i) => i.sku || i.productId),
+        contents: items.map((i) => ({
+          id: i.sku || i.productId,
+          quantity: i.quantity,
+          item_price: i.price,
+        })),
+        num_items: items.reduce((sum, i) => sum + i.quantity, 0),
+      });
+    }
   }, [items.length, subtotal]);
 
   const shipping = subtotal > 50 ? 0 : 2;
@@ -93,6 +109,25 @@ export function CheckoutView() {
         trackEvent('checkout_complete', {
           metadata: { orderId: data.order.id, total: data.order.total },
         });
+        // Facebook Pixel — Purchase (highest-value conversion event)
+        // Phone goes only to OUR server, which hashes it (SHA-256) before Meta.
+        trackFB(
+          'Purchase',
+          {
+            value: data.order.total,
+            currency: 'KWD',
+            order_id: data.order.orderNumber,
+            content_type: 'product',
+            content_ids: items.map((i) => i.sku || i.productId),
+            contents: items.map((i) => ({
+              id: i.sku || i.productId,
+              quantity: i.quantity,
+              item_price: i.price,
+            })),
+            num_items: items.reduce((sum, i) => sum + i.quantity, 0),
+          },
+          { phone: form.phone }
+        );
       } else {
         toast.error(data.error || 'فشل إنشاء الطلب');
       }
@@ -322,7 +357,7 @@ export function OrderSuccessView() {
         </div>
         <h1 className="text-2xl font-bold text-green-700">تم استلام طلبك بنجاح!</h1>
         <p className="text-muted-foreground">
-          شكراً لتسوقك من إي ميرج. سيتواصل معك فريقنا قريباً لتأكيد الطلب.
+          شكراً لتسوقك من محل شوب. سيتواصل معك فريقنا قريباً لتأكيد الطلب.
         </p>
         {lastOrderId && (
           <div className="bg-muted/30 px-4 py-2 rounded-md text-sm">

@@ -123,6 +123,14 @@ model AdminUser {
   createdAt    DateTime @default(now())
 }
 
+// ===== Site Settings (Facebook Pixel / integrations) =====
+
+model SiteSetting {
+  key       String   @id // e.g. "facebook_pixel"
+  value     Json     // { enabled, pixelId, accessToken, testEventCode }
+  updatedAt DateTime @updatedAt
+}
+
 // ===== AI Behavior Tracking & Upsell Engine =====
 
 model UserSession {

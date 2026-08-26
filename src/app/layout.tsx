@@ -10,18 +10,18 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  title: "إي ميرج | متجر إلكتروني عربي احترافي",
+  title: "محل شوب | متجر إلكتروني عربي احترافي",
   description:
-    "متجر إلكتروني عربي احترافي - أكثر من 2638 منتج بأسعار تنافسية. توصيل سريع لجميع المحافظات، دفع عند الاستلام.",
+    "محل شوب — متجر إلكتروني عربي احترافي. أكثر من 2638 منتج بأسعار تنافسية. توصيل سريع لجميع المحافظات، دفع عند الاستلام.",
   keywords: [
+    "محل شوب",
     "متجر إلكتروني",
     "تسوق",
-    "ecomerg",
-    "easyorder",
+    "mahal shop",
     "متجر عربي",
     "الكويت",
   ],
-  authors: [{ name: "Ecomerg Store" }],
+  authors: [{ name: "Mahal Shop" }],
 };
 
 export default function RootLayout({

@@ -46,7 +46,7 @@ export function AdminLoginView() {
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
             <Lock className="h-8 w-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold">لوحة تحكم Mahhl</h1>
+          <h1 className="text-2xl font-bold">لوحة تحكم محل شوب</h1>
           <p className="text-muted-foreground text-sm mt-1">
             سجل دخولك كـ Owner للوصول إلى لوحة الإدارة والمحرك الذكي
           </p>

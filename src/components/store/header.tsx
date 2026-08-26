@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useState, useEffect, useRef } from 'react';
+import { trackFB } from '@/lib/facebook-pixel';
 
 export function Header() {
   const setView = useAppStore((s) => s.setView);
@@ -23,6 +24,8 @@ export function Header() {
     if (q.trim()) {
       setSearch(q.trim());
       setMobileMenuOpen(false);
+      // Facebook Pixel — Search
+      trackFB('Search', { search_string: q.trim() });
     }
   }
 
@@ -36,7 +39,7 @@ export function Header() {
             className="flex items-center gap-2 font-bold text-lg text-primary hover:opacity-90"
           >
             <Store className="h-7 w-7" />
-            <span className="hidden sm:inline">إي ميرج</span>
+            <span className="hidden sm:inline">محل شوب</span>
           </button>
 
           {/* Desktop search */}
