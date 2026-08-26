@@ -165,3 +165,60 @@ Stage Summary:
 - تتبع فيسبوك مزدوج المسار (متصفح + سيرفر) مع dedup — مُختبَر بالكامل
 - الهوية الجديدة: محل شوب في كل الواجهات
 - المستخدم يحتاج فقط: يدخل لوحة الإدارة → تتبع فيسبوك → يلصق Pixel ID (+ Access Token اختياري)
+
+---
+Task ID: 4 (commercial-model)
+Agent: main
+Task: موديل تجاري كامل — DeepSeek + إعادة تصميم UI/UX Pro Max + Landing AI + تقارير + تحكم توصيل + تصدير
+
+Work Log:
+- استنساخ وفحص skill ui-ux-pro-max وتوليد Design System للمشروع:
+  • Pattern: Feature-Rich Showcase + Trust | Style: Liquid Glass evolution
+  • Colors: #1C1917 primary + amber-gold accent + #FAFAF9 bg
+  • Typography: Rubik (Arabic) headings + Cairo body
+- Prisma: إضافة LandingPage model + db:push إلى Neon
+- src/lib/deepseek.ts — عميل DeepSeek (OpenAI-compatible):
+  • getDeepSeekSettings/saveDeepSeekSettings (SiteSetting "deepseek")
+  • deepSeekChat مع timeout + jsonMode + extractJson
+- محرك Upsell: DeepSeek أولاً → z-ai-web-dev-sdk → rule-based
+- APIs جديدة:
+  • GET/PUT/POST /api/admin/ai-settings (حفظ + اختبار المفتاح)
+  • GET /api/settings/shipping + GET/PUT /api/admin/shipping
+  • GET /api/admin/products/export (CSV مع BOM للعربية في Excel)
+  • GET /api/admin/reports?days=N (تقارير يومية كاملة)
+  • GET/POST/PUT /api/admin/landing + POST /api/admin/landing/generate
+  • GET /api/landing (عام: slug واحد أو قائمة المروّجة)
+- إعادة تصميم كامل (UI/UX Pro Max):
+  • globals.css: لوحة premium جديدة + utilities (text-gold-gradient,
+    card-lift, glass, btn-gold, hero-glow, badge-shimmer) + reduced-motion
+  • layout.tsx: خطا Rubik + Cairo
+  • header: شريط إعلان داكن + نافبار زجاجي بشعار ذهبي متدرج
+  • home-view: هيرو داكن فاخر + إحصائيات ثقة + قسم عروض الهبوط
+  • footer: داكن بحد ذهبي وعناوين متدرجة
+  • product-card: hover lift + زر ذهبي + badge الأكثر مبيعاً ذهبي
+- صفحة الذكاء: بطاقة مفتاح DeepSeek (تفعيل + مفتاح + موديل + اختبار)
+- صفحة الإعدادات: تحكم سعر التوصيل (سعر + حد مجاني + ملاحظة + معاينة حية)
+- checkout-view: جلب إعدادات التوصيل ديناميكياً + تلميح الشحن المجاني
+- صفحة التقارير: بطاقة اليوم + 4 KPIs + رسم أعمدة CSS + الأكثر مبيعاً
+  + قمع upsell + جدول تفاصيل يومية (7/14/30 يوم)
+- صفحات الهبوط: admin-landing-view (توليد بالحوار + منتقي منتجات +
+  نشر/ترويج/حذف/معاينة) + landing-view عام كامل الأقسام
+- صفحة المنتجات: زر تصدير CSV
+- اختبار بالمتصفح (agent-browser):
+  • التصميم الجديد: شريط الإعلان + هيرو "تسوّق بذكاء" + إحصائيات ✅
+  • القائمة الجديدة: التقارير/الهبوط/الإعدادات ✅
+  • التقارير: 18 د.ك اليوم، طلبان، رسم الأعمدة ✅
+  • بطاقة DeepSeek تظهر + test API يعمل ✅
+  • توليد صفحة هبوط "العودة للمدارس" بالذكاء المدمج (provider: zai) ✅
+  • حفظ + نشر + معاينة الصفحة كاملة (hero/stats/features/testimonials/FAQ/CTA) ✅
+  • تصدير CSV: GET /api/admin/products/export 200 ✅
+  • تغيير التوصيل 3 د.ك/حد 30 → ظهر فوراً في الدفع + تلميح 23 د.ك ✅
+  • إعادة التوصيل للافتراضي 2 د.ك/50 ✅
+  • صفر أخطاء console بعد الإصلاحات ✅
+- إصلاحان: div غير مغلق في header + interface LandingPromo typo
+- lint: 0 errors | commit 469ce66 + push — SHA البعيد = المحلي
+
+Stage Summary:
+- الموقع الآن موديل تجاري متكامل: تصميم premium + AI ديب سيك + صفحات هبوط
+  بالذكاء + تقارير يومية + تحكم توصيل + تصدير منتجات
+- لتفعيل DeepSeek: لوحة الإدارة → محرك الذكاء → مفتاح DeepSeek → لصق sk-... → اختبار
