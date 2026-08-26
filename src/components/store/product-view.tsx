@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { ProductCard } from '@/components/store/product-card';
 import { UpsellWidget } from '@/components/store/upsell-widget';
+import { BoughtTogether } from '@/components/store/bought-together';
 import { trackEvent } from '@/lib/behavior-tracker';
 import { trackFB } from '@/lib/facebook-pixel';
 import { trackGA4, ga4Item } from '@/lib/ga4';
@@ -397,6 +398,11 @@ export function ProductView() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Amazon-style: frequently bought together (real co-purchase data) */}
+      <div className="mt-10">
+        <BoughtTogether productId={product.id} />
       </div>
 
       {/* Related Products */}

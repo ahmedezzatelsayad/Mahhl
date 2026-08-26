@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 
 interface Recommendation {
   productId: string;
+  slug?: string;
   name: string;
   price: number;
   image: string | null;
@@ -50,11 +51,13 @@ export function UpsellWidget({ context, productId, limit = 3, compact = false }:
           setLoading(false);
           return;
         }
-        // Build URL params
+        // Build URL params — cart items are ALWAYS sent so the engine can
+        // exclude anything already in the cart (product page included).
         const params = new URLSearchParams({ visitorId, limit: String(limit) });
         if (context === 'product' && productId) {
           params.set('productId', productId);
-        } else if (context === 'cart' || context === 'checkout') {
+        }
+        if (cartItems.length > 0) {
           params.set(
             'cartItems',
             encodeURIComponent(
@@ -92,8 +95,12 @@ export function UpsellWidget({ context, productId, limit = 3, compact = false }:
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [context, productId, limit, JSON.stringify(cartItems.map((i) => `${i.productId}:${i.quantity}`))]);
 
+  // Live filter — never suggest a product already sitting in the cart
+  const cartIdSet = new Set(cartItems.map((i) => i.productId));
+  const visibleRecs = recs.filter((r) => !cartIdSet.has(r.productId));
+
   if (dismissed) return null;
-  if (loading && !recs.length) {
+  if (loading && !visibleRecs.length) {
     return compact ? (
       <div className="px-3 py-2 space-y-2">
         <Skeleton className="h-4 w-32" />
@@ -101,7 +108,7 @@ export function UpsellWidget({ context, productId, limit = 3, compact = false }:
       </div>
     ) : null;
   }
-  if (!recs.length) return null;
+  if (!visibleRecs.length) return null;
 
   const title =
     context === 'product'
@@ -114,7 +121,7 @@ export function UpsellWidget({ context, productId, limit = 3, compact = false }:
     addItem(
       {
         productId: r.productId,
-        slug: r.productId, // slug fallback; will be looked up if needed
+        slug: r.slug || r.productId,
         name: r.name,
         sku: r.productId,
         price: r.price,
@@ -146,7 +153,7 @@ export function UpsellWidget({ context, productId, limit = 3, compact = false }:
         </button>
       </div>
       <div className="space-y-2">
-        {recs.map((r) => (
+        {visibleRecs.map((r) => (
           <div
             key={r.productId}
             className="flex gap-3 items-center bg-card/60 border rounded-lg p-2 hover:border-primary/40 transition-colors"
@@ -154,7 +161,7 @@ export function UpsellWidget({ context, productId, limit = 3, compact = false }:
             <button
               onClick={() => {
                 trackUpsellClick(r.productId, 'clicked');
-                openProduct(r.productId);
+                openProduct(r.slug || r.productId);
               }}
               className="w-14 h-14 flex-shrink-0 bg-muted/30 rounded-md overflow-hidden border"
             >
@@ -171,7 +178,7 @@ export function UpsellWidget({ context, productId, limit = 3, compact = false }:
                 className={`font-medium line-clamp-1 cursor-pointer hover:text-primary`}
                 onClick={() => {
                   trackUpsellClick(r.productId, 'clicked');
-                  openProduct(r.productId);
+                  openProduct(r.slug || r.productId);
                 }}
               >
                 {r.name}

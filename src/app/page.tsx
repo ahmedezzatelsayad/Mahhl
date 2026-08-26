@@ -31,6 +31,15 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     type: 'website' as const,
   };
 
+  // Utility pages (cart / checkout / order-success) — private, keep out of the index
+  const one0 = (k: string) => {
+    const v = sp[k];
+    return Array.isArray(v) ? v[0] : v;
+  };
+  if (one0('cart') === '1') return { title: 'سلة التسوق', robots: NO_INDEX };
+  if (one0('checkout') === '1') return { title: 'إتمام الطلب', robots: NO_INDEX };
+  if (one0('order') === '1') return { title: 'تم استلام طلبك', robots: NO_INDEX };
+
   switch (page.kind) {
     case 'product': {
       const p = page.product;
@@ -182,6 +191,12 @@ export default async function Page({ searchParams }: PageProps) {
     initial.infoPage = page.page;
   } else if (one('all') === '1') {
     initial.view = 'shop';
+  } else if (one('cart') === '1') {
+    initial.view = 'cart';
+  } else if (one('checkout') === '1') {
+    initial.view = 'checkout';
+  } else if (one('order') === '1') {
+    initial.view = 'order-success';
   }
 
   return (

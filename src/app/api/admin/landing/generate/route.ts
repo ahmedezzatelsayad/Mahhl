@@ -66,11 +66,66 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'topic required' }, { status: 400 });
     }
 
+    // ===== AI auto-picks showcase products when the founder didn't =====
+    // The catalog has 2,600+ items — nobody should scroll a picker manually.
+    // We mine the topic itself for keywords and rank matching in-stock
+    // products (best-sellers first, discounted preferred).
+    let autoPicked: { id: string; slug: string; name: string; salePrice: number; price: number; thumb: string | null }[] = [];
+    let effectiveIds: string[] = Array.isArray(productIds) ? productIds : [];
+
+    if (effectiveIds.length === 0) {
+      const STOP = new Set([
+        'عرض','على','في','من','الى','إلى','عن','مع','الآن','خصم','تخفيضات','رمضان','العيد','الجمعة',
+        'البيضاء','الصيف','الشتاء','لل','للبيت','للمنزل','وال','أو','او','ثم','كل','هذا','هذه','ذلك',
+        'فيه','فيها','عندنا','لدينا','جديد','جديدة','الأفضل','الافضل','الأكثر','مجموعة','تشكيلة','كولكشن',
+      ]);
+      const tokens = topic
+        .split(/[\s،,.\\/:()+\-]+/)
+        .map((t) => t.replace(/[\u064B-\u065F]/g, '').trim()) // strip tashkeel
+        .filter((t) => t.length >= 2 && !STOP.has(t));
+      if (tokens.length > 0) {
+        const matched = await db.product.findMany({
+          where: {
+            quantity: { gt: 0 },
+            OR: tokens.flatMap((t) => [
+              { name: { contains: t } },
+              { description: { contains: t } },
+              { category: { is: { name: { contains: t } } } },
+            ]),
+          },
+          select: {
+            id: true, slug: true, name: true, salePrice: true, price: true, thumb: true,
+            isBestSeller: true, images: true,
+          },
+          take: 120,
+          orderBy: [{ isBestSeller: 'desc' }, { createdAt: 'desc' }],
+        });
+        // score: keyword hits + best-seller + has discount + has image
+        const scoreOf = (p: (typeof matched)[number]) => {
+          const hay = `${p.name} ${p.slug}`;
+          let s = 0;
+          for (const t of tokens) if (hay.includes(t)) s += 2;
+          if (p.isBestSeller) s += 1.5;
+          if (p.price > p.salePrice) s += 1;
+          if (p.thumb || p.images) s += 0.5;
+          return s;
+        };
+        autoPicked = matched
+          .sort((a, b) => scoreOf(b) - scoreOf(a))
+          .slice(0, 6)
+          .map((p) => ({
+            id: p.id, slug: p.slug, name: p.name, salePrice: p.salePrice,
+            price: p.price, thumb: p.thumb || (p.images ? p.images.split(',')[0] : null),
+          }));
+        effectiveIds = autoPicked.map((p) => p.id);
+      }
+    }
+
     // Optional product context
     let productsContext = '';
-    if (Array.isArray(productIds) && productIds.length > 0) {
+    if (effectiveIds.length > 0) {
       const products = await db.product.findMany({
-        where: { id: { in: productIds.slice(0, 10) } },
+        where: { id: { in: effectiveIds.slice(0, 10) } },
         select: { name: true, salePrice: true, price: true },
       });
       if (products.length) {
@@ -165,6 +220,8 @@ ${tone ? `النبرة المطلوبة: ${tone}` : 'النبرة: حماسية 
       ok: true,
       provider,
       content: generated,
+      /** AI-selected showcase products (pre-picked from the topic itself) */
+      selectedProducts: autoPicked,
     });
   });
 }

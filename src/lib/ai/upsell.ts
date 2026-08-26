@@ -28,6 +28,8 @@ type TriggerContext = {
 
 export type Recommendation = {
   productId: string;
+  /** product slug — required for clickable deep links (/?p=slug) */
+  slug: string;
   name: string;
   price: number;
   image: string | null;
@@ -164,6 +166,7 @@ async function ruleBasedRecommendations(
     orderBy: [{ isBestSeller: 'desc' }, { salePrice: 'asc' }],
     select: {
       id: true,
+      slug: true,
       name: true,
       salePrice: true,
       price: true,
@@ -182,6 +185,7 @@ async function ruleBasedRecommendations(
       const score = Math.max(0, Math.min(1, 0.6 * priceProximity + bestSellerBonus + discount));
       return {
         productId: p.id,
+        slug: p.slug,
         name: p.name,
         price: p.salePrice,
         image: p.thumb || (p.images ? p.images.split(',')[0] : null),
@@ -313,7 +317,18 @@ export async function getUpsellForSession(
     orderBy: { createdAt: 'desc' },
   });
   if (cached && cached.modelVersion === MODEL_VERSION) {
-    return (cached.payload as Recommendation[]).slice(0, limit);
+    const payload = (cached.payload as Recommendation[]).slice(0, limit);
+    // hydrate slugs for pre-migration cached payloads that lack them
+    return Promise.all(
+      payload.map(async (r) => {
+        if (r.slug) return r;
+        const p = await db.product.findUnique({
+          where: { id: r.productId },
+          select: { slug: true },
+        });
+        return { ...r, slug: p?.slug || r.productId };
+      })
+    );
   }
 
   // 1. Rule-based candidates

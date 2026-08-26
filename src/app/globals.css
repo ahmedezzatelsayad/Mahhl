@@ -59,7 +59,7 @@
   --secondary: oklch(0.955 0.008 70);
   --secondary-foreground: oklch(0.28 0.012 60);
   --muted: oklch(0.955 0.008 70);
-  --muted-foreground: oklch(0.5 0.02 60); /* #475569 slate */
+  --muted-foreground: oklch(0.42 0.02 60); /* darker slate — readable body copy (contrast fix) */
   --accent: oklch(0.63 0.12 65); /* warm amber gold */
   --accent-foreground: oklch(0.99 0.005 80);
   --destructive: oklch(0.58 0.22 27);
@@ -248,8 +248,50 @@
   background: #ffffff;
 }
 
-/* Chat widget small clear text */
+/* Chat widget small clear text (kept ≥16px on phones to stop iOS zoom-on-focus) */
 .chat-text-sm {
   font-size: 12.5px;
   line-height: 1.7;
+}
+
+/* ===== MOBILE ZOOM FIX =====
+   iOS/Android auto-zoom into any input with font-size < 16px, which breaks
+   the fixed-viewport feel while chatting/typing. Enforce 16px minimum on
+   touch devices for every form control — page never zooms on focus. */
+@media (max-width: 1024px), (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* ===== HeroSlider tones ===== */
+.tone-dark {
+  background:
+    linear-gradient(140deg, oklch(0.24 0.015 60) 0%, oklch(0.19 0.012 55) 55%, oklch(0.15 0.01 50) 100%);
+}
+.tone-gold {
+  background:
+    linear-gradient(140deg, oklch(0.32 0.06 65) 0%, oklch(0.24 0.05 55) 50%, oklch(0.17 0.03 50) 100%);
+}
+.tone-green {
+  background:
+    linear-gradient(140deg, oklch(0.3 0.05 155) 0%, oklch(0.22 0.035 150) 55%, oklch(0.16 0.02 145) 100%);
+}
+.tone-blue {
+  background:
+    linear-gradient(140deg, oklch(0.3 0.06 250) 0%, oklch(0.22 0.04 245) 55%, oklch(0.16 0.025 240) 100%);
+}
+
+/* Ken-Burns pan for active slider photos (subtle, professional) */
+@keyframes kenburns {
+  0% { transform: scale(1) translateX(0); }
+  100% { transform: scale(1.08) translateX(-1.5%); }
+}
+.kenburns {
+  animation: kenburns 7s ease-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kenburns { animation: none; }
 }

@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { formatKwd } from '@/lib/utils/format';
 import { Search, Save, AlertTriangle, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAdminAuth } from '@/components/admin/admin-products-view';
 
 interface Product {
   id: string;
@@ -26,6 +27,7 @@ interface Product {
 }
 
 export function AdminInventoryView() {
+  const auth = useAdminAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -50,7 +52,7 @@ export function AdminInventoryView() {
       limit: '25',
     });
     if (search) params.set('search', search);
-    fetch(`/api/admin/products?${params}`)
+    fetch(`/api/admin/products?${params}`, { headers: auth })
       .then((r) => r.json())
       .then((data) => {
         setProducts(data.items || []);
@@ -63,7 +65,7 @@ export function AdminInventoryView() {
     try {
       const res = await fetch(`/api/admin/products/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...auth },
         body: JSON.stringify({ quantity: qty }),
       });
       if (res.ok) {
@@ -81,7 +83,7 @@ export function AdminInventoryView() {
     try {
       const res = await fetch(`/api/admin/products/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...auth },
         body: JSON.stringify({ trackStock: value }),
       });
       if (res.ok) {

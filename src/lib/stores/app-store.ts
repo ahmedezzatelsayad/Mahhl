@@ -131,7 +131,10 @@ export const useAppStore = create<AppState>()(
         else if (v === 'account') pushUrl('/?account=1');
         else if (v === 'track-order') pushUrl('/?track=1');
         else if (v === 'wishlist') pushUrl('/?wishlist=1');
-        // cart/checkout/info/admin are ephemeral client states — keep URL as-is
+        else if (v === 'cart') pushUrl('/?cart=1');
+        else if (v === 'checkout') pushUrl('/?checkout=1');
+        else if (v === 'order-success') pushUrl('/?order=1');
+        // info/admin push their own URLs via openInfo/admin navigation
       },
       openInfo: (page) => {
         set({ view: 'info', infoPage: page });

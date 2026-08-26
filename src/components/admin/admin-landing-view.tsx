@@ -66,6 +66,11 @@ interface ProductRow {
   thumb: string | null;
 }
 
+interface AutoPickedProduct extends ProductRow {
+  slug: string;
+  price: number;
+}
+
 const TONES = ['حماسي', 'فخم وراقي', 'عملي مباشر', 'ودّي قريب'];
 
 export function AdminLandingView() {
@@ -89,6 +94,8 @@ export function AdminLandingView() {
   const [productSearch, setProductSearch] = useState('');
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [showProductPicker, setShowProductPicker] = useState(false);
+  // AI auto-picked showcase products (topic-based)
+  const [aiPicked, setAiPicked] = useState<AutoPickedProduct[]>([]);
 
   // save state
   const [saving, setSaving] = useState(false);
@@ -145,13 +152,22 @@ export function AdminLandingView() {
       if (res.ok && d.ok) {
         setGenerated(d.content);
         setProvider(d.provider);
-        toast.success(
-          d.provider === 'deepseek'
-            ? 'تم التوليد بـ DeepSeek ✨'
-            : d.provider === 'zai'
-              ? 'تم التوليد بالذكاء المدمج'
-              : 'تم استخدام قالب جاهز — أضف مفتاح DeepSeek لتوليد مخصص'
-        );
+        // AI picked showcase products from the topic — pre-select them
+        if (Array.isArray(d.selectedProducts) && d.selectedProducts.length > 0) {
+          setAiPicked(d.selectedProducts);
+          setSelectedProducts(d.selectedProducts.map((p: AutoPickedProduct) => p.id));
+          toast.success(
+            `تم التوليد ✨ والـ AI اختار ${d.selectedProducts.length} منتجات مناسبة تلقائياً`
+          );
+        } else {
+          toast.success(
+            d.provider === 'deepseek'
+              ? 'تم التوليد بـ DeepSeek ✨'
+              : d.provider === 'zai'
+                ? 'تم التوليد بالذكاء المدمج'
+                : 'تم استخدام قالب جاهز — أضف مفتاح DeepSeek لتوليد مخصص'
+          );
+        }
       } else {
         toast.error(d.error || 'فشل التوليد');
       }
@@ -187,6 +203,7 @@ export function AdminLandingView() {
         setGenerated(null);
         setTopic('');
         setSelectedProducts([]);
+        setAiPicked([]);
         loadPages();
       } else {
         toast.error(d.error || 'فشل الحفظ');
@@ -297,6 +314,55 @@ export function AdminLandingView() {
                   ))}
                 </div>
               </div>
+
+              {/* AI auto-picked showcase products */}
+              {aiPicked.length > 0 && (
+                <div className="space-y-1.5">
+                  <Label className="flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-accent" />
+                    منتجات اختارها الذكاء الاصطناعي لهذا الموضوع
+                  </Label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {aiPicked.map((p) => {
+                      const on = selectedProducts.includes(p.id);
+                      return (
+                        <button
+                          key={p.id}
+                          onClick={() =>
+                            setSelectedProducts((s) =>
+                              on ? s.filter((x) => x !== p.id) : [...s, p.id]
+                            )
+                          }
+                          className={`relative rounded-lg border-2 overflow-hidden text-right transition-all cursor-pointer ${
+                            on ? 'border-accent bg-accent/10' : 'border-border opacity-60 hover:opacity-100'
+                          }`}
+                        >
+                          <div className="h-16 bg-white flex items-center justify-center">
+                            {p.thumb ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={p.thumb} alt="" className="h-full w-full object-contain p-1" />
+                            ) : (
+                              <Megaphone className="h-5 w-5 text-muted-foreground" />
+                            )}
+                          </div>
+                          <p className="text-[10px] font-semibold line-clamp-1 p-1.5 pb-0.5">{p.name}</p>
+                          <p className="text-[10px] text-gold-deep font-bold px-1.5 pb-1.5">
+                            {p.salePrice} د.ك
+                          </p>
+                          {on && (
+                            <span className="absolute top-1 left-1 h-4 w-4 rounded-full bg-accent text-white text-[9px] flex items-center justify-center font-bold">
+                              ✓
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">
+                    اضغط على أي منتج لإزالته من العرض — أو اتركها كلها كما اختارها الـ AI
+                  </p>
+                </div>
+              )}
 
               {/* Product picker */}
               <div className="space-y-1.5">

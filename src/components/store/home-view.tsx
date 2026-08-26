@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Truck, Shield, CreditCard, Headphones, Sparkles, Megaphone, HelpCircle } from 'lucide-react';
 import { useBrand } from '@/components/store/header';
+import { HeroSlider, type Slide } from '@/components/store/hero-slider';
 
 interface LandingPromo {
   slug: string;
@@ -53,6 +54,45 @@ export function HomeView() {
   const [shipping, setShipping] = useState<{ price: number; freeThreshold: number } | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // ===== Slides for the hero carousel (clear, high-contrast copy) =====
+  const slides: Slide[] = [
+    {
+      id: 'brand',
+      eyebrow: '✨ أكثر من 2,600 منتج — دفع عند الاستلام',
+      title: 'تسوّق بذكاء،',
+      highlight: 'وفّر أكثر مع محل شوب',
+      subtitle:
+        'منتجات مختارة بعناية من الألعاب والإلكترونيات والأدوات المنزلية. توصيل سريع لكل محافظات الكويت، وذكاء اصطناعي يقترح لك الأفضل لسلتك.',
+      cta: { label: 'تسوق الآن', action: 'shop' },
+      ctaSecondary: { label: 'الأكثر مبيعاً', action: 'category' },
+      tone: 'dark',
+      chips: ['+2,600 منتج', '6 محافظات', 'شحن مجاني من 50 د.ك', 'COD'],
+    },
+    {
+      id: 'shipping',
+      eyebrow: '🚚 توصيل لكل الكويت',
+      title: 'أجرة توصيل 1 د.ك فقط —',
+      highlight: 'ومجانية من 50 د.ك',
+      subtitle:
+        shipping
+          ? `اطلب اليوم وادفع كاش عند الاستلام. الطلبات فوق ${shipping.freeThreshold} د.ك توصيلها مجاني لكل المحافظات.`
+          : 'اطلب اليوم وادفع كاش عند الاستلام — توصيل سريع لكل محافظات الكويت.',
+      cta: { label: 'ابدأ التسوق', action: 'shop' },
+      ctaSecondary: { label: 'تتبع طلبك', action: 'track' },
+      tone: 'green',
+      chips: ['العاصمة', 'حولي', 'الفروانية', 'الأحمدي', 'الجهراء', 'مبارك الكبير'],
+    },
+    ...landingPromos.slice(0, 2).map<Slide>((p) => ({
+      id: `landing-${p.slug}`,
+      eyebrow: p.heroBadge || 'عرض خاص لفترة محدودة',
+      title: p.title,
+      subtitle: p.subtitle,
+      cta: { label: 'اكتشف العرض', action: 'landing', payload: p.slug },
+      ctaSecondary: { label: 'كل المنتجات', action: 'shop' },
+      tone: 'gold',
+    })),
+  ];
+
   useEffect(() => {
     (async () => {
       try {
@@ -89,64 +129,8 @@ export function HomeView() {
 
   return (
     <div>
-      {/* Hero — premium dark with gold glow */}
-      <section className="relative overflow-hidden bg-primary text-primary-foreground">
-        <div className="absolute inset-0 hero-glow" aria-hidden="true" />
-        <div
-          className="absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle at 1px 1px, oklch(0.9 0.05 80) 1px, transparent 0)',
-            backgroundSize: '28px 28px',
-          }}
-          aria-hidden="true"
-        />
-        <div className="relative container mx-auto px-4 py-14 md:py-24">
-          <div className="max-w-2xl">
-            <span className="inline-block mb-4 px-4 py-1.5 rounded-full text-xs font-bold bg-accent/20 text-accent border border-accent/30">
-              ✨ أكثر من 2,600 منتج — دفع عند الاستلام
-            </span>
-            <h1 className="text-3xl md:text-5xl font-extrabold mb-4 leading-[1.25]">
-              تسوّق بذكاء،
-              <br />
-              وفّر أكثر مع <span className="text-gold-gradient">محل شوب</span>
-            </h1>
-            <p className="text-sm md:text-lg text-primary-foreground/70 mb-7 leading-relaxed max-w-xl">
-              منتجات مختارة بعناية من الألعاب والإلكترونيات والأدوات المنزلية. توصيل سريع
-              لكل محافظات الكويت، وذكاء اصطناعي يقترح لك الأفضل لسلتك.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Button size="lg" className="btn-gold border-0" onClick={() => setView('shop')}>
-                <Sparkles className="h-5 w-5 ml-2" />
-                تسوق الآن
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-primary-foreground/25 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
-                onClick={() => openCategory(null)}
-              >
-                شاهد الأكثر مبيعاً
-              </Button>
-            </div>
-
-            {/* Honest, verifiable facts only — no invented ratings/counts */}
-            <div className="mt-10 flex flex-wrap gap-6 md:gap-10">
-              {[
-                ['+2,600', 'منتج متوفر الآن'],
-                ['6', 'محافظات نغطيها'],
-                ['50 د.ك+', 'شحن مجاني للطلب'],
-                ['COD', 'دفع عند الاستلام'],
-              ].map(([v, l]) => (
-                <div key={l}>
-                  <p className="text-xl md:text-2xl font-extrabold text-gold-gradient">{v}</p>
-                  <p className="text-[11px] md:text-xs text-primary-foreground/60 mt-0.5">{l}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero carousel — clear, readable copy on high-contrast scrims */}
+      <HeroSlider slides={slides} loading={loading} />
 
       {/* Features */}
       <section className="border-b bg-card">

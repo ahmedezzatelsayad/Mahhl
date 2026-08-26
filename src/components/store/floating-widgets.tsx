@@ -189,7 +189,7 @@ export function FloatingWidgets() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="اكتب اللي تدور عليه..."
-              className="flex-1 text-[13px] px-3 py-2 rounded-xl border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              className="flex-1 text-base px-3 py-2 rounded-xl border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
             />
             <button
               type="submit"

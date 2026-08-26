@@ -38,7 +38,20 @@ import { FacebookPixel } from '@/components/store/facebook-pixel';
 import { LandingView } from '@/components/store/landing-view';
 
 export interface InitialUrlState {
-  view: Extract<View, 'home' | 'shop' | 'product' | 'landing' | 'account' | 'track-order' | 'wishlist' | 'info'>;
+  view: Extract<
+    View,
+    | 'home'
+    | 'shop'
+    | 'product'
+    | 'cart'
+    | 'checkout'
+    | 'order-success'
+    | 'landing'
+    | 'account'
+    | 'track-order'
+    | 'wishlist'
+    | 'info'
+  >;
   infoPage?: string | null;
   productSlug?: string | null;
   categoryId?: string | null;
@@ -88,6 +101,9 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
       const track = sp.get('track');
       const wishlist = sp.get('wishlist');
       const info = sp.get('info');
+      const cart = sp.get('cart');
+      const checkout = sp.get('checkout');
+      const order = sp.get('order');
 
       if (p) {
         applyUrlState({ view: 'product', selectedProductSlug: p });
@@ -137,6 +153,18 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
       }
       if (wishlist) {
         applyUrlState({ view: 'wishlist' });
+        return;
+      }
+      if (cart) {
+        applyUrlState({ view: 'cart' });
+        return;
+      }
+      if (checkout) {
+        applyUrlState({ view: 'checkout' });
+        return;
+      }
+      if (order) {
+        applyUrlState({ view: 'order-success' });
         return;
       }
       if (info && INFO_PAGES.includes(info as InfoPage)) {
