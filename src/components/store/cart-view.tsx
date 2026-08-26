@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button';
 import { formatKwd } from '@/lib/utils/format';
 import { Trash2, Minus, Plus, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { useT } from '@/lib/i18n';
 import { FreeShippingBar } from '@/components/store/free-shipping-bar';
 
 export function CartView() {
+  const { t } = useT();
   const { items, removeItem, updateQuantity } = useCartStore();
   const subtotal = useCartStore((s) => s.getSubtotal());
   const setView = useAppStore((s) => s.setView);
@@ -20,12 +22,12 @@ export function CartView() {
       <div className="container mx-auto px-4 py-12">
         <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
           <ShoppingBag className="h-20 w-20 text-muted-foreground/30" />
-          <h1 className="text-2xl font-bold">سلة التسوق فارغة</h1>
+          <h1 className="text-2xl font-bold">{t('cv.empty')}</h1>
           <p className="text-muted-foreground">
-            لم تقم بإضافة أي منتجات بعد. ابدأ التسوق الآن!
+            {t('cv.emptySub')}
           </p>
           <Button size="lg" onClick={() => setView('shop')}>
-            تصفح المنتجات
+            {t('cv.browse')}
           </Button>
         </div>
       </div>
@@ -34,7 +36,7 @@ export function CartView() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold mb-5">سلة التسوق ({items.length} منتج)</h1>
+      <h1 className="text-2xl font-bold mb-5">{t('cv.title', { n: items.length })}</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Items */}
@@ -96,11 +98,11 @@ export function CartView() {
                     className="text-destructive hover:text-destructive"
                     onClick={() => {
                       removeItem(item.productId, item.variations);
-                      toast('تم حذف المنتج');
+                      toast(t('cv.removed'));
                     }}
                   >
                     <Trash2 className="h-4 w-4 ml-1" />
-                    حذف
+                    {t('cv.remove')}
                   </Button>
                 </div>
               </div>
@@ -110,7 +112,7 @@ export function CartView() {
                 </p>
                 {item.quantity > 1 && (
                   <p className="text-xs text-muted-foreground">
-                    {formatKwd(item.price)} للقطعة
+                    {t('cv.perPiece', { v: formatKwd(item.price) })}
                   </p>
                 )}
               </div>
@@ -119,37 +121,37 @@ export function CartView() {
 
           <Button variant="ghost" onClick={() => setView('shop')}>
             <ArrowLeft className="h-4 w-4 ml-1" />
-            متابعة التسوق
+            {t('cv.continue')}
           </Button>
         </div>
 
         {/* Summary */}
         <div className="lg:col-span-1">
           <div className="border rounded-lg p-5 bg-card sticky top-20">
-            <h2 className="font-bold mb-4">ملخص الطلب</h2>
+            <h2 className="font-bold mb-4">{t('cv.summary')}</h2>
             <div className="mb-4">
               <FreeShippingBar subtotal={subtotal} />
             </div>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">المجموع الفرعي:</span>
+                <span className="text-muted-foreground">{t('c.subtotal')}:</span>
                 <span className="font-medium">{formatKwd(subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">الشحن:</span>
+                <span className="text-muted-foreground">{t('c.shipping')}:</span>
                 {shipping === 0 ? (
-                  <span className="text-green-600 font-medium">مجاني</span>
+                  <span className="text-green-600 font-medium">{t('c.free')}</span>
                 ) : (
                   <span className="font-medium">{formatKwd(shipping)}</span>
                 )}
               </div>
               {shipping > 0 && (
                 <p className="text-xs text-muted-foreground bg-accent/50 p-2 rounded">
-                  💡 أضف {formatKwd(50 - subtotal)} للحصول على شحن مجاني!
+                  💡 {t('ck.addForFree', { v: formatKwd(50 - subtotal) })}
                 </p>
               )}
               <div className="border-t pt-3 flex justify-between font-bold text-base">
-                <span>الإجمالي:</span>
+                <span>{t('c.total')}:</span>
                 <span className="text-primary">{formatKwd(total)}</span>
               </div>
             </div>
@@ -158,7 +160,7 @@ export function CartView() {
               className="w-full mt-4"
               onClick={() => setView('checkout')}
             >
-              متابعة الدفع
+              {t('cv.checkout')}
             </Button>
           </div>
         </div>

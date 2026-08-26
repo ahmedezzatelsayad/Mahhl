@@ -1,0 +1,56 @@
+[
+  {
+    "url": "https://www.luckyorange.com",
+    "name": "Core Web Vitals explained: what they measure & how to",
+    "snippet": "May 4, 2026 — LCP — Largest Contentful Paint. What it measures: How long until the largest visible element on your page loads — usually a hero image, a banner ... Read more",
+    "host_name": "www.luckyorange.com",
+    "rank": 0,
+    "date": "May 4, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://itnext.io",
+    "name": "Optimising images for better LCP web vitals scores - ITNEXT",
+    "snippet": "Jan 4, 2021 — Taking a look at Google's Web Vitals there's an important metric that images can affect and that is “Largest Contentful Paint” ( LCP ), ... Read more",
+    "host_name": "itnext.io",
+    "rank": 1,
+    "date": "Jan 4, 2021",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.corewebvitals.io",
+    "name": "Fix slow hero images & Core Web Vitals",
+    "snippet": "Learn 8 techniques to optimize hero images and improve your Largest Contentful Paint, including preloading, fetchpriority, compression, and responsive ...",
+    "host_name": "www.corewebvitals.io",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://web.dev",
+    "name": "Largest Contentful Paint (LCP) | Articles",
+    "snippet": "Aug 8, 2019 — Largest Contentful Paint (LCP ) is an important, stable Core Web Vital metric for measuring perceived load speed because it marks the point ... Read more",
+    "host_name": "web.dev",
+    "rank": 3,
+    "date": "Aug 8, 2019",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.imgix.com",
+    "name": "What Are Core Web Vitals, Why Are They Important, and",
+    "snippet": "May 25, 2022 — Largest Contentful Paint ( LCP ) Serve Images in Next-Gen Format — This technique can reduce image file size and improve LCP dramatically.",
+    "host_name": "www.imgix.com",
+    "rank": 4,
+    "date": "May 25, 2022",
+    "favicon": ""
+  },
+  {
+    "url": "https://parachutedesign.ca",
+    "name": "Largest Contentful Paint for Web Designers (2026 Guide)",
+    "snippet": "Apr 17, 2026 — Largest Contentful Paint LCP is a core web vitals metric that measures when the page's main content becomes visible to users. Read more",
+    "host_name": "parachutedesign.ca",
+    "rank": 5,
+    "date": "Apr 17, 2026",
+    "favicon": ""
+  }
+]

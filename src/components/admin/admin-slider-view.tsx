@@ -125,9 +125,14 @@ export function AdminSliderView() {
       title: 'عنوان الشريحة',
       highlight: 'كلمة مميزة',
       subtitle: 'وصف قصير وواضح يشرح العرض أو القسم.',
+      eyebrowEn: '✨ New at Mahal Shop',
+      titleEn: 'Slide title',
+      highlightEn: 'highlight',
+      subtitleEn: 'A short, clear line describing the offer or category.',
       tone: 'dark',
       chips: ['دفع عند الاستلام', 'توصيل 1 د.ك'],
-      cta: { label: 'تسوق الآن', action: 'shop' },
+      chipsEn: ['Cash on delivery', '1 KWD delivery'],
+      cta: { label: 'تسوق الآن', labelEn: 'Shop Now', action: 'shop' },
       active: true,
     };
     touch([...slides, s]);
@@ -229,7 +234,7 @@ export function AdminSliderView() {
             <Images className="h-6 w-6 text-primary" /> سلايدر الصفحة الرئيسية
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            صور حقيقية + نصوص بالذكاء الاصطناعي — تتحكم بكل شريحة وتعاينها قبل النشر.
+            صور حقيقية + نصوص عربي/إنجليزي بالذكاء الاصطناعي — تتحكم بكل شريحة وتعاينها باللغتين قبل النشر.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -271,7 +276,7 @@ export function AdminSliderView() {
             }}
             className="w-full mt-2"
           />
-          <p className="text-xs text-muted-foreground mt-1">3–12 ثانية (موصى به 5 ثوانٍ)</p>
+          <p className="text-xs text-muted-foreground mt-1">3–12 ثانية (المعيار العالمي الموصى به: 5–7 ثوانٍ)</p>
         </div>
         <div className="flex items-center justify-between rounded-lg border p-3">
           <div>

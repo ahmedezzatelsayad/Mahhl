@@ -1,0 +1,56 @@
+[
+  {
+    "url": "https://www.nngroup.com/articles/auto-forwarding",
+    "name": "Auto-Forwarding Carousels, Accordions Annoy Users &",
+    "snippet": "Jan 19, 2013 — Moving UI elements usually reduce accessibility , particularly for users with motor skill issues who have difficulty clicking something before ... Read more",
+    "host_name": "www.nngroup.com",
+    "rank": 0,
+    "date": "Jan 19, 2013",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.nngroup.com/articles/designing-effective-carousels",
+    "name": "Carousel Usability: Effective UI for Content Overload",
+    "snippet": "Sep 14, 2013 — Guidelines for Good Carousel Design · 1. Include 5 or fewer frames within the carousel , as it's unlikely users will engage with more than that. Read more",
+    "host_name": "www.nngroup.com",
+    "rank": 1,
+    "date": "Sep 14, 2013",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.smashingmagazine.com/2023/02/guide-building-accessible-carousels",
+    "name": "A Step-By-Step Guide To Building Accessible Carousels",
+    "snippet": "Feb 17, 2023 — The rotation of the slides must not interfere with users' Add a “Pause” or “Stop” button if you cannot give up auto-rotation at all. The “Pause ...",
+    "host_name": "www.smashingmagazine.com",
+    "rank": 2,
+    "date": "Feb 17, 2023",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.linkedin.com/pulse/usability-guidelines-better-carousels-ux-vitaly-friedman",
+    "name": "Usability Guidelines For Better Carousels UX",
+    "snippet": "( Nielsen Norman Group recommends 1 second per 3 words for auto - rotating slides.) One consequence of this is that you might need to assign ... Read more",
+    "host_name": "www.linkedin.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://baymard.com/blog/homepage-carousel",
+    "name": "10 UX Requirements for Homepage Carousels",
+    "snippet": "Apr 3, 2025 — 1) Set Carousel Slide Autorotation to a Reasonable Interval · 2) Pause Autorotation on Hover · 3) Stop Autorotation after Active User Interaction. Read more",
+    "host_name": "baymard.com",
+    "rank": 4,
+    "date": "Apr 3, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://testparty.ai/blog/carousel-slider-accessibility",
+    "name": "Making Carousels and Sliders Accessible",
+    "snippet": "Sep 26, 2025 — Carousels are one of the most problematic UI patterns for accessibility. They auto-advance when users are trying to read , they trap keyboard ... Read more",
+    "host_name": "testparty.ai",
+    "rank": 5,
+    "date": "Sep 26, 2025",
+    "favicon": ""
+  }
+]

@@ -97,7 +97,7 @@ export function RecentlyViewed() {
                 <button
                   onClick={() => {
                     addItem({
-                      productId: it.id,
+                      productId: String(it.id),
                       slug: it.slug,
                       name: it.name,
                       sku: it.slug,

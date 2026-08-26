@@ -144,13 +144,13 @@ export function ShopView() {
           </Button>
           <Select value={sort} onValueChange={setSort}>
             <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="ترتيب" />
+              <SelectValue placeholder={t('shop.sort')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="newest">الأحدث</SelectItem>
-              <SelectItem value="price-asc">السعر: تصاعدي</SelectItem>
-              <SelectItem value="price-desc">السعر: تنازلي</SelectItem>
-              <SelectItem value="name-asc">الاسم</SelectItem>
+              <SelectItem value="newest">{t('shop.sort.newest')}</SelectItem>
+              <SelectItem value="price-asc">{t('shop.sort.priceAsc')}</SelectItem>
+              <SelectItem value="price-desc">{t('shop.sort.priceDesc')}</SelectItem>
+              <SelectItem value="name-asc">{t('shop.sort.name')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -237,7 +237,7 @@ export function ShopView() {
                     disabled={page === 1}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                   >
-                    السابق
+                    {t('shop.prev')}
                   </Button>
                   {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
                     const p = Math.max(1, Math.min(totalPages - 4, page - 2)) + i;
@@ -259,7 +259,7 @@ export function ShopView() {
                     disabled={page === totalPages}
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   >
-                    التالي
+                    {t('shop.next')}
                   </Button>
                 </div>
               )}
@@ -298,6 +298,7 @@ function FilterPanel({
   onToggleBestSeller,
   onReset,
 }: FilterPanelProps) {
+  const { t } = useT();
   const [localSearch, setLocalSearch] = useState(searchQuery);
 
   useEffect(() => {

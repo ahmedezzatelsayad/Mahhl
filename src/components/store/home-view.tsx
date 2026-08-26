@@ -91,9 +91,14 @@ export function HomeView() {
       title: 'تسوّق بذكاء،',
       highlight: 'وفّر أكثر مع محل شوب',
       subtitle: 'منتجات مختارة بعناية من الألعاب والإلكترونيات والأدوات المنزلية — توصيل سريع لكل محافظات الكويت.',
+      eyebrowEn: '✨ 2,600+ products — Cash on Delivery',
+      titleEn: 'Shop smart,',
+      highlightEn: 'save more with Mahal Shop',
+      subtitleEn: 'Carefully picked toys, electronics and home essentials — fast delivery to every Kuwait governorate.',
       tone: 'dark',
       chips: ['+2,600 منتج', 'شحن مجاني من 30 د.ك', 'COD'],
-      cta: { label: 'تسوق الآن', action: 'shop' },
+      chipsEn: ['2,600+ items', 'Free shipping over 30 KWD', 'COD'],
+      cta: { label: 'تسوق الآن', labelEn: 'Shop Now', action: 'shop' },
       active: true,
     },
   ];
@@ -317,7 +322,7 @@ export function HomeView() {
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-xl md:text-2xl font-bold">{t('home.newest')}</h2>
           <Button variant="ghost" size="sm" onClick={() => setView('shop')}>
-            عرض الكل
+            {t('home.viewAll')}
           </Button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
@@ -344,46 +349,43 @@ export function HomeView() {
         </h2>
         <Accordion type="single" collapsible>
           <AccordionItem value="faq-1">
-            <AccordionTrigger className="text-right">
-              هل يوجد توصيل لجميع محافظات الكويت؟
+            <AccordionTrigger className="text-start">
+              {t('faq.q1')}
             </AccordionTrigger>
             <AccordionContent className="text-muted-foreground leading-relaxed">
-              نعم — محل شوب يوصّل لجميع محافظات الكويت الست (العاصمة، حولي، الفروانية،
-              الأحمدي، الجهراء، مبارك الكبير).{' '}
               {shipping
-                ? `سعر التوصيل ${shipping.price} د.ك${
-                    shipping.freeThreshold > 0
-                      ? ` والتوصيل مجاني للطلبات من ${shipping.freeThreshold} د.ك فأكثر`
-                      : ''
-                }.`
-                : 'التوصيل مجاني للطلبات الكبيرة.'}
+                ? t('faq.a1', {
+                    price: String(shipping.price),
+                    free:
+                      shipping.freeThreshold > 0
+                        ? t('faq.a1Free', { v: String(shipping.freeThreshold) })
+                        : '',
+                  })
+                : t('faq.a1FreeOnly')}
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="faq-2">
-            <AccordionTrigger className="text-right">
-              ما هي طرق الدفع المتاحة؟
+            <AccordionTrigger className="text-start">
+              {t('faq.q2')}
             </AccordionTrigger>
             <AccordionContent className="text-muted-foreground leading-relaxed">
-              الدفع عند الاستلام (COD) — تدفع نقداً للمندوب عند وصول طلبك. جميع الأسعار
-              المعروضة بالدينار الكويتي دون أي رسوم خفية.
+              {t('faq.a2')}
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="faq-3">
-            <AccordionTrigger className="text-right">
-              كم عدد المنتجات والفئات في محل شوب؟
+            <AccordionTrigger className="text-start">
+              {t('faq.q3')}
             </AccordionTrigger>
             <AccordionContent className="text-muted-foreground leading-relaxed">
-              أكثر من 2,600 منتج في 38 فئة تشمل: الأجهزة الكهربائية، مستلزمات المطبخ،
-              الأحزمة والمشدات، الألعاب، العناية الشخصية، الأدوات المنزلية وغيرها.
+              {t('faq.a3')}
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="faq-4">
-            <AccordionTrigger className="text-right">
-              كيف أطلب من محل شوب؟
+            <AccordionTrigger className="text-start">
+              {t('faq.q4')}
             </AccordionTrigger>
             <AccordionContent className="text-muted-foreground leading-relaxed">
-              اختر المنتج المطلوب، اضغط "أضف للسلة"، ثم أكمل الطلب بكتابة اسمك ورقم
-              هاتفك والمحافظة والمنطقة والعنوان — سنتصل بك لتأكيد الطلب قبل التوصيل.
+              {t('faq.a4')}
             </AccordionContent>
           </AccordionItem>
         </Accordion>

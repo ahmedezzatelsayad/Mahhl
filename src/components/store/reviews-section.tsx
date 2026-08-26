@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Star, BadgeCheck, ThumbsUp, PenLine, Loader2 } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 import { toast } from 'sonner';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 
@@ -73,8 +74,9 @@ export function useReviewSummary(slug: string | undefined, page = 1) {
 export function StarsRow({ value, size = 4 }: { value: number; size?: 3 | 4 }) {
   const rounded = Math.round(value);
   const dim = size === 3 ? 'h-3.5 w-3.5' : 'h-4 w-4';
+  const { t } = useT();
   return (
-    <span className="inline-flex items-center gap-0.5" aria-label={`${value} من 5`}>
+    <span className="inline-flex items-center gap-0.5" aria-label={t('r.starsOf', { v: value })}>
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
@@ -87,14 +89,14 @@ export function StarsRow({ value, size = 4 }: { value: number; size?: 3 | 4 }) {
   );
 }
 
-function timeAgo(iso: string) {
+function timeAgo(iso: string, lang: 'ar' | 'en', t: (k: string, v?: Record<string, string | number>) => string) {
   const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
-  if (days <= 0) return 'اليوم';
-  if (days === 1) return 'أمس';
-  if (days < 30) return `قبل ${days} يوم`;
+  if (days <= 0) return t('r.today');
+  if (days === 1) return t('r.yesterday');
+  if (days < 30) return t('r.daysAgo', { n: days });
   const months = Math.floor(days / 30);
-  if (months < 12) return `قبل ${months} شهر`;
-  return `قبل ${Math.floor(months / 12)} سنة`;
+  if (months < 12) return t('r.monthsAgo', { n: months });
+  return t('r.yearsAgo', { n: Math.floor(months / 12) });
 }
 
 /** compact numbered pagination: 1 … 4 5 6 … 17 */
@@ -118,6 +120,7 @@ function firstName(name: string) {
 }
 
 export function ReviewsSection({ slug }: { slug: string }) {
+  const { t, lang } = useT();
   const [page, setPage] = useState(1);
   const { summary, refresh } = useReviewSummary(slug, page);
   const listTopRef = useRef<HTMLDivElement>(null);
@@ -135,7 +138,7 @@ export function ReviewsSection({ slug }: { slug: string }) {
     e.preventDefault();
     if (busy) return;
     if (rating < 1) {
-      setFeedback({ ok: false, msg: 'اختر عدد النجوم أولاً' });
+      setFeedback({ ok: false, msg: t('r.starsFirst') });
       return;
     }
     setBusy(true);
@@ -148,10 +151,10 @@ export function ReviewsSection({ slug }: { slug: string }) {
       });
       const d = await r.json();
       if (!r.ok) {
-        setFeedback({ ok: false, msg: d.error || 'تعذر إرسال التقييم' });
+        setFeedback({ ok: false, msg: d.error || t('r.fail') });
       } else {
         // success toast (form closes, so an inline message would be hidden)
-        toast.success(d.message || 'تم إرسال تقييمك');
+        toast.success(d.message || t('r.sent'));
         setRating(0);
         setTitle('');
         setComment('');
@@ -159,7 +162,7 @@ export function ReviewsSection({ slug }: { slug: string }) {
         setShowForm(false);
       }
     } catch {
-      setFeedback({ ok: false, msg: 'تعذر الاتصال، جرب مرة أخرى' });
+      setFeedback({ ok: false, msg: t('r.netFail') });
     } finally {
       setBusy(false);
     }
@@ -172,7 +175,7 @@ export function ReviewsSection({ slug }: { slug: string }) {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold flex items-center gap-2">
           <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-          تقييمات العملاء
+          {t('r.customerReviews')}
           {summary.count > 0 && (
             <span className="text-sm font-normal text-muted-foreground">
               ({summary.count})
@@ -186,7 +189,7 @@ export function ReviewsSection({ slug }: { slug: string }) {
           className="gap-1.5"
         >
           <PenLine className="h-3.5 w-3.5" />
-          اكتب تقييمك
+          {t('r.write')}
         </Button>
       </div>
 
@@ -197,8 +200,8 @@ export function ReviewsSection({ slug }: { slug: string }) {
           className="mb-6 rounded-xl border bg-muted/30 p-4 space-y-3"
         >
           <div>
-            <p className="text-sm font-medium mb-1.5">تقييمك العام *</p>
-            <div className="flex gap-1" role="radiogroup" aria-label="التقييم">
+            <p className="text-sm font-medium mb-1.5">{t('r.yourRating')}</p>
+            <div className="flex gap-1" role="radiogroup" aria-label={t('r.yourRating')}>
               {[1, 2, 3, 4, 5].map((i) => (
                 <button
                   key={i}
@@ -223,14 +226,14 @@ export function ReviewsSection({ slug }: { slug: string }) {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input
-              placeholder="اسمك *"
+              placeholder={t('r.name')}
               value={name}
               onChange={(e) => setName(e.target.value)}
               maxLength={60}
               required
             />
             <Input
-              placeholder="رقم هاتفك (اختياري — لتوثيق الشراء)"
+              placeholder={t('r.phone')}
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               inputMode="tel"
@@ -239,21 +242,20 @@ export function ReviewsSection({ slug }: { slug: string }) {
             />
           </div>
           <Input
-            placeholder="عنوان مختصر (اختياري)"
+            placeholder={t('r.titlePh')}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={120}
           />
           <Textarea
-            placeholder="شاركنا تجربتك مع المنتج…"
+            placeholder={t('r.commentPh')}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             maxLength={1000}
             rows={3}
           />
           <p className="text-[11px] text-muted-foreground">
-            رقم الهاتف يستخدم فقط لمطابقة طلبك الفعلي — لو اشتريت المنتج من عندنا
-            يظهر تقييمك فوراً مع علامة «مشترٍ موثّق»، وإلا فيُنشر بعد مراجعة سريعة.
+            {t('r.phoneNote')}
           </p>
           {feedback && (
             <p className={`text-sm ${feedback.ok ? 'text-green-700' : 'text-destructive'}`}>
@@ -263,10 +265,10 @@ export function ReviewsSection({ slug }: { slug: string }) {
           <div className="flex gap-2">
             <Button type="submit" disabled={busy} className="gap-2">
               {busy && <Loader2 className="h-4 w-4 animate-spin" />}
-              أرسل التقييم
+              {t('r.send')}
             </Button>
             <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>
-              إلغاء
+              {t('r.cancel')}
             </Button>
           </div>
         </form>
@@ -274,9 +276,9 @@ export function ReviewsSection({ slug }: { slug: string }) {
 
       {summary.count === 0 ? (
         <div className="rounded-xl border border-dashed p-6 text-center">
-          <p className="font-medium mb-1">لا توجد تقييمات بعد لهذا المنتج</p>
+          <p className="font-medium mb-1">{t('r.empty')}</p>
           <p className="text-sm text-muted-foreground">
-            كن أول من يشارك تجربته — رأيك يساعد بقية العملاء على الاختيار بثقة
+            {t('r.emptySub')}
           </p>
         </div>
       ) : (
@@ -287,7 +289,7 @@ export function ReviewsSection({ slug }: { slug: string }) {
               <p className="text-4xl font-extrabold">{summary.average.toFixed(1)}</p>
               <StarsRow value={summary.average} />
               <p className="text-xs text-muted-foreground mt-1">
-                بناءً على {summary.count} تقييم
+                {t('r.basedOn', { n: summary.count })}
               </p>
             </div>
             <div className="space-y-1.5">
@@ -321,12 +323,12 @@ export function ReviewsSection({ slug }: { slug: string }) {
                     {rv.isVerified && (
                       <Badge className="bg-green-100 text-green-800 border border-green-200 gap-1 text-[10px]">
                         <BadgeCheck className="h-3 w-3" />
-                        مشترٍ موثّق
+                        {t('r.verified')}
                       </Badge>
                     )}
                   </div>
                   <span className="text-[11px] text-muted-foreground">
-                    {timeAgo(rv.createdAt)}
+                    {timeAgo(rv.createdAt, lang, t)}
                   </span>
                 </div>
                 <StarsRow value={rv.rating} size={3} />
@@ -339,7 +341,7 @@ export function ReviewsSection({ slug }: { slug: string }) {
                 {rv.helpfulCount > 0 && (
                   <p className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
                     <ThumbsUp className="h-3 w-3" />
-                    {rv.helpfulCount} وجدوه مفيداً
+                    {t('r.helpful', { n: rv.helpfulCount })}
                   </p>
                 )}
               </article>
@@ -357,7 +359,7 @@ export function ReviewsSection({ slug }: { slug: string }) {
                     listTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }}
                 >
-                  ← السابق
+                  {t('r.prev')}
                 </Button>
                 {pageNumbers(summary.page || 1, summary.pages || 1).map((pn, i) =>
                   pn === '…' ? (
@@ -389,7 +391,7 @@ export function ReviewsSection({ slug }: { slug: string }) {
                     listTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }}
                 >
-                  التالي →
+                  {t('r.next')}
                 </Button>
               </div>
             )}

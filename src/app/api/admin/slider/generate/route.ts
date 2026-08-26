@@ -5,13 +5,14 @@ import { deepSeekChat, extractJson } from '@/lib/deepseek';
 import ZAI from 'z-ai-web-dev-sdk';
 
 /**
- * POST /api/admin/slider/generate — AI writes ONE slide's copy.
+ * POST /api/admin/slider/generate — AI writes ONE slide's copy (AR + EN).
  *
  * Body:
  *  - productId (string) — write the copy around this product (preferred)
  *  - topic?   (string)  — free-form campaign topic instead of a product
  *
- * Returns: { eyebrow, title, highlight, subtitle, ctaLabel, chips[], tone }
+ * Returns: { eyebrow, title, highlight, subtitle, ctaLabel, chips[], tone,
+ *            eyebrowEn, titleEn, highlightEn, subtitleEn, ctaLabelEn, chipsEn[] }
  * The founder previews + edits before saving — nothing is persisted here.
  */
 
@@ -23,6 +24,13 @@ interface SlideCopy {
   ctaLabel: string;
   chips: string[];
   tone: 'dark' | 'gold' | 'green' | 'blue';
+  // English mirror (used by the EN storefront)
+  eyebrowEn?: string;
+  titleEn?: string;
+  highlightEn?: string;
+  subtitleEn?: string;
+  ctaLabelEn?: string;
+  chipsEn?: string[];
 }
 
 export async function POST(req: NextRequest) {
@@ -72,7 +80,7 @@ export async function POST(req: NextRequest) {
     }
 
     const prompt = `أنت كاتب إعلانات أول لدى متجر إلكتروني كويتي اسمه "محل شوب" (محل شوب للسوق الكويتي).
-مهمتك: كتابة نص شريحة سلايدر (بانر رئيسي) للصفحة الرئيسية — نص يظهر فوق صورة حقيقية، لذلك الوضوح أولاً.
+مهمتك: كتابة نص شريحة سلايدر (بانر رئيسي) للصفحة الرئيسية — نص يظهر فوق صورة حقيقية، لذلك الوضوح أولاً. الموقع ثنائي اللغة، فاكتب النسخة العربية والنسخة الإنجليزية معاً (ترويجية طبيعية بأسلوب أمازون، وليست ترجمة حرفية).
 
 ${context}
 حقائق المتجر الثابتة (استخدمها إن ناسبت ولا تخترع غيرها):
@@ -85,15 +93,15 @@ ${context}
 2) subtitle ≤ 16 كلمة يشرح الفائدة الحقيقية
 3) ممنوع اختراع تقييمات أو أعداد عملاء أو تواريخ انتهاء — أرقام حقيقية فقط
 4) إذا كان المنتج نفدت كميته لا تقل "متوفر الآن"
-5) لهجة خليجية راقية بسيطة يفهمها الجميع
-6) chips = 3 عناصر ثقة قصيرة جداً (2-4 كلمات)
+5) لهجة خليجية راقية بسيطة يفهمها الجميع، والإنجليزية natural saleable US e-commerce style
+6) chips = 3 عناصر ثقة قصيرة جداً (2-4 كلمات) + مقابلها الإنجليزي في chipsEn
 7) tone من: dark | gold | green | blue (اختر الأنسب لمزيج المنتج)
-8) ctaLabel فعل قصير (كلمتان كحد أقصى)
+8) ctaLabel فعل قصير (كلمتان كحد أقصى) + ctaLabelEn المقابل
 
 أرجع JSON فقط:
-{"eyebrow":"","title":"","highlight":"","subtitle":"","ctaLabel":"","chips":["","",""],"tone":"dark"}`;
+{"eyebrow":"","title":"","highlight":"","subtitle":"","ctaLabel":"","chips":["","",""],"eyebrowEn":"","titleEn":"","highlightEn":"","subtitleEn":"","ctaLabelEn":"","chipsEn":["","",""],"tone":"dark"}`;
 
-    const system = 'أنت كاتب إعلانات محترف يعيد JSON صحيح فقط بالعربية الفصحى المبسطة.';
+    const system = 'أنت كاتب إعلانات محترف ثنائي اللغة (عربي/إنجليزي) يعيد JSON صحيحاً فقط.';
 
     // Priority 1: DeepSeek (founder's paid key)
     let copy: SlideCopy | null = null;
@@ -146,6 +154,12 @@ ${context}
         subtitle: 'منتج مختار بعناية — توصيل سريع لكل محافظات الكويت ودفع عند الاستلام.',
         ctaLabel: 'شاهد المنتج',
         chips: ['دفع عند الاستلام', 'توصيل 1 د.ك', 'شحن يومي 10ص'],
+        eyebrowEn: 'Mahal Shop offer',
+        titleEn: shortName,
+        highlightEn: 'at a great price',
+        subtitleEn: 'A carefully picked product — fast delivery across Kuwait with cash on delivery.',
+        ctaLabelEn: 'View Product',
+        chipsEn: ['Cash on delivery', '1 KWD delivery', 'Ships daily 10AM'],
         tone: 'dark',
       };
       provider = 'fallback';
@@ -161,6 +175,14 @@ ${context}
       chips: Array.isArray(copy.chips)
         ? copy.chips.map((c) => String(c).slice(0, 30)).filter(Boolean).slice(0, 4)
         : [],
+      eyebrowEn: String(copy.eyebrowEn || '').slice(0, 80) || undefined,
+      titleEn: String(copy.titleEn || '').slice(0, 110) || undefined,
+      highlightEn: String(copy.highlightEn || '').slice(0, 70) || undefined,
+      subtitleEn: String(copy.subtitleEn || '').slice(0, 340) || undefined,
+      ctaLabelEn: String(copy.ctaLabelEn || '').slice(0, 60) || undefined,
+      chipsEn: Array.isArray(copy.chipsEn)
+        ? copy.chipsEn.map((c) => String(c).slice(0, 40)).filter(Boolean).slice(0, 4)
+        : undefined,
       tone: (['dark', 'gold', 'green', 'blue'] as const).includes(copy.tone as any)
         ? copy.tone
         : 'dark',

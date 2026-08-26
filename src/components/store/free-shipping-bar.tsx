@@ -81,7 +81,7 @@ export function FreeShippingBar({ subtotal }: { subtotal: number }) {
             <>
               {t('c.addMore', { v: fmt(remaining) }).split(fmt(remaining)).map((seg, i) => (
                 <span key={i}>
-                  {i > 0 && <b className="text-foreground">{fmt(remaining)} د.ك</b>}
+                  {i > 0 && <b className="text-foreground">{fmt(remaining)} {t('m.kwd')}</b>}
                   {seg}
                 </span>
               ))}
@@ -102,7 +102,7 @@ export function FreeShippingBar({ subtotal }: { subtotal: number }) {
       </div>
       {!reached && (
         <p className="mt-1.5 text-[11px] text-muted-foreground">
-          {t('c.progress', { v: fmt(subtotal) })} · {threshold} د.ك
+          {t('c.progress', { v: fmt(subtotal) })} · {threshold} {t('m.kwd')}
         </p>
       )}
     </div>

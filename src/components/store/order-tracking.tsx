@@ -1,6 +1,7 @@
 'use client';
 
 import { CheckCircle, Package, Truck, Home, Clock } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 export interface TrackOrder {
   orderNumber: string;
@@ -25,10 +26,10 @@ export interface TrackOrder {
 }
 
 const STEPS = [
-  { key: 'pending', label: 'تم استلام الطلب', icon: Clock },
-  { key: 'confirmed', label: 'تم التأكيد', icon: CheckCircle },
-  { key: 'shipped', label: 'تم الشحن', icon: Truck },
-  { key: 'delivered', label: 'تم التوصيل', icon: Home },
+  { key: 'pending', labelKey: 'tr.pending', icon: Clock },
+  { key: 'confirmed', labelKey: 'tr.confirmed', icon: CheckCircle },
+  { key: 'shipped', labelKey: 'tr.shipped', icon: Truck },
+  { key: 'delivered', labelKey: 'tr.delivered', icon: Home },
 ];
 
 function stepIndex(status: string): number {
@@ -48,11 +49,12 @@ function stepIndex(status: string): number {
 }
 
 export function OrderTimeline({ status }: { status: string }) {
+  const { t } = useT();
   const current = stepIndex(status);
   if (current < 0) {
     return (
       <div className="rounded-lg bg-destructive/10 text-destructive px-4 py-2 text-sm font-medium text-center">
-        تم إلغاء هذا الطلب — للاستفسار تواصل معنا على الواتساب
+        {t('tr.cancelled')}
       </div>
     );
   }
@@ -79,7 +81,7 @@ export function OrderTimeline({ status }: { status: string }) {
                   done ? 'text-foreground font-medium' : 'text-muted-foreground'
                 }`}
               >
-                {step.label}
+                {t(step.labelKey)}
               </span>
             </div>
             {i < STEPS.length - 1 && (
@@ -97,26 +99,27 @@ export function OrderTimeline({ status }: { status: string }) {
 }
 
 export function OrderCard({ order }: { order: TrackOrder }) {
+  const { t, lang } = useT();
   const cancelled = stepIndex(order.status) < 0;
   return (
     <div className="border rounded-xl bg-card overflow-hidden">
       <div className="p-4 border-b bg-muted/20 flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="font-bold text-sm">
-            طلب <span className="font-mono">{order.orderNumber}</span>
+            {t('tr.order')} <span className="font-mono">{order.orderNumber}</span>
           </p>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {new Date(order.createdAt).toLocaleString('ar-KW', {
+            {new Date(order.createdAt).toLocaleString(lang === 'en' ? 'en-KW' : 'ar-KW', {
               dateStyle: 'medium',
               timeStyle: 'short',
             })}
             {' · '}
-            {order.items?.length ?? 0} منتج
+            {order.items?.length ?? 0} {t('tr.items')}
           </p>
         </div>
         <div className="text-left">
-          <p className="font-extrabold text-gold-deep">{order.total.toFixed(2)} د.ك</p>
-          <p className="text-[11px] text-muted-foreground">دفع عند الاستلام</p>
+          <p className="font-extrabold text-gold-deep">{order.total.toFixed(2)} {t('m.kwd')}</p>
+          <p className="text-[11px] text-muted-foreground">{t('tr.cod')}</p>
         </div>
       </div>
 
@@ -151,7 +154,7 @@ export function OrderCard({ order }: { order: TrackOrder }) {
                 <div className="flex-1 min-w-0">
                   <p className="text-[13px] font-medium line-clamp-1">{it.name}</p>
                   <p className="text-[11px] text-muted-foreground">
-                    {it.quantity} × {it.price.toFixed(2)} د.ك
+                    {it.quantity} × {it.price.toFixed(2)} {t('m.kwd')}
                   </p>
                 </div>
               </div>
@@ -162,7 +165,7 @@ export function OrderCard({ order }: { order: TrackOrder }) {
         {/* address line */}
         {(order.governorate || order.area) && (
           <p className="text-[11px] text-muted-foreground border-t pt-2.5">
-            التوصيل إلى: {order.governorate || ''} {order.area ? `— ${order.area}` : ''}
+            {t('tr.deliverTo')} {order.governorate || ''} {order.area ? `— ${order.area}` : ''}
           </p>
         )}
       </div>

@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://ux.stackexchange.com/questions/43541/how-long-should-an-image-carousel-on-a-homepage-wait-before-starting",
+    "name": "How long should an image carousel on a homepage wait",
+    "snippet": "Aug 11, 2013 — Assuming one has to go with an image carousel (see this question for reasons why this isn't the best UX to begin with), how long should the carousel wait ...",
+    "host_name": "ux.stackexchange.com",
+    "rank": 0,
+    "date": "Aug 11, 2013",
+    "favicon": ""
+  },
+  {
+    "url": "https://evolvingweb.com/blog/best-practices-effective-hero-banner-carousel-images",
+    "name": "Best Practices for Effective Hero Banner Carousel Images",
+    "snippet": "Feb 27, 2025 — If you must advance automatically for desktop users, keep a 5-7 second interval between slides . Never use autoplay on mobile to ensure ... Read more",
+    "host_name": "evolvingweb.com",
+    "rank": 1,
+    "date": "Feb 27, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://web.dev/articles/carousel-best-practices",
+    "name": "Best practices for carousels | Articles",
+    "snippet": "Jan 26, 2021 — Ideally, slide navigation should be user-directed via navigation controls. If you must use autoplay , autoplay should be disabled on user hover. Read more",
+    "host_name": "web.dev",
+    "rank": 2,
+    "date": "Jan 26, 2021",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.ramotion.com/blog/website-carousel-best-practices",
+    "name": "Website Carousel: Best Practices & Examples",
+    "snippet": "Jul 22, 2026 — Display each slide for at least 5–7 seconds when it contains only a headline and image. If the slide includes more than five words of text, ... Read more",
+    "host_name": "www.ramotion.com",
+    "rank": 3,
+    "date": "Jul 22, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://depicter.com/blog/image-slider-best-practices-for-speed-and-user-experience",
+    "name": "Image Slider Best Practices for Speed and User Experience",
+    "snippet": "Feb 1, 2026 — Best practice: Limit sliders to 3–5 slides maximum . Autoplay Without Controls Autoplay sliders that lack pause, navigation arrows, or swipe ...",
+    "host_name": "depicter.com",
+    "rank": 4,
+    "date": "Feb 1, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://blog.prototypr.io/carousel-slider-design-best-practices-322f05746cb8",
+    "name": "Carousel/slider design best practices",
+    "snippet": "Dec 1, 2016 — 1. Don't autoplay ... Many of the carousel's biggest problems arise from the fact that they often advance automatically, without the user doing a ... Read more",
+    "host_name": "blog.prototypr.io",
+    "rank": 5,
+    "date": "Dec 1, 2016",
+    "favicon": ""
+  },
+  {
+    "url": "https://cxl.com/blog/dont-use-automatic-image-sliders-or-carousels",
+    "name": "Image Sliders: Should You Still Use a Carousel These Days?",
+    "snippet": "Let's get straight to the point: nowadays, you shouldn't be using sliders and carousels on your site , and should replace them with static images instead. This ... Read more",
+    "host_name": "cxl.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://eevy.ai/blog/video-carousel-best-practices",
+    "name": "Video Carousel Best Practices: Autoplay, Thumbnails, and",
+    "snippet": "Mar 4, 2026 — Videos under 15 seconds are ideal for autoplay because they complete before visitors lose patience. Think quick product demos, unboxing reveals, ... Read more",
+    "host_name": "eevy.ai",
+    "rank": 7,
+    "date": "Mar 4, 2026",
+    "favicon": ""
+  }
+]

@@ -92,7 +92,7 @@ export function Header() {
             <button
               onClick={() => setView('home')}
               className="flex items-center gap-2.5 font-extrabold text-xl hover:opacity-90 cursor-pointer"
-              aria-label="الرئيسية"
+              aria-label={t('hdr.home')}
             >
               {brand.logo ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
@@ -230,7 +230,7 @@ export function Header() {
                 { label: t('hdr.cart'), action: () => setView('cart') },
                 {
                   label: t('hdr.whatsapp'),
-                  action: () => window.open(waHref(brand.whatsapp, 'هلا محل شوب، عندي استفسار 🙏'), '_blank'),
+                  action: () => window.open(waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I have a question 🙏' : 'هلا محل شوب، عندي استفسار 🙏'), '_blank'),
                 },
               ].map((item) => (
                 <Button

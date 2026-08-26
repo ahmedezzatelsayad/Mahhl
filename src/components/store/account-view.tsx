@@ -13,19 +13,21 @@ import {
 } from 'lucide-react';
 import { OrderCard, TrackOrder } from '@/components/store/order-tracking';
 import { useBrand, waHref } from '@/components/store/header';
+import { useT } from '@/lib/i18n';
 
 const KUWAIT_GOVERNORATES = [
-  'محافظة العاصمة',
-  'محافظة حولي',
-  'محافظة الفروانية',
-  'محافظة الجهراء',
-  'محافظة الأحمدي',
-  'محافظة مبارك الكبير',
+  { ar: 'محافظة العاصمة', en: 'Capital Governorate' },
+  { ar: 'محافظة حولي', en: 'Hawalli Governorate' },
+  { ar: 'محافظة الفروانية', en: 'Farwaniya Governorate' },
+  { ar: 'محافظة الجهراء', en: 'Jahra Governorate' },
+  { ar: 'محافظة الأحمدي', en: 'Ahmadi Governorate' },
+  { ar: 'محافظة مبارك الكبير', en: 'Mubarak Al-Kabeer Governorate' },
 ];
 
 type Tab = 'orders' | 'profile' | 'security';
 
 export function AccountView() {
+  const { t, lang } = useT();
   const customer = useAppStore((s) => s.customer);
   const customerToken = useAppStore((s) => s.customerToken);
   const loginCustomer = useAppStore((s) => s.loginCustomer);
@@ -43,7 +45,7 @@ export function AccountView() {
     name: '',
     phone: '',
     address: '',
-    city: KUWAIT_GOVERNORATES[0],
+    city: KUWAIT_GOVERNORATES[0].ar,
     area: '',
   });
 
@@ -76,7 +78,7 @@ export function AccountView() {
           });
         }
       })
-      .catch(() => toast.error('فشل تحميل بياناتك'))
+      .catch(() => toast.error(t('a.loadFail')))
       .finally(() => setOrdersLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customer?.id, customerToken]);
@@ -93,12 +95,12 @@ export function AccountView() {
       const data = await res.json();
       if (res.ok) {
         loginCustomer(data.customer, data.token);
-        toast.success(`هلا ${data.customer.name.split(' ')[0]}! 👋`);
+        toast.success(t('a.loginOk', { name: data.customer.name.split(' ')[0] }));
       } else {
-        toast.error(data.error || 'فشل الدخول');
+        toast.error(data.error || t('a.loginFail'));
       }
     } catch {
-      toast.error('فشل الاتصال');
+      toast.error(t('ck.connFail'));
     } finally {
       setBusy(false);
     }
@@ -118,10 +120,10 @@ export function AccountView() {
         loginCustomer(data.customer, data.token);
         toast.success(data.message, { duration: 7000 });
       } else {
-        toast.error(data.error || 'فشل إنشاء الحساب');
+        toast.error(data.error || t('a.signupFail'));
       }
     } catch {
-      toast.error('فشل الاتصال');
+      toast.error(t('ck.connFail'));
     } finally {
       setBusy(false);
     }
@@ -143,12 +145,12 @@ export function AccountView() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success(data.message || 'تم التحديث');
+        toast.success(data.message || t('a.updated'));
         if (data.customer) {
           loginCustomer(data.customer, customerToken!);
         }
       } else {
-        toast.error(data.error || 'فشل التحديث');
+        toast.error(data.error || t('a.updateFail'));
       }
     } finally {
       setBusy(false);
@@ -158,7 +160,7 @@ export function AccountView() {
   async function changePassword(e: React.FormEvent) {
     e.preventDefault();
     if (passForm.next !== passForm.confirm) {
-      toast.error('كلمة المرور الجديدة وتأكيدها غير متطابقين');
+      toast.error(t('a.pwMismatch'));
       return;
     }
     setBusy(true);
@@ -173,11 +175,11 @@ export function AccountView() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success('تم تغيير كلمة المرور بنجاح ✅');
+        toast.success(t('a.pwChanged'));
         setPassForm({ current: '', next: '', confirm: '' });
         if (data.token) loginCustomer(data.customer, data.token);
       } else {
-        toast.error(data.error || 'فشل التغيير');
+        toast.error(data.error || t('a.pwChangeFail'));
       }
     } finally {
       setBusy(false);
@@ -197,7 +199,7 @@ export function AccountView() {
                 {customer.name.charAt(0)}
               </span>
               <div>
-                <h1 className="text-xl font-extrabold">هلا {customer.name.split(' ')[0]} 👋</h1>
+                <h1 className="text-xl font-extrabold">{t('a.hello', { name: customer.name.split(' ')[0] })}</h1>
                 <p className="text-xs text-primary-foreground/60" dir="ltr">
                   {customer.phone}
                 </p>
@@ -205,13 +207,13 @@ export function AccountView() {
             </div>
             <div className="flex gap-2">
               <Button size="sm" variant="secondary" className="gap-1.5" onClick={() => setView('wishlist')}>
-                <Heart className="h-4 w-4" /> المفضلة
+                <Heart className="h-4 w-4" /> {t('a.wishlist')}
               </Button>
               <Button size="sm" variant="secondary" className="gap-1.5" onClick={() => setView('cart')}>
-                <ShoppingCart className="h-4 w-4" /> السلة
+                <ShoppingCart className="h-4 w-4" /> {t('a.cart')}
               </Button>
               <Button size="sm" variant="outline" className="gap-1.5 border-primary-foreground/25 text-primary-foreground hover:bg-primary-foreground/10" onClick={logoutCustomer}>
-                <LogOut className="h-4 w-4" /> خروج
+                <LogOut className="h-4 w-4" /> {t('a.logout')}
               </Button>
             </div>
           </div>
@@ -220,9 +222,9 @@ export function AccountView() {
         {/* tabs */}
         <div className="flex gap-2 mb-5 border-b">
           {([
-            ['orders', 'طلباتي', Package],
-            ['profile', 'بياناتي', User],
-            ['security', 'كلمة المرور', KeyRound],
+            ['orders', t('a.orders'), Package],
+            ['profile', t('a.profile'), User],
+            ['security', t('a.security'), KeyRound],
           ] as [Tab, string, typeof Package][]).map(([key, label, Icon]) => (
             <button
               key={key}
@@ -242,13 +244,13 @@ export function AccountView() {
           <div className="space-y-4">
             {ordersLoading ? (
               <div className="text-center py-12 text-muted-foreground flex items-center justify-center gap-2">
-                <Loader2 className="h-5 w-5 animate-spin" /> جاري تحميل طلباتك...
+                <Loader2 className="h-5 w-5 animate-spin" /> {t('a.loadingOrders')}
               </div>
             ) : orders.length === 0 ? (
               <div className="text-center py-12 border rounded-xl">
                 <Package className="h-14 w-14 text-muted-foreground/30 mx-auto mb-3" />
-                <p className="text-muted-foreground mb-4">ما عندك طلبات بعد</p>
-                <Button onClick={() => setView('shop')}>ابدأ التسوق</Button>
+                <p className="text-muted-foreground mb-4">{t('a.noOrders')}</p>
+                <Button onClick={() => setView('shop')}>{t('a.startShopping')}</Button>
               </div>
             ) : (
               orders.map((o) => <OrderCard key={o.orderNumber} order={o} />)
@@ -260,36 +262,36 @@ export function AccountView() {
           <form onSubmit={saveProfile} className="border rounded-xl bg-card p-5 space-y-4 max-w-xl">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label className="mb-1 block">الاسم</Label>
+                <Label className="mb-1 block">{t('a.name')}</Label>
                 <Input value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} required />
               </div>
               <div>
-                <Label className="mb-1 block">رقم الهاتف (المعروف)</Label>
+                <Label className="mb-1 block">{t('a.phone')}</Label>
                 <Input value={profile.phone} dir="ltr" disabled className="bg-muted/40" />
               </div>
               <div>
-                <Label className="mb-1 block">المحافظة</Label>
+                <Label className="mb-1 block">{t('a.gov')}</Label>
                 <select
                   className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
                   value={profile.city}
                   onChange={(e) => setProfile({ ...profile, city: e.target.value })}
                 >
                   {KUWAIT_GOVERNORATES.map((g) => (
-                    <option key={g} value={g}>{g}</option>
+                    <option key={g.ar} value={g.ar}>{lang === 'en' ? g.en : g.ar}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <Label className="mb-1 block">المنطقة</Label>
-                <Input value={profile.area} onChange={(e) => setProfile({ ...profile, area: e.target.value })} placeholder="مثال: السالمية" />
+                <Label className="mb-1 block">{t('a.area')}</Label>
+                <Input value={profile.area} onChange={(e) => setProfile({ ...profile, area: e.target.value })} placeholder={t('a.areaPh')} />
               </div>
             </div>
             <div>
-              <Label className="mb-1 block">العنوان</Label>
+              <Label className="mb-1 block">{t('a.address')}</Label>
               <Textarea value={profile.address} onChange={(e) => setProfile({ ...profile, address: e.target.value })} rows={2} />
             </div>
             <div className="flex justify-end">
-              <Button type="submit" disabled={busy}>حفظ البيانات</Button>
+              <Button type="submit" disabled={busy}>{t('a.save')}</Button>
             </div>
           </form>
         )}
@@ -297,29 +299,29 @@ export function AccountView() {
         {tab === 'security' && (
           <form onSubmit={changePassword} className="border rounded-xl bg-card p-5 space-y-4 max-w-xl">
             <div className="rounded-lg bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-              كلمة المرور الافتراضية هي <b>رقم هاتفك</b> — ننصحك تغييرها لكلمة خاصة فيك.
+              {t('a.defaultPw')}
             </div>
             <div>
-              <Label className="mb-1 block">كلمة المرور الحالية</Label>
+              <Label className="mb-1 block">{t('a.currentPw')}</Label>
               <Input
                 type="password" dir="ltr" required
                 value={passForm.current}
                 onChange={(e) => setPassForm({ ...passForm, current: e.target.value })}
-                placeholder="رقم هاتفك إذا ما غيّرتها"
+                placeholder={t('a.currentPwPh')}
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label className="mb-1 block">كلمة المرور الجديدة</Label>
+                <Label className="mb-1 block">{t('a.newPw')}</Label>
                 <Input type="password" dir="ltr" required minLength={6} value={passForm.next} onChange={(e) => setPassForm({ ...passForm, next: e.target.value })} />
               </div>
               <div>
-                <Label className="mb-1 block">تأكيد الجديدة</Label>
+                <Label className="mb-1 block">{t('a.confirmPw')}</Label>
                 <Input type="password" dir="ltr" required minLength={6} value={passForm.confirm} onChange={(e) => setPassForm({ ...passForm, confirm: e.target.value })} />
               </div>
             </div>
             <div className="flex justify-end">
-              <Button type="submit" disabled={busy}>تغيير كلمة المرور</Button>
+              <Button type="submit" disabled={busy}>{t('a.changePw')}</Button>
             </div>
           </form>
         )}
@@ -335,9 +337,9 @@ export function AccountView() {
           <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-3">
             <User className="h-8 w-8 text-gold-deep" />
           </div>
-          <h1 className="text-2xl font-extrabold">حسابي</h1>
+          <h1 className="text-2xl font-extrabold">{t('hdr.account')}</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            سجل دخولك وتابع طلباتك — أو أنشئ حسابك بنقرة واحدة
+            {t('a.loginSub')}
           </p>
         </div>
 
@@ -349,7 +351,7 @@ export function AccountView() {
               mode === 'login' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <LogIn className="h-4 w-4" /> تسجيل الدخول
+            <LogIn className="h-4 w-4" /> {t('a.login')}
           </button>
           <button
             onClick={() => setMode('register')}
@@ -357,14 +359,14 @@ export function AccountView() {
               mode === 'register' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <User className="h-4 w-4" /> حساب جديد
+            <User className="h-4 w-4" /> {t('a.register')}
           </button>
         </div>
 
         {mode === 'login' ? (
           <form onSubmit={handleLogin} className="border rounded-xl p-6 bg-card space-y-4">
             <div>
-              <Label className="mb-1 block">رقم الهاتف</Label>
+              <Label className="mb-1 block">{t('ck.phone')}</Label>
               <Input
                 type="tel" dir="ltr" required placeholder="5xxxxxxxx"
                 value={loginForm.phone}
@@ -372,60 +374,59 @@ export function AccountView() {
               />
             </div>
             <div>
-              <Label className="mb-1 block">كلمة المرور</Label>
+              <Label className="mb-1 block">{t('a.password')}</Label>
               <Input
                 type="password" dir="ltr" required
                 value={loginForm.password}
                 onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                placeholder="رقم هاتفك (إذا ما غيّرتها)"
+                placeholder={t('a.currentPwPh')}
               />
             </div>
             <Button type="submit" className="w-full btn-gold border-0" size="lg" disabled={busy}>
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : 'دخول'}
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : t('a.loginBtn')}
             </Button>
             <p className="text-xs text-muted-foreground text-center leading-relaxed">
-              أول مرة تدخل؟ كلمة المرور هي <b>رقم هاتفك نفسه</b> — سوّيت طلب من قبل؟
-              حسابك جاهز تلقائياً 🔑
+              {t('a.firstTime')}
             </p>
           </form>
         ) : (
           <form onSubmit={handleRegister} className="border rounded-xl p-6 bg-card space-y-4">
             <div>
-              <Label className="mb-1 block">الاسم الكامل <span className="text-destructive">*</span></Label>
-              <Input required placeholder="مثال: عبدالله الأحمد" value={regForm.name} onChange={(e) => setRegForm({ ...regForm, name: e.target.value })} />
+              <Label className="mb-1 block">{t('ck.name')} <span className="text-destructive">*</span></Label>
+              <Input required placeholder={t('a.namePh')} value={regForm.name} onChange={(e) => setRegForm({ ...regForm, name: e.target.value })} />
             </div>
             <div>
-              <Label className="mb-1 block">رقم الهاتف <span className="text-destructive">*</span></Label>
+              <Label className="mb-1 block">{t('ck.phone')} <span className="text-destructive">*</span></Label>
               <Input type="tel" dir="ltr" required placeholder="5xxxxxxxx" value={regForm.phone} onChange={(e) => setRegForm({ ...regForm, phone: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="mb-1 block">المحافظة</Label>
+                <Label className="mb-1 block">{t('a.gov')}</Label>
                 <select
                   className="w-full px-3 py-2 border rounded-md bg-background text-foreground text-sm"
                   value={regForm.city}
                   onChange={(e) => setRegForm({ ...regForm, city: e.target.value })}
                 >
                   {KUWAIT_GOVERNORATES.map((g) => (
-                    <option key={g} value={g}>{g}</option>
+                    <option key={g.ar} value={g.ar}>{lang === 'en' ? g.en : g.ar}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <Label className="mb-1 block">المنطقة</Label>
-                <Input placeholder="السالمية" value={regForm.area} onChange={(e) => setRegForm({ ...regForm, area: e.target.value })} />
+                <Label className="mb-1 block">{t('a.area')}</Label>
+                <Input placeholder={t('a.areaPh')} value={regForm.area} onChange={(e) => setRegForm({ ...regForm, area: e.target.value })} />
               </div>
             </div>
             <div>
-              <Label className="mb-1 block">العنوان <span className="text-destructive">*</span></Label>
-              <Textarea required rows={2} placeholder="الشارع، المبنى، الدور..." value={regForm.address} onChange={(e) => setRegForm({ ...regForm, address: e.target.value })} />
+              <Label className="mb-1 block">{t('a.address')} <span className="text-destructive">*</span></Label>
+              <Textarea required rows={2} placeholder={t('ck.addrPh')} value={regForm.address} onChange={(e) => setRegForm({ ...regForm, address: e.target.value })} />
             </div>
             <div className="rounded-lg bg-accent/10 border border-accent/25 px-3 py-2.5 text-xs leading-relaxed text-foreground">
               <Lock className="h-3.5 w-3.5 inline ml-1 text-gold-deep" />
-              كلمة مرورك ستكون <b>رقم هاتفك نفسه</b> وتظهر لك بعد التسجيل — تقدر تغيّرها بعدين من صفحة كلمة المرور.
+              {t('a.pwNote')}
             </div>
             <Button type="submit" className="w-full btn-gold border-0" size="lg" disabled={busy}>
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : 'إنشاء حسابي'}
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : t('a.createBtn')}
             </Button>
           </form>
         )}
@@ -433,16 +434,16 @@ export function AccountView() {
         {/* quick links for guests */}
         <div className="mt-6 flex flex-wrap justify-center gap-2 text-sm">
           <button onClick={() => setView('track-order')} className="flex items-center gap-1 text-muted-foreground hover:text-accent cursor-pointer">
-            <ChevronLeft className="h-4 w-4" /> تتبع طلب بدون تسجيل
+            <ChevronLeft className="h-4 w-4" /> {t('a.trackGuest')}
           </button>
           <span className="text-muted-foreground/30">|</span>
           <a
-            href={waHref(brand.whatsapp, 'هلا محل شوب، أحتاج مساعدة بحسابي 🙏')}
+            href={waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I need help with my account 🙏' : 'هلا محل شوب، أحتاج مساعدة بحسابي 🙏')}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1 text-green-600 hover:text-green-500"
           >
-            <MessageCircle className="h-4 w-4" /> مساعدة على واتساب
+            <MessageCircle className="h-4 w-4" /> {t('a.waHelp')}
           </a>
         </div>
       </div>

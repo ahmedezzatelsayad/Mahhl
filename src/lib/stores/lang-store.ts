@@ -21,9 +21,16 @@ export const useLangStore = create<LangState>()(
     (set) => ({
       lang: 'ar',
       setLang: (l) => {
+        // zustand persist already writes the storage atom on set() —
+        // do NOT write a raw value here: it would corrupt the JSON and
+        // the rehydrate after reload would silently fall back to Arabic.
         set({ lang: l });
         try {
-          localStorage.setItem('mahhl-lang', l);
+          // belt-and-braces: make sure the persisted JSON is in place
+          localStorage.setItem(
+            'mahhl-lang',
+            JSON.stringify({ state: { lang: l }, version: 0 })
+          );
           window.location.reload();
         } catch {
           /* noop */
@@ -39,7 +46,9 @@ export function readLang(): Lang {
   if (typeof window === 'undefined') return 'ar';
   try {
     const raw = localStorage.getItem('mahhl-lang');
-    const parsed = raw ? (JSON.parse(raw) as { state?: { lang?: Lang } }) : null;
+    if (!raw) return 'ar';
+    if (raw === 'en' || raw === 'ar') return raw; // legacy raw format
+    const parsed = JSON.parse(raw) as { state?: { lang?: Lang } };
     return parsed?.state?.lang === 'en' ? 'en' : 'ar';
   } catch {
     return 'ar';

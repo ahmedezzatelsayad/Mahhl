@@ -62,7 +62,7 @@ function CtaEditor({
     <div className="rounded-lg border p-3 space-y-2.5">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         <div>
-          <Label className="text-xs">نص الزر</Label>
+          <Label className="text-xs">نص الزر (عربي)</Label>
           <Input
             value={cta.label}
             onChange={(e) => onChange({ ...cta, label: e.target.value })}
@@ -71,6 +71,18 @@ function CtaEditor({
           />
         </div>
         <div>
+          <Label className="text-xs">
+            نص الزر (English) <span className="text-muted-foreground">— للزوار الإنجليز</span>
+          </Label>
+          <Input
+            dir="ltr"
+            value={cta.labelEn || ''}
+            onChange={(e) => onChange({ ...cta, labelEn: e.target.value })}
+            placeholder="Shop Now"
+            className="mt-1"
+          />
+        </div>
+        <div className="sm:col-span-2">
           <Label className="text-xs">عند الضغط يفتح</Label>
           <select
             value={cta.action}
@@ -176,20 +188,26 @@ export function SlideEditor({
       if (!res.ok || !data.ok) throw new Error(data.error || 'فشل التوليد');
       const c = data.copy;
       const nextCta: SliderCta = aiProduct
-        ? { label: c.ctaLabel || slide.cta.label, action: 'product', payload: aiProduct.slug }
-        : { ...slide.cta, label: c.ctaLabel || slide.cta.label };
+        ? { label: c.ctaLabel || slide.cta.label, labelEn: c.ctaLabelEn || slide.cta.labelEn, action: 'product', payload: aiProduct.slug }
+        : { ...slide.cta, label: c.ctaLabel || slide.cta.label, labelEn: c.ctaLabelEn || slide.cta.labelEn };
       onChange({
         eyebrow: c.eyebrow || slide.eyebrow,
         title: c.title,
         highlight: c.highlight || undefined,
         subtitle: c.subtitle,
         chips: c.chips?.length ? c.chips : slide.chips,
+        eyebrowEn: c.eyebrowEn || slide.eyebrowEn,
+        titleEn: c.titleEn || slide.titleEn,
+        highlightEn: c.highlightEn || slide.highlightEn,
+        subtitleEn: c.subtitleEn || slide.subtitleEn,
+        chipsEn: c.chipsEn?.length ? c.chipsEn : slide.chipsEn,
         tone: c.tone || slide.tone,
         cta: nextCta,
+        ...(slide.ctaSecondary ? { ctaSecondary: { ...slide.ctaSecondary, labelEn: c.ctaLabelEn ? undefined : slide.ctaSecondary.labelEn } } : {}),
         // when AI wrote around a product: auto-use its real photo if the slide has none
         ...(aiProduct && !slide.image ? { image: firstImageOf(aiProduct) || slide.image } : {}),
       });
-      onNotify('ok', `تم توليد النص بالذكاء الاصطناعي (${data.provider === 'fallback' ? 'نموذج احتياطي' : 'AI'}) — راجعه وعدّل ما تشاء`);
+      onNotify('ok', `تم توليد النص العربي والإنجليزي بالذكاء الاصطناعي (${data.provider === 'fallback' ? 'نموذج احتياطي' : 'AI'}) — راجعه وعدّل ما تشاء`);
     } catch (e) {
       onNotify('err', e instanceof Error ? e.message : 'فشل توليد النص');
     } finally {
@@ -251,11 +269,17 @@ export function SlideEditor({
           </Button>
         </div>
         <p className="text-[11px] text-muted-foreground">
-          الذكاء الاصطناعي يكتب عنواناً ووصفاً جذاباً بلهجة خليجية — بأرقام حقيقية فقط (بدون تقييمات أو ادعاءات مخترعة)، وتربط الشريحة بالمنتج تلقائياً.
+          الذكاء الاصطناعي يكتب نصاً عربياً بلهجة خليجية + النص الإنجليزي المقابل — بأرقام حقيقية فقط (بدون تقييمات أو ادعاءات مخترعة)، وتربط الشريحة بالمنتج تلقائياً.
         </p>
       </div>
 
-      {/* ===== copy fields ===== */}
+      {/* ===== copy fields (AR + EN) ===== */}
+      <div className="rounded-lg border border-primary/20 bg-primary/[0.03] p-3 space-y-1.5">
+        <p className="text-xs font-extrabold text-primary flex items-center gap-1.5">
+          ✍️ نصوص الشريحة — عربي + English
+          <span className="font-normal text-muted-foreground">(الإنجليزي يظهر لزوار النسخة الإنجليزية — لو تركته فاضياً يظهر العربي)</span>
+        </p>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <Label className="text-xs">النص العلوي (Eyebrow)</Label>
@@ -267,6 +291,20 @@ export function SlideEditor({
           />
         </div>
         <div>
+          <Label className="text-xs">
+            Eyebrow <span className="text-muted-foreground">(English)</span>
+          </Label>
+          <Input
+            dir="ltr"
+            value={slide.eyebrowEn || ''}
+            onChange={(e) => onChange({ eyebrowEn: e.target.value })}
+            placeholder="✨ 2,600+ products"
+            className="mt-1"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
           <Label className="text-xs">الكلمة المميزة (تظهر ذهبية)</Label>
           <Input
             value={slide.highlight || ''}
@@ -275,41 +313,103 @@ export function SlideEditor({
             className="mt-1"
           />
         </div>
+        <div>
+          <Label className="text-xs">
+            Highlight <span className="text-muted-foreground">(English)</span>
+          </Label>
+          <Input
+            dir="ltr"
+            value={slide.highlightEn || ''}
+            onChange={(e) => onChange({ highlightEn: e.target.value })}
+            placeholder="save more"
+            className="mt-1"
+          />
+        </div>
       </div>
-      <div>
-        <Label className="text-xs">العنوان الرئيسي *</Label>
-        <Input
-          value={slide.title}
-          onChange={(e) => onChange({ title: e.target.value })}
-          placeholder="تسوّق بذكاء"
-          className="mt-1"
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs">العنوان الرئيسي *</Label>
+          <Input
+            value={slide.title}
+            onChange={(e) => onChange({ title: e.target.value })}
+            placeholder="تسوّق بذكاء"
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <Label className="text-xs">
+            Title <span className="text-muted-foreground">(English) *</span>
+          </Label>
+          <Input
+            dir="ltr"
+            value={slide.titleEn || ''}
+            onChange={(e) => onChange({ titleEn: e.target.value })}
+            placeholder="Shop smart"
+            className="mt-1"
+          />
+        </div>
       </div>
-      <div>
-        <Label className="text-xs">الوصف *</Label>
-        <Textarea
-          value={slide.subtitle}
-          onChange={(e) => onChange({ subtitle: e.target.value })}
-          placeholder="وصف قصير يظهر تحت العنوان…"
-          className="mt-1 min-h-[70px]"
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs">الوصف *</Label>
+          <Textarea
+            value={slide.subtitle}
+            onChange={(e) => onChange({ subtitle: e.target.value })}
+            placeholder="وصف قصير يظهر تحت العنوان…"
+            className="mt-1 min-h-[70px]"
+          />
+        </div>
+        <div>
+          <Label className="text-xs">
+            Subtitle <span className="text-muted-foreground">(English) *</span>
+          </Label>
+          <Textarea
+            dir="ltr"
+            value={slide.subtitleEn || ''}
+            onChange={(e) => onChange({ subtitleEn: e.target.value })}
+            placeholder="Short benefit-driven line under the title…"
+            className="mt-1 min-h-[70px]"
+          />
+        </div>
       </div>
-      <div>
-        <Label className="text-xs">عناصر الثقة (افصل بفاصلة)</Label>
-        <Input
-          value={(slide.chips || []).join('، ')}
-          onChange={(e) =>
-            onChange({
-              chips: e.target.value
-                .split(/[،,]/)
-                .map((c) => c.trim())
-                .filter(Boolean)
-                .slice(0, 4),
-            })
-          }
-          placeholder="دفع عند الاستلام، توصيل 1 د.ك، شحن يومي"
-          className="mt-1"
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs">عناصر الثقة (افصل بفاصلة)</Label>
+          <Input
+            value={(slide.chips || []).join('، ')}
+            onChange={(e) =>
+              onChange({
+                chips: e.target.value
+                  .split(/[،,]/)
+                  .map((c) => c.trim())
+                  .filter(Boolean)
+                  .slice(0, 4),
+              })
+            }
+            placeholder="دفع عند الاستلام، توصيل 1 د.ك، شحن يومي"
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <Label className="text-xs">
+            Trust chips <span className="text-muted-foreground">(English)</span>
+          </Label>
+          <Input
+            dir="ltr"
+            value={(slide.chipsEn || []).join(', ')}
+            onChange={(e) =>
+              onChange({
+                chipsEn: e.target.value
+                  .split(/[,،]/)
+                  .map((c) => c.trim())
+                  .filter(Boolean)
+                  .slice(0, 4),
+              })
+            }
+            placeholder="Cash on delivery, 1 KWD delivery, daily shipping"
+            className="mt-1"
+          />
+        </div>
       </div>
 
       {/* ===== background image ===== */}
@@ -412,7 +512,7 @@ export function SlideEditor({
               <Trash2 className="h-3.5 w-3.5" /> حذف
             </Button>
           ) : (
-            <Button variant="outline" size="sm" className="h-7" onClick={() => onChange({ ctaSecondary: { label: 'كل المنتجات', action: 'shop' } })}>
+            <Button variant="outline" size="sm" className="h-7" onClick={() => onChange({ ctaSecondary: { label: 'كل المنتجات', labelEn: 'All Products', action: 'shop' } })}>
               <Plus className="h-3.5 w-3.5" /> إضافة
             </Button>
           )}

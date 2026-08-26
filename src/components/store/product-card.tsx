@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/lib/stores/cart-store';
 import { useWishlistStore } from '@/lib/stores/wishlist-store';
 import { toast } from 'sonner';
+import { useT } from '@/lib/i18n';
 import { useState, useEffect } from 'react';
 
 export interface ProductCardProps {
@@ -32,6 +33,7 @@ export interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { t } = useT();
   const openProduct = useAppStore((s) => s.openProduct);
   const addItem = useCartStore((s) => s.addItem);
   const toggleWish = useWishlistStore((s) => s.toggle);
@@ -62,7 +64,7 @@ export function ProductCard({ product }: ProductCardProps) {
       price: product.salePrice,
       image: imgUrl,
     });
-    toast.success(`تمت إضافة "${product.name}" إلى السلة`);
+    toast.success(t('pc.added', { name: product.name }));
   }
 
   function toggleWishlist(e: React.MouseEvent) {
@@ -74,7 +76,7 @@ export function ProductCard({ product }: ProductCardProps) {
       price: product.salePrice,
       image: imgUrl,
     });
-    toast.success(added ? 'انضاف للمفضلة ❤️' : 'انشال من المفضلة');
+    toast.success(added ? t('pc.wishAdd') : t('pc.wishRemove'));
   }
 
   return (
@@ -107,7 +109,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 : 'bg-primary/90'
             }`}
           >
-            #{product.demandRank} في الكويت
+            {t('pc.rank', { n: product.demandRank })}
           </Badge>
         )}
 
@@ -121,7 +123,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.isBestSeller && (
             <Badge className="btn-gold border-0 text-white hover:opacity-90">
               <Star className="h-3 w-3 ml-1" />
-              الأكثر مبيعاً
+              {t('pc.bestseller')}
             </Badge>
           )}
         </div>
@@ -129,7 +131,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* wishlist heart */}
         <button
           onClick={toggleWishlist}
-          aria-label={wished ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+          aria-label={wished ? t('pc.wishRemoveAria') : t('pc.wishAddAria')}
           className="absolute top-2 left-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 border shadow-sm hover:scale-110 transition-transform cursor-pointer"
         >
           <Heart
@@ -139,7 +141,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {product.quantity <= 0 && (
           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-            <span className="text-white font-bold">نفذ المخزون</span>
+            <span className="text-white font-bold">{t('pc.oos')}</span>
           </div>
         )}
       </div>
@@ -159,7 +161,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* social proof — stars + sold count (when provided by the endpoint) */}
         {(product.rating && product.reviewCount) || product.soldCount ? (
           <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-            {product.rating > 0 && (
+            {product.rating && product.rating > 0 && (
               <span className="inline-flex items-center gap-1">
                 <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                 <b className="text-foreground">{product.rating.toFixed(1)}</b>
@@ -169,7 +171,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.soldCount ? (
               <span className="inline-flex items-center gap-0.5">
                 <Flame className="h-3 w-3 text-orange-500" />
-                طُلب {product.soldCount}×
+                {t('pc.sold', { n: product.soldCount })}
               </span>
             ) : null}
           </div>
@@ -191,7 +193,7 @@ export function ProductCard({ product }: ProductCardProps) {
           onClick={addToCart}
         >
           <ShoppingCart className="h-4 w-4 ml-1" />
-          أضف للسلة
+          {t('pc.addToCart')}
         </Button>
       </div>
     </Card>

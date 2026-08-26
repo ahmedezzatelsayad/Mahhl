@@ -79,13 +79,13 @@ export function Footer() {
                 : 'متجرك الكويتي الذكي — تدور على شي حلو؟ عندنا أكثر من 2,600 منتج مختارين بعناية بأسعار تنافسية. اطلب اليوم وادفع عند الاستلام، والتوصيل يوصلك لين باب البيت في كل محافظات الكويت.'}
             </p>
             <a
-              href={waHref(brand.whatsapp, 'هلا محل شوب، عندي استفسار 🙏')}
+              href={waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I have a question 🙏' : 'هلا محل شوب، عندي استفسار 🙏')}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-4 inline-flex items-center gap-2 rounded-lg bg-green-600 hover:bg-green-500 text-white px-4 py-2 text-sm font-bold transition-colors"
             >
               <MessageCircle className="h-4 w-4" />
-              واتساب: <span dir="ltr">+965 {brand.whatsapp}</span>
+              {lang === 'en' ? 'WhatsApp:' : 'واتساب:'} <span dir="ltr">+965 {brand.whatsapp}</span>
             </a>
           </div>
 
@@ -203,7 +203,7 @@ export function Footer() {
               : 'الأسعار بالدينار الكويتي، الدفع عند الاستلام، توصيل لكل محافظات الكويت.'}
           </p>
           <p className="text-primary-foreground/25 flex items-center justify-center gap-2 flex-wrap">
-            <MapPin className="h-3 w-3 inline" /> الكويت
+            <MapPin className="h-3 w-3 inline" /> {lang === 'en' ? 'Kuwait' : 'الكويت'}
             <span>·</span>
             <a href="/sitemap.xml" className="hover:text-primary-foreground/50">sitemap.xml</a>
             <span>·</span>

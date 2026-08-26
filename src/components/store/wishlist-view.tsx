@@ -5,10 +5,12 @@ import { useCartStore } from '@/lib/stores/cart-store';
 import { useAppStore } from '@/lib/stores/app-store';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useT } from '@/lib/i18n';
 import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
 import { formatKwd } from '@/lib/utils/format';
 
 export function WishlistView() {
+  const { t } = useT();
   const items = useWishlistStore((s) => s.items);
   const remove = useWishlistStore((s) => s.remove);
   const addItem = useCartStore((s) => s.addItem);
@@ -19,12 +21,12 @@ export function WishlistView() {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <Heart className="h-16 w-16 text-muted-foreground/25 mx-auto mb-4" />
-        <h1 className="text-xl font-bold mb-2">مفضلتك فاضية</h1>
+        <h1 className="text-xl font-bold mb-2">{t('wl.empty')}</h1>
         <p className="text-muted-foreground text-sm mb-5">
-          اضغط على القلب ❤️ في أي منتج وتنحفظ هنا
+          {t('wl.emptySub')}
         </p>
         <Button onClick={() => setView('shop')} className="btn-gold border-0">
-          ابدأ التسوق
+          {t('wl.start')}
         </Button>
       </div>
     );
@@ -32,8 +34,8 @@ export function WishlistView() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <h1 className="text-2xl font-extrabold mb-1">المفضلة</h1>
-      <p className="text-sm text-muted-foreground mb-6">{items.length} منتج محفوظ</p>
+      <h1 className="text-2xl font-extrabold mb-1">{t('wl.title')}</h1>
+      <p className="text-sm text-muted-foreground mb-6">{t('wl.saved', { n: items.length })}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((w) => (
@@ -73,17 +75,17 @@ export function WishlistView() {
                       price: w.price,
                       image: w.image,
                     });
-                    toast.success('انضاف للسلة 🛒');
+                    toast.success(t('wl.added'));
                   }}
                 >
-                  <ShoppingCart className="h-3.5 w-3.5 ml-1" /> للسلة
+                  <ShoppingCart className="h-3.5 w-3.5 ml-1" /> {t('wl.toCart')}
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => remove(w.productId)}
                   className="text-destructive hover:text-destructive"
-                  aria-label="إزالة من المفضلة"
+                  aria-label={t('wl.removeAria')}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>

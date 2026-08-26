@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Sparkles, Plus, X } from 'lucide-react';
 import { formatKwd } from '@/lib/utils/format';
 import { toast } from 'sonner';
+import { useT } from '@/lib/i18n';
 
 interface Recommendation {
   productId: string;
@@ -33,6 +34,7 @@ interface Props {
 }
 
 export function UpsellWidget({ context, productId, limit = 3, compact = false }: Props) {
+  const { t } = useT();
   const [recs, setRecs] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [dismissed, setDismissed] = useState(false);
@@ -112,10 +114,10 @@ export function UpsellWidget({ context, productId, limit = 3, compact = false }:
 
   const title =
     context === 'product'
-      ? 'يختاره العملاء عادةً مع هذا المنتج'
+      ? t('up.title0')
       : context === 'cart'
-        ? 'أضف واحفظ — مقترح ذكي'
-        : 'قبل ما تخلّص — فرصة أخيرة';
+        ? t('up.title1')
+        : t('up.title2');
 
   async function handleAdd(r: Recommendation) {
     addItem(
@@ -129,7 +131,7 @@ export function UpsellWidget({ context, productId, limit = 3, compact = false }:
       },
       1
     );
-    toast.success(`أضيف: ${r.name}`);
+    toast.success(t('up.added', { name: r.name }));
     await trackUpsellClick(r.productId, 'added');
   }
 
@@ -147,7 +149,7 @@ export function UpsellWidget({ context, productId, limit = 3, compact = false }:
         <button
           onClick={() => setDismissed(true)}
           className="text-muted-foreground hover:text-foreground"
-          aria-label="إغلاق"
+          aria-label={t('up.close')}
         >
           <X className="h-4 w-4" />
         </button>
@@ -193,7 +195,7 @@ export function UpsellWidget({ context, productId, limit = 3, compact = false }:
                   onClick={() => handleAdd(r)}
                 >
                   <Plus className="h-3 w-3 ml-1" />
-                  أضف
+                  {t('up.add')}
                 </Button>
               </div>
             </div>

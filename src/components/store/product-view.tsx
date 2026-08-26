@@ -87,7 +87,7 @@ export function ProductView() {
           setProduct(data.product);
           setRelated(data.related || []);
           // Keep the browser tab title in sync with the product (UX + sharing)
-          document.title = `${data.product.name} | محل شوب`;
+          document.title = `${data.product.name} | ${lang === 'en' ? 'Mahal Shop' : 'محل شوب'}`;
           // record in recently-viewed rail
           pushRecentlyViewed({
             slug: data.product.slug,
@@ -255,7 +255,7 @@ export function ProductView() {
                   }`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={url} alt={`صورة ${i + 1}`} className="h-full w-full img-contain p-0.5 bg-white" />
+                  <img src={url} alt={`${t('p.products')} ${i + 1}`} className="h-full w-full img-contain p-0.5 bg-white" />
                 </button>
               ))}
             </div>
@@ -367,22 +367,21 @@ export function ProductView() {
           <div className="rounded-lg border bg-muted/40 px-3.5 py-2.5 flex items-center gap-2.5 text-sm">
             <Truck className="h-5 w-5 text-primary shrink-0" />
             <p className="text-muted-foreground">
-              {t('p.shipping1').split('1 د.ك').map((part, i) => (
-                <span key={i}>
-                  {i > 0 && <b className="text-foreground">1 د.ك</b>}
-                  {part.split('30 د.ك').map((seg, j) => (
-                    <span key={j}>
-                      {j > 0 && <b className="text-foreground">30 د.ك</b>}
-                      {seg.split('مجاني').map((s2, k) => (
-                        <span key={k}>
-                          {k > 0 && <b className="text-foreground">{lang === 'en' ? 'FREE' : 'مجاني'}</b>}
-                          {s2}
-                        </span>
-                      ))}
-                    </span>
-                  ))}
-                </span>
-              ))}
+              {[t('p.shipping1')]
+                .flatMap((s) => s.split('1 د.ك'))
+                .reduce<React.ReactNode[]>((acc, part, i) => {
+                  if (i > 0) acc.push(<b key={`b1-${i}`} className="text-foreground">{lang === 'en' ? '1 KWD' : '1 د.ك'}</b>);
+                  const segs = part.split('30 د.ك');
+                  segs.forEach((seg, j) => {
+                    if (j > 0) acc.push(<b key={`b2-${i}-${j}`} className="text-foreground">{lang === 'en' ? '30 KWD' : '30 د.ك'}</b>);
+                    const parts2 = seg.split(lang === 'en' ? 'FREE' : 'مجاني');
+                    parts2.forEach((s2, k) => {
+                      if (k > 0) acc.push(<b key={`b3-${i}-${j}-${k}`} className="text-foreground">{lang === 'en' ? 'FREE' : 'مجاني'}</b>);
+                      if (s2) acc.push(<span key={`s-${i}-${j}-${k}`}>{s2}</span>);
+                    });
+                  });
+                  return acc;
+                }, [])}
             </p>
           </div>
 

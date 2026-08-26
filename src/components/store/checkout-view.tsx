@@ -20,12 +20,12 @@ import { getUtmForOrder, captureUtm } from '@/lib/utm';
 import { normalizeKwPhone, isValidKwPhone } from '@/lib/kw-phone';
 
 const KUWAIT_GOVERNORATES = [
-  'محافظة العاصمة',
-  'محافظة حولي',
-  'محافظة الفروانية',
-  'محافظة الجهراء',
-  'محافظة الأحمدي',
-  'محافظة مبارك الكبير',
+  { ar: 'محافظة العاصمة', en: 'Capital Governorate' },
+  { ar: 'محافظة حولي', en: 'Hawalli Governorate' },
+  { ar: 'محافظة الفروانية', en: 'Farwaniya Governorate' },
+  { ar: 'محافظة الجهراء', en: 'Jahra Governorate' },
+  { ar: 'محافظة الأحمدي', en: 'Ahmadi Governorate' },
+  { ar: 'محافظة مبارك الكبير', en: 'Mubarak Al-Kabeer Governorate' },
 ];
 
 export function CheckoutView() {
@@ -46,7 +46,7 @@ export function CheckoutView() {
     customerName: '',
     phone: '',
     email: '',
-    governorate: KUWAIT_GOVERNORATES[0],
+    governorate: KUWAIT_GOVERNORATES[0].ar,
     area: '',
     address: '',
     notes: '',
@@ -134,16 +134,16 @@ export function CheckoutView() {
     e.preventDefault();
     if (submitLock.current) return; // double-click / Enter race
     if (items.length === 0) {
-      toast.error('السلة فارغة');
+      toast.error(t('ck.cartEmptyErr'));
       return;
     }
     if (!form.customerName.trim() || !form.phone.trim() || !form.address.trim()) {
-      toast.error('يرجى تعبئة البيانات المطلوبة');
+      toast.error(t('ck.fillErr'));
       return;
     }
     const normalizedPhone = normalizeKwPhone(form.phone);
     if (!isValidKwPhone(normalizedPhone)) {
-      toast.error('رقم الهاتف غير صحيح — اكتب رقم كويتي 8 أرقام يبدأ بـ 5 أو 6 أو 9');
+      toast.error(t('ck.phoneErr'));
       return;
     }
     submitLock.current = true;
@@ -173,9 +173,9 @@ export function CheckoutView() {
       if (data.success && data.order) {
         if (data.duplicate) {
           // same order already received seconds ago — don't create noise
-          toast.info('استلمنا طلبك هذا من قبل — رقم الطلب نفسه');
+          toast.info(t('ck.dupOrder'));
         } else {
-          toast.success('تم إنشاء طلبك بنجاح!');
+          toast.success(t('ck.created'));
         }
         setLastOrder(data.order.orderNumber);
         clearCart();
@@ -223,10 +223,10 @@ export function CheckoutView() {
           { phone: form.phone }
         );
       } else {
-        toast.error(data.error || 'فشل إنشاء الطلب');
+        toast.error(data.error || t('ck.createFail'));
       }
     } catch (e: any) {
-      toast.error(e.message || 'فشل الاتصال');
+      toast.error(e.message || t('ck.connFail'));
     } finally {
       submitLock.current = false;
       setLoading(false);
@@ -240,7 +240,7 @@ export function CheckoutView() {
         className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-4"
       >
         <ArrowLeft className="h-4 w-4" />
-        العودة للسلة
+        {t('ck.backToCart')}
       </button>
 
       <h1 className="text-2xl font-bold mb-5">{t('ck.title')}</h1>
@@ -248,8 +248,8 @@ export function CheckoutView() {
       {items.length === 0 ? (
         <div className="text-center py-12">
           <ShoppingBag className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
-          <p className="mb-4">سلتك فارغة</p>
-          <Button onClick={() => setView('shop')}>تصفح المنتجات</Button>
+          <p className="mb-4">{t('ck.empty')}</p>
+          <Button onClick={() => setView('shop')}>{t('ck.browse')}</Button>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6" noValidate>
@@ -267,7 +267,7 @@ export function CheckoutView() {
           {/* Form */}
           <div className="lg:col-span-2 space-y-5">
             <div className="border rounded-lg p-5 bg-card space-y-4">
-              <h2 className="font-bold">بيانات العميل</h2>
+              <h2 className="font-bold">{t('ck.customerInfo')}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="mb-1 block">
@@ -277,7 +277,7 @@ export function CheckoutView() {
                     value={form.customerName}
                     onChange={(e) => update('customerName', e.target.value)}
                     required
-                    placeholder="مثال: أحمد محمد"
+                    placeholder={t('ck.namePh')}
                   />
                 </div>
                 <div>
@@ -294,7 +294,7 @@ export function CheckoutView() {
                   />
                 </div>
                 <div>
-                  <Label className="mb-1 block">البريد الإلكتروني</Label>
+                  <Label className="mb-1 block">{t('ck.email')}</Label>
                   <Input
                     type="email"
                     value={form.email}
@@ -307,7 +307,7 @@ export function CheckoutView() {
             </div>
 
             <div className="border rounded-lg p-5 bg-card space-y-4">
-              <h2 className="font-bold">عنوان التوصيل</h2>
+              <h2 className="font-bold">{t('ck.deliveryAddr')}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="mb-1 block">{t('ck.gov')}</Label>
@@ -317,8 +317,8 @@ export function CheckoutView() {
                     onChange={(e) => update('governorate', e.target.value)}
                   >
                     {KUWAIT_GOVERNORATES.map((g) => (
-                      <option key={g} value={g}>
-                        {g}
+                      <option key={g.ar} value={g.ar}>
+                        {lang === 'en' ? g.en : g.ar}
                       </option>
                     ))}
                   </select>
@@ -328,7 +328,7 @@ export function CheckoutView() {
                   <Input
                     value={form.area}
                     onChange={(e) => update('area', e.target.value)}
-                    placeholder="مثال: السالمية"
+                    placeholder={t('ck.areaPh')}
                   />
                 </div>
               </div>
@@ -340,7 +340,7 @@ export function CheckoutView() {
                   value={form.address}
                   onChange={(e) => update('address', e.target.value)}
                   required
-                  placeholder="الشارع، رقم المبنى، رقم الدور..."
+                  placeholder={t('ck.addrPh')}
                   rows={3}
                 />
               </div>
@@ -349,7 +349,7 @@ export function CheckoutView() {
                 <Textarea
                   value={form.notes}
                   onChange={(e) => update('notes', e.target.value)}
-                  placeholder="أي ملاحظات إضافية للطلب..."
+                  placeholder={t('ck.notesPh')}
                   rows={2}
                 />
               </div>
@@ -364,18 +364,18 @@ export function CheckoutView() {
                 <label className="flex items-start gap-3 p-3 border rounded-md cursor-pointer hover:bg-accent/50">
                   <RadioGroupItem value="cod" className="mt-1" />
                   <div className="flex-1">
-                    <p className="font-medium">{lang === 'en' ? 'Cash on Delivery (K Cash)' : 'الدفع عند الاستلام (K Cash)'}</p>
+                    <p className="font-medium">{t('ck.codTitle')}</p>
                     <p className="text-sm text-muted-foreground">
-                      {lang === 'en' ? 'Pay cash when your order arrives. Available in all governorates.' : 'ادفع نقداً عند استلام طلبك. متاح لجميع المحافظات.'}
+                      {t('ck.codDesc')}
                     </p>
                   </div>
                 </label>
                 <label className="flex items-start gap-3 p-3 border rounded-md cursor-pointer hover:bg-accent/50 opacity-50">
                   <RadioGroupItem value="card" disabled className="mt-1" />
                   <div className="flex-1">
-                    <p className="font-medium">بطاقة بنكية (قريباً)</p>
+                    <p className="font-medium">{t('ck.card')}</p>
                     <p className="text-sm text-muted-foreground">
-                      Visa / Mastercard - سيتم توفيرها قريباً
+                      {t('ck.cardDesc')}
                     </p>
                   </div>
                 </label>
@@ -412,27 +412,27 @@ export function CheckoutView() {
               </div>
               <div className="space-y-2 text-sm border-t pt-3">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">المجموع الفرعي:</span>
+                  <span className="text-muted-foreground">{t('c.subtotal')}:</span>
                   <span>{formatKwd(subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">الشحن:</span>
+                  <span className="text-muted-foreground">{t('c.shipping')}:</span>
                   {shipping === 0 ? (
-                    <span className="text-green-600">مجاني</span>
+                    <span className="text-green-600">{t('c.free')}</span>
                   ) : (
                     <span>{formatKwd(shipping)}</span>
                   )}
                 </div>
                 {shipping > 0 && shippingCfg.freeThreshold > 0 && (
                   <p className="text-xs text-muted-foreground">
-                    أضف بقيمة {formatKwd(Math.max(0, shippingCfg.freeThreshold - subtotal))} للحصول على شحن مجاني
+                    {t('ck.addForFree', { v: formatKwd(Math.max(0, shippingCfg.freeThreshold - subtotal)) })}
                   </p>
                 )}
                 {shippingCfg.note && (
                   <p className="text-xs text-muted-foreground">{shippingCfg.note}</p>
                 )}
                 <div className="border-t pt-2 flex justify-between font-bold text-base">
-                  <span>الإجمالي:</span>
+                  <span>{t('c.total')}:</span>
                   <span className="text-primary">{formatKwd(total)}</span>
                 </div>
               </div>
@@ -440,7 +440,7 @@ export function CheckoutView() {
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 ml-2 animate-spin" />
-                    جاري إنشاء الطلب...
+                    {t('ck.placing')}
                   </>
                 ) : (
                   t('ck.place')
@@ -448,7 +448,7 @@ export function CheckoutView() {
               </Button>
               <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
                 <ShieldCheck className="h-3.5 w-3.5 text-green-600 shrink-0" />
-                تدفع فقط <b>عند الاستلام</b> — نتصل بك لتأكيد الطلب قبل شحنه، بدون أي رسوم مقدمة
+                {t('ck.payNote')}
               </p>
 
               {/* Last-chance AI upsell */}
@@ -483,21 +483,20 @@ export function OrderSuccessView() {
         <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
           <CheckCircle className="h-12 w-12 text-green-600" />
         </div>
-        <h1 className="text-2xl font-bold text-green-700">تم استلام طلبك بنجاح!</h1>
+        <h1 className="text-2xl font-bold text-green-700">{t('ck.received')}</h1>
         <p className="text-muted-foreground leading-relaxed">
-          شكراً لتسوقك من محل شوب. سيتواصل معك فريقنا لتأكيد الطلب، وطلبك يُشحن
-          تلقائياً كل يوم الساعة 10 صباحاً.
+          {t('ck.thanks')}
         </p>
         {lastOrderId && (
           <div className="bg-muted/40 px-4 py-2 rounded-md text-sm">
-            رقم الطلب: <span className="font-mono font-bold" dir="ltr">{lastOrderId}</span>
+            {t('ck.orderNo')} <span className="font-mono font-bold" dir="ltr">{lastOrderId}</span>
           </div>
         )}
 
         {/* arrival promise */}
         <div className="flex items-center gap-2 rounded-lg bg-accent/10 border border-accent/25 px-4 py-2.5 text-sm w-full">
           <Truck className="h-4 w-4 text-gold-deep shrink-0" />
-          <span className="font-medium">سيصل في الميعاد المنسق مع خدمة العملاء والمندوب</span>
+          <span className="font-medium">{t('ck.eta')}</span>
         </div>
 
         {/* auto-created account */}
@@ -505,7 +504,7 @@ export function OrderSuccessView() {
           <div className="rounded-lg border border-green-600/30 bg-green-50 text-right px-4 py-3 w-full space-y-1.5">
             <p className="flex items-center gap-1.5 font-bold text-sm text-green-800">
               <KeyRound className="h-4 w-4" />
-              انشأ حسابك تلقائياً 🎉
+              {t('ck.acctCreated')}
             </p>
             <p className="text-[13px] leading-6 text-green-900/80">{loginHint}</p>
             <Button
@@ -514,7 +513,7 @@ export function OrderSuccessView() {
               className="border-green-600/40 text-green-800 hover:bg-green-50"
               onClick={() => setView('account')}
             >
-              ادخل حسابك الآن
+              {t('ck.goAcct')}
             </Button>
           </div>
         )}
@@ -522,13 +521,13 @@ export function OrderSuccessView() {
         <div className="flex flex-wrap justify-center gap-3 mt-2">
           <Button onClick={() => setView('track-order')} className="btn-gold border-0">
             <Truck className="h-4 w-4 ml-1" />
-            تتبع طلبك
+            {t('ck.trackOrder')}
           </Button>
           <Button onClick={() => setView('home')} variant="outline">
-            الصفحة الرئيسية
+            {t('ck.home')}
           </Button>
           <Button onClick={() => setView('shop')} variant="ghost">
-            متابعة التسوق
+            {t('ck.continue')}
           </Button>
         </div>
       </div>

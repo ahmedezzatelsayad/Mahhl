@@ -40,9 +40,9 @@ export function CartDrawer() {
           <div className="flex-1 flex flex-col items-center justify-center gap-4 p-6">
             <ShoppingBag className="h-16 w-16 text-muted-foreground/30" />
             <p className="text-muted-foreground text-center">
-              سلتك فارغة.
+              {t('cd.empty')}
               <br />
-              ابدأ التسوق الآن!
+              {t('cd.emptySub')}
             </p>
             <Button
               onClick={() => {
@@ -50,7 +50,7 @@ export function CartDrawer() {
                 setView('shop');
               }}
             >
-              تصفح المنتجات
+              {t('cd.browse')}
             </Button>
           </div>
         ) : (
@@ -115,7 +115,7 @@ export function CartDrawer() {
                         className="h-7 w-7 text-destructive hover:text-destructive"
                         onClick={() => {
                           removeItem(item.productId, item.variations);
-                          toast('تم حذف المنتج من السلة');
+                          toast(t('cd.removed'));
                           trackEvent('remove_from_cart', { productId: item.productId });
                         }}
                       >
@@ -164,7 +164,7 @@ export function CartDrawer() {
                   setView('cart');
                 }}
               >
-                عرض السلة كاملة
+                {t('cd.viewCart')}
               </Button>
             </div>
           </>

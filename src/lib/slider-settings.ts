@@ -9,7 +9,7 @@ import type {
 export type { SlideAction, SliderCta, SliderSlide, SliderSettings };
 
 /**
- * Hero slider — founder-managed, real-photo slides.
+ * Hero slider — founder-managed, real-photo slides (bilingual AR/EN).
  *
  * Stored in SiteSetting key "hero_slider" (JSON):
  *   { slides: SliderSlide[], autoplayMs: number, appendLandingPromos: boolean }
@@ -17,7 +17,8 @@ export type { SlideAction, SliderCta, SliderSlide, SliderSettings };
  * The founder controls everything from لوحة التحكم → السلايدر:
  *   - add / edit / delete / reorder / activate slides
  *   - background: real photo (URL, data-URL upload, or a product's own image)
- *   - AI writes the copy per-product, or builds a whole dynamic product slider
+ *   - AI writes the copy per-product (Arabic + English), or builds a whole
+ *     dynamic product slider
  */
 
 const KEY = 'hero_slider';
@@ -49,11 +50,17 @@ export const DEFAULT_SLIDER: SliderSettings = {
       highlight: 'وفّر أكثر مع محل شوب',
       subtitle:
         'منتجات مختارة بعناية من الألعاب والإلكترونيات والأدوات المنزلية. توصيل سريع لكل محافظات الكويت، وذكاء اصطناعي يقترح لك الأفضل لسلتك.',
+      eyebrowEn: '✨ 2,600+ products — Cash on Delivery',
+      titleEn: 'Shop smart,',
+      highlightEn: 'save more with Mahal Shop',
+      subtitleEn:
+        'Carefully picked toys, electronics and home essentials. Fast delivery to every Kuwait governorate, with an AI assistant that suggests the best picks for your cart.',
       image: IMG_SHOPPING,
       tone: 'dark',
       chips: ['+2,600 منتج', '6 محافظات', 'شحن مجاني من 30 د.ك', 'COD'],
-      cta: { label: 'تسوق الآن', action: 'shop' },
-      ctaSecondary: { label: 'الأكثر مبيعاً', action: 'shop' },
+      chipsEn: ['2,600+ items', '6 governorates', 'Free shipping over 30 KWD', 'COD'],
+      cta: { label: 'تسوق الآن', action: 'shop', labelEn: 'Shop Now' },
+      ctaSecondary: { label: 'الأكثر مبيعاً', action: 'shop', labelEn: 'Best Sellers' },
       active: true,
     },
     {
@@ -63,11 +70,17 @@ export const DEFAULT_SLIDER: SliderSettings = {
       highlight: 'جهّزه بأقل الأسعار',
       subtitle:
         'خلاطات، محضّرات قهوة، أدوات طبخ وتنظيم — اختيارات عملية توفر وقتك ومجهودك كل يوم، بأسعار تبدأ من دنانير قليلة.',
+      eyebrowEn: '🍳 Kitchen tools & home appliances',
+      titleEn: 'Is your kitchen due',
+      highlightEn: 'for an upgrade?',
+      subtitleEn:
+        'Blenders, coffee makers, cooking and organization tools — practical picks that save you time and effort every day, at prices starting from just a few dinars.',
       image: IMG_KITCHEN,
       tone: 'gold',
       chips: ['أجهزة عملية', 'أسعار تنافسية', 'توصيل لباب البيت'],
-      cta: { label: 'اكتشف أدوات المطبخ', action: 'shop' },
-      ctaSecondary: { label: 'كل المنتجات', action: 'shop' },
+      chipsEn: ['Practical appliances', 'Competitive prices', 'Doorstep delivery'],
+      cta: { label: 'اكتشف أدوات المطبخ', action: 'shop', labelEn: 'Explore Kitchen Tools' },
+      ctaSecondary: { label: 'كل المنتجات', action: 'shop', labelEn: 'All Products' },
       active: true,
     },
     {
@@ -77,11 +90,17 @@ export const DEFAULT_SLIDER: SliderSettings = {
       highlight: 'تقنية بأسعار محلية',
       subtitle:
         'منتجات تقنية مختارة تناسب الاستخدام اليومي: سماعات لاسلكية، ساعات ذكية، ملحقات وشواحن — مع ضمان استبدال عند العيب المصنعي.',
+      eyebrowEn: '🎧 Electronics & smart devices',
+      titleEn: 'Earbuds & smartwatches —',
+      highlightEn: 'tech at local prices',
+      subtitleEn:
+        'Carefully picked tech for everyday use: wireless earbuds, smartwatches, accessories and chargers — with a replacement warranty against manufacturing defects.',
       image: IMG_TECH,
       tone: 'blue',
       chips: ['منتجات مختارة بعناية', 'دفع عند الاستلام', 'توصيل 24–48 ساعة'],
-      cta: { label: 'تسوّق التقنية', action: 'shop' },
-      ctaSecondary: { label: 'تتبع طلبك', action: 'track' },
+      chipsEn: ['Carefully picked', 'Cash on delivery', '24–48h delivery'],
+      cta: { label: 'تسوّق التقنية', action: 'shop', labelEn: 'Shop Tech' },
+      ctaSecondary: { label: 'تتبع طلبك', action: 'track', labelEn: 'Track Your Order' },
       active: true,
     },
   ],
@@ -95,11 +114,13 @@ function cleanCta(raw: unknown): SliderCta | null {
   const c = raw as Record<string, unknown>;
   const label = String(c.label || '').trim().slice(0, 40);
   const action = String(c.action || 'shop');
+  const labelEn = String(c.labelEn || '').trim().slice(0, 60);
   if (!label) return null;
   return {
     label,
     action: (ACTIONS.has(action) ? action : 'shop') as SlideAction,
     payload: c.payload ? String(c.payload).trim().slice(0, 300) : undefined,
+    ...(labelEn ? { labelEn } : {}),
   };
 }
 
@@ -126,8 +147,16 @@ export function normalizeSlide(raw: unknown, fallbackId?: string): SliderSlide |
   const chips = Array.isArray(s.chips)
     ? s.chips.map((c) => String(c).trim().slice(0, 30)).filter(Boolean).slice(0, 4)
     : undefined;
+  const chipsEn = Array.isArray(s.chipsEn)
+    ? s.chipsEn.map((c) => String(c).trim().slice(0, 40)).filter(Boolean).slice(0, 4)
+    : undefined;
 
   const tone = String(s.tone || 'dark');
+
+  const en = (v: unknown, max: number) => {
+    const str = String(v || '').trim().slice(0, max);
+    return str || undefined;
+  };
 
   return {
     id: String(s.id || fallbackId || `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`).slice(0, 60),
@@ -135,6 +164,12 @@ export function normalizeSlide(raw: unknown, fallbackId?: string): SliderSlide |
     title,
     highlight: s.highlight ? String(s.highlight).trim().slice(0, 60) : undefined,
     subtitle,
+    // ===== English copy (sanitized the same way) =====
+    eyebrowEn: en(s.eyebrowEn, 80),
+    titleEn: en(s.titleEn, 110),
+    highlightEn: en(s.highlightEn, 70),
+    subtitleEn: en(s.subtitleEn, 340),
+    chipsEn: chipsEn && chipsEn.length ? chipsEn : undefined,
     image: image || undefined,
     tone: (TONES.has(tone) ? tone : 'dark') as SliderSlide['tone'],
     chips: chips && chips.length ? chips : undefined,

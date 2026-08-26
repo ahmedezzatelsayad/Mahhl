@@ -307,3 +307,12 @@ body[data-sticky-atc='1'] .float-stack {
 @media (prefers-reduced-motion: reduce) {
   .kenburns { animation: none; }
 }
+
+/* Hero slider: autoplay progress fill on the active dot (pauses = no animation) */
+@keyframes hs-progress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  @keyframes hs-progress { 0% { width: 0%; } 100% { width: 0%; } }
+}

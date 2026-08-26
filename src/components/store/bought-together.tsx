@@ -17,6 +17,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Users, Plus, ShoppingCart, Check, TrendingUp, Eye } from 'lucide-react';
 import { formatKwd } from '@/lib/utils/format';
 import { toast } from 'sonner';
+import { useT } from '@/lib/i18n';
 
 interface Item {
   productId: string;
@@ -46,6 +47,7 @@ const SOURCE_LABEL: Record<Item['source'], { icon: React.ReactNode; cls: string 
 };
 
 export function BoughtTogether({ productId }: { productId: string }) {
+  const { t } = useT();
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
@@ -113,7 +115,7 @@ export function BoughtTogether({ productId }: { productId: string }) {
       1
     );
     setAddedIds((s) => new Set(s).add(it.productId));
-    toast.success(`أضيف: ${it.name}`);
+    toast.success(t('bt.added', { name: it.name }));
     await trackUpsellClick(it.productId, 'added');
   }
 
@@ -136,7 +138,7 @@ export function BoughtTogether({ productId }: { productId: string }) {
       visible.forEach((v) => next.add(v.productId));
       return next;
     });
-    toast.success(`أضيف ${visible.length} منتجات للسلة 🛒`);
+    toast.success(t('bt.addedAll', { n: visible.length }));
     await trackUpsellClick(visible[0].productId, 'added');
   }
 
@@ -145,10 +147,10 @@ export function BoughtTogether({ productId }: { productId: string }) {
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <h3 className="font-extrabold text-base md:text-lg flex items-center gap-2">
           <Users className="h-5 w-5 text-primary" />
-          {hasRealSignal ? 'العملاء اشتروا هذه المنتجات معاً' : 'يختاره العملاء عادةً معاً'}
+          {hasRealSignal ? t('bt.titleReal') : t('bt.titleFall')}
         </h3>
         <span className="text-[11px] text-muted-foreground">
-          {hasRealSignal ? 'مبني على مشتريات عملائنا الحقيقية' : 'مبني على سلوك التصفح والشراء'}
+          {hasRealSignal ? t('bt.subReal') : t('bt.subFall')}
         </span>
       </div>
 
@@ -203,10 +205,10 @@ export function BoughtTogether({ productId }: { productId: string }) {
                   >
                     {badge.icon}
                     {it.source === 'order'
-                      ? 'اشتُري معاً فعلياً'
+                      ? t('bt.boughtReal')
                       : it.source === 'coview'
-                        ? 'شوهد معاً'
-                        : 'اختيار شائع'}
+                        ? t('bt.coViewed')
+                        : t('bt.commonPick')}
                   </span>
                   <Button
                     size="sm"
@@ -215,7 +217,7 @@ export function BoughtTogether({ productId }: { productId: string }) {
                     onClick={() => addOne(it)}
                   >
                     <Plus className="h-3 w-3 ml-1" />
-                    أضف
+                    {t('bt.add')}
                   </Button>
                 </div>
               </div>
@@ -228,16 +230,16 @@ export function BoughtTogether({ productId }: { productId: string }) {
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-3.5">
         <div>
           <p className="text-sm">
-            <span className="text-muted-foreground">إجمالي الحزمة ({visible.length} منتجات): </span>
+            <span className="text-muted-foreground">{t('bt.total', { n: visible.length })} </span>
             <span className="font-extrabold text-base text-gold-deep">{formatKwd(bundleTotal)}</span>
           </p>
           <p className="text-[11px] text-muted-foreground mt-0.5">
-            أضفها كلها بضغطة واحدة — وتوفر أجرة توصيل إضافية
+            {t('bt.addAll')}
           </p>
         </div>
         <Button className="btn-gold border-0 font-bold" onClick={addAll}>
           <ShoppingCart className="h-4 w-4 ml-2" />
-          أضف الـ {visible.length} منتجات للسلة
+          {t('bt.addAllBtn', { n: visible.length })}
         </Button>
       </div>
 
@@ -245,7 +247,7 @@ export function BoughtTogether({ productId }: { productId: string }) {
       {addedIds.size > 0 && (
         <p className="mt-2.5 flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
           <Check className="h-3.5 w-3.5" />
-          تمت الإضافة — تشوفها في السلة
+          {t('bt.done')}
         </p>
       )}
     </section>

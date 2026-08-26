@@ -62,12 +62,13 @@ function saveRecent(q: string) {
   }
 }
 
-function fmtPrice(n: number) {
-  return `${n.toFixed(n % 1 === 0 ? 0 : 3)} د.ك`;
+function fmtPrice(n: number, lang: 'ar' | 'en') {
+  return `${n.toFixed(n % 1 === 0 ? 0 : 3)} ${lang === 'en' ? 'KWD' : 'د.ك'}`;
 }
 
 // popular starting points when the box is focused but empty
 const DEFAULT_TERMS = ['ساعة', 'عطر', 'سماعة', 'لعبة', 'خلاط', 'شاحن'];
+const DEFAULT_TERMS_EN = ['watch', 'perfume', 'earbuds', 'toy', 'blender', 'charger'];
 
 export function SearchBox({
   autoFocusOnMount = false,
@@ -229,7 +230,7 @@ export function SearchBox({
           <button
             type="submit"
             className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-accent cursor-pointer"
-            aria-label="بحث"
+            aria-label={t('sb.searchAria')}
           >
             <Search className="h-4 w-4" />
           </button>
@@ -242,7 +243,7 @@ export function SearchBox({
                 inputRef.current?.focus();
               }}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
-              aria-label="مسح"
+              aria-label={t('sb.clear')}
             >
               <X className="h-4 w-4" />
             </button>
@@ -260,7 +261,7 @@ export function SearchBox({
             <div className="py-1.5">
               {recent.length > 0 && (
                 <p className="px-3 pt-1.5 pb-1 text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
-                  <Clock className="h-3 w-3" /> آخر عمليات البحث
+                  <Clock className="h-3 w-3" /> {t('sb.recent')}
                 </p>
               )}
               {recent.map((t) => (
@@ -279,20 +280,20 @@ export function SearchBox({
                 </button>
               ))}
               <p className="px-3 pt-2 pb-1 text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
-                <TrendingUp className="h-3 w-3" /> الأكثر بحثاً
+                <TrendingUp className="h-3 w-3" /> {t('sb.popular')}
               </p>
               <div className="flex flex-wrap gap-1.5 px-3 pb-2.5 pt-1">
-                {DEFAULT_TERMS.map((t) => (
+                {(lang === 'en' ? DEFAULT_TERMS_EN : DEFAULT_TERMS).map((term) => (
                   <button
-                    key={`p-${t}`}
+                    key={`p-${term}`}
                     type="button"
                     onClick={() => {
-                      setQ(t);
-                      onChange(t);
+                      setQ(term);
+                      onChange(term);
                     }}
                     className="rounded-full border bg-muted/50 px-3 py-1 text-xs hover:bg-muted cursor-pointer"
                   >
-                    {t}
+                    {term}
                   </button>
                 ))}
               </div>
@@ -303,11 +304,11 @@ export function SearchBox({
           {!showRecent && (
             <div className="max-h-[65vh] overflow-y-auto py-1.5">
               {loading && rows.length === 0 && (
-                <p className="px-3 py-3 text-sm text-muted-foreground">جارٍ البحث…</p>
+                <p className="px-3 py-3 text-sm text-muted-foreground">{t('sb.searching')}</p>
               )}
               {emptyResult && (
                 <p className="px-3 py-3 text-sm text-muted-foreground">
-                  ما لقينا نتائج لـ «{q}» — جرب كلمة ثانية
+                  {t('sb.noResultsFor', { q })}
                 </p>
               )}
               {rows.map((row, i) =>
@@ -322,12 +323,12 @@ export function SearchBox({
                     }`}
                   >
                     <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary text-xs font-bold">
-                      أقسام
+                      {t('sb.categories')}
                     </span>
                     <span className="flex-1 truncate text-sm font-medium">
                       {row.c.name}
                     </span>
-                    <span className="text-[11px] text-muted-foreground">تصفح القسم</span>
+                    <span className="text-[11px] text-muted-foreground">{t('sb.browseCat')}</span>
                   </button>
                 ) : (
                   <button
@@ -356,9 +357,9 @@ export function SearchBox({
                       <span className="block truncate text-sm font-medium">{row.p.name}</span>
                       <span className="text-xs text-muted-foreground">
                         {row.p.isBestSeller && (
-                          <span className="text-gold-deep font-semibold">الأكثر مبيعاً · </span>
+                          <span className="text-gold-deep font-semibold">{t('sb.bestseller')} · </span>
                         )}
-                        {fmtPrice(row.p.salePrice)}
+                        {fmtPrice(row.p.salePrice, lang)}
                       </span>
                     </span>
                     <ArrowLeft className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
@@ -372,7 +373,7 @@ export function SearchBox({
                   className="w-full border-t px-3 py-2.5 text-sm font-semibold text-primary hover:bg-muted/60 cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <Search className="h-3.5 w-3.5" />
-                  شاهد كل نتائج «{q.trim()}»
+                  {t('sb.allResultsFor', { q: q.trim() })}
                 </button>
               )}
             </div>

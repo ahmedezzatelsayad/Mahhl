@@ -1,0 +1,56 @@
+[
+  {
+    "url": "https://testparty.ai/blog/carousel-slider-accessibility",
+    "name": "Making Carousels and Sliders Accessible",
+    "snippet": "Sep 26, 2025 — Learn how to make carousels and sliders accessible . Implement WCAG-compliant slideshows with proper controls, keyboard navigation, ...",
+    "host_name": "testparty.ai",
+    "rank": 0,
+    "date": "Sep 26, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://medium.com/@andrescoronel1209/how-to-build-an-accessible-carousel-without-anoying-users-1ec320e4b465",
+    "name": "How to build an accessible carousel without annoying users",
+    "snippet": "It also updates the dot navigation to reflect the selected slide and uses an ARIA live region to announce slide changes for screen reader users. Read more",
+    "host_name": "medium.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://splidejs.com/guides/accessibility",
+    "name": "Accessibility",
+    "snippet": "Splide follows W3C Carousel Design Pattern to improve accessibility . This page explains about the Splide accessibility .",
+    "host_name": "splidejs.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/accessibility/comments/z9w56v/carousel_accessibility",
+    "name": "carousel accessibility : r/accessibility",
+    "snippet": "Allow users to control the carousel using the keyboard . So if a user tabs to the carousel , they should be able to go to the previous or next ... Read more",
+    "host_name": "www.reddit.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://webaim.org/techniques/carousels",
+    "name": "Animation and Carousels",
+    "snippet": "Nov 25, 2025 — Users must have a keyboard - and mouse- accessible way to pause , stop, or hide automatically moving, blinking, or scrolling content (such as  ...",
+    "host_name": "webaim.org",
+    "rank": 4,
+    "date": "Nov 25, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.a11y-collective.com/blog/accessible-carousel",
+    "name": "How to Test and Improve Carousel Accessibility",
+    "snippet": "Oct 2, 2024 — “ Pause ” button should be recognized as such. You can use the aria - live attribute to dynamically announce any changes in the carousel , such as ...",
+    "host_name": "www.a11y-collective.com",
+    "rank": 5,
+    "date": "Oct 2, 2024",
+    "favicon": ""
+  }
+]

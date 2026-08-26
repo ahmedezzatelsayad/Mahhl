@@ -28,6 +28,12 @@ interface SlideDraft {
   ctaLabel: string;
   chips: string[];
   tone: 'dark' | 'gold' | 'green' | 'blue';
+  eyebrowEn?: string;
+  titleEn?: string;
+  highlightEn?: string;
+  subtitleEn?: string;
+  ctaLabelEn?: string;
+  chipsEn?: string[];
 }
 
 const MAX_SET = 6;
@@ -126,7 +132,7 @@ export async function POST(req: NextRequest) {
       })
       .join('\n');
 
-    const prompt = `أنت كاتب إعلانات أول لمتجر كويتي اسمه "محل شوب". اكتب نصوص ${picked.length} شرائح سلايدر للصفحة الرئيسية — كل شريحة تروّج منتجاً حقيقياً من القائمة، والنص سيظهر فوق صورة المنتج نفسها.
+    const prompt = `أنت كاتب إعلانات أول لمتجر كويتي اسمه "محل شوب". اكتب نصوص ${picked.length} شرائح سلايدر للصفحة الرئيسية — كل شريحة تروّج منتجاً حقيقياً من القائمة، والنص سيظهر فوق صورة المنتج نفسها. الموقع ثنائي اللغة: اكتب لكل شريحة النسخة العربية والنسخة الإنجليزية (ترويجية طبيعية بأسلوب أمازون، ليست ترجمة حرفية).
 
 المنتجات (بهذا الترتيب):
 ${listForAi}
@@ -138,13 +144,13 @@ ${listForAi}
 4) eyebrow = تصنيف قصير جداً (مثال: "الأكثر مبيعاً 🔥" أو "خصم حقيقي")
 5) chips = 3 عناصر ثقة من هذه الحقائق فقط: دفع عند الاستلام، توصيل 1 د.ك، شحن مجاني من 30 د.ك، +2600 منتج، شحن يومي 10 صباحاً، توصيل 24–48 ساعة
 6) tone لكل شريحة من: dark | gold | green | blue
-7) ctaLabel فعل قصير مثل "شاهد المنتج" أو "اطلبه الآن"
+7) ctaLabel فعل قصير مثل "شاهد المنتج" أو "اطلبه الآن" + ctaLabelEn المقابل
 8) غيّر الأسلوب بين الشرائح حتى لا تتشابه — شريحة تركز على السعر، أخرى على الفائدة، أخرى على الندرة الصادقة
 
 أرجع JSON فقط:
-{"slides":[{"index":1,"eyebrow":"","title":"","highlight":"","subtitle":"","ctaLabel":"","chips":["","",""],"tone":"dark"}]}`;
+{"slides":[{"index":1,"eyebrow":"","title":"","highlight":"","subtitle":"","ctaLabel":"","chips":["","",""],"eyebrowEn":"","titleEn":"","highlightEn":"","subtitleEn":"","ctaLabelEn":"","chipsEn":["","",""],"tone":"dark"}]}`;
 
-    const system = 'أنت كاتب إعلانات محترف يعيد JSON صحيح فقط بالعربية.';
+    const system = 'أنت كاتب إعلانات محترف ثنائي اللغة (عربي/إنجليزي) يعيد JSON صحيحاً فقط.';
 
     let drafts: SlideDraft[] | null = null;
     let provider = 'none';
@@ -200,6 +206,12 @@ ${listForAi}
         subtitle: 'منتج مختار بعناية — توصيل سريع لكل محافظات الكويت ودفع عند الاستلام.',
         ctaLabel: 'شاهد المنتج',
         chips: ['دفع عند الاستلام', 'توصيل 1 د.ك', 'شحن يومي 10ص'],
+        eyebrowEn: p.isBestSeller ? 'Best Seller 🔥' : 'Mahal Shop pick',
+        titleEn: shortName,
+        highlightEn: 'at a great price',
+        subtitleEn: 'A carefully picked product — fast delivery across Kuwait with cash on delivery.',
+        ctaLabelEn: 'View Product',
+        chipsEn: ['Cash on delivery', '1 KWD delivery', 'Ships daily 10AM'],
         tone: 'dark',
       };
       const c = d || fallback;
@@ -209,6 +221,13 @@ ${listForAi}
         title: String(c.title || fallback.title).slice(0, 90),
         highlight: String(c.highlight || '').slice(0, 60) || undefined,
         subtitle: String(c.subtitle || fallback.subtitle).slice(0, 300),
+        eyebrowEn: String(c.eyebrowEn || fallback.eyebrowEn || '').slice(0, 80) || undefined,
+        titleEn: String(c.titleEn || fallback.titleEn || '').slice(0, 110) || undefined,
+        highlightEn: String(c.highlightEn || fallback.highlightEn || '').slice(0, 70) || undefined,
+        subtitleEn: String(c.subtitleEn || fallback.subtitleEn || '').slice(0, 340) || undefined,
+        chipsEn: Array.isArray(c.chipsEn)
+          ? c.chipsEn.map((x) => String(x).slice(0, 40)).filter(Boolean).slice(0, 4)
+          : fallback.chipsEn,
         image: firstImage(p) || undefined,
         tone: (['dark', 'gold', 'green', 'blue'] as const).includes(c.tone as any)
           ? c.tone
@@ -218,10 +237,11 @@ ${listForAi}
           : fallback.chips,
         cta: {
           label: String(c.ctaLabel || 'شاهد المنتج').slice(0, 40),
+          labelEn: String(c.ctaLabelEn || fallback.ctaLabelEn || '').slice(0, 60) || undefined,
           action: 'product' as const,
           payload: p.slug,
         },
-        ctaSecondary: { label: 'كل المنتجات', action: 'shop' as const },
+        ctaSecondary: { label: 'كل المنتجات', labelEn: 'All Products', action: 'shop' as const },
         active: true,
         /** display-only helpers for the dashboard preview */
         _productName: p.name,

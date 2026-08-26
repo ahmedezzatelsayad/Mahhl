@@ -8,6 +8,7 @@
 import { useEffect, useState } from 'react';
 import { useAppStore } from '@/lib/stores/app-store';
 import { Button } from '@/components/ui/button';
+import { useT } from '@/lib/i18n';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ProductCard } from '@/components/store/product-card';
 import { formatKwd } from '@/lib/utils/format';
@@ -65,6 +66,7 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export function LandingView() {
+  const { t } = useT();
   const slug = useAppStore((s) => s.selectedLandingSlug);
   const setView = useAppStore((s) => s.setView);
   const openProduct = useAppStore((s) => s.openProduct);
@@ -110,17 +112,17 @@ export function LandingView() {
   if (notFound || !page) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold mb-2">الصفحة غير متوفرة</h1>
+        <h1 className="text-2xl font-bold mb-2">{t('l.notFound')}</h1>
         <p className="text-muted-foreground mb-4">
-          قد يكون العرض انتهى أو الصفحة غير منشورة
+          {t('l.notFoundSub')}
         </p>
-        <Button onClick={() => setView('home')}>العودة للرئيسية</Button>
+        <Button onClick={() => setView('home')}>{t('l.backHome')}</Button>
       </div>
     );
   }
 
-  const cta = page.ctaText || 'تسوّق الآن';
-  const cta2 = page.ctaSecondary || 'تصفّح كل المنتجات';
+  const cta = page.ctaText || t('l.ctaDefault');
+  const cta2 = page.ctaSecondary || t('l.cta2Default');
 
   return (
     <div className="pb-24">
@@ -131,7 +133,7 @@ export function LandingView() {
           <button
             onClick={() => setView('home')}
             className="absolute top-4 right-4 p-2 rounded-full hover:bg-primary-foreground/10 cursor-pointer"
-            aria-label="إغلاق"
+            aria-label={t('l.close')}
           >
             <X className="h-5 w-5" />
           </button>
@@ -210,7 +212,7 @@ export function LandingView() {
       {products.length > 0 && (
         <section className="container mx-auto px-4 py-12">
           <h2 className="text-2xl font-extrabold mb-6 text-center">
-            منتجات <span className="text-gold-gradient">العرض</span>
+            <span>{t('l.offerProducts')}</span>
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
             {products.map((p) => (
@@ -219,7 +221,7 @@ export function LandingView() {
           </div>
           <div className="text-center mt-8">
             <Button size="lg" onClick={() => setView('shop')}>
-              تصفح كل المنتجات
+              {t('l.browseAll')}
             </Button>
           </div>
         </section>
@@ -230,7 +232,7 @@ export function LandingView() {
         <section className="bg-muted/30 border-y">
           <div className="container mx-auto px-4 py-12">
             <h2 className="text-2xl font-extrabold mb-8 text-center">
-              ماذا يقول <span className="text-gold-gradient">عملاؤنا</span>؟
+              {t('l.testimonials')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
               {page.testimonials.slice(0, 2).map((t, i) => (
@@ -258,7 +260,7 @@ export function LandingView() {
       {page.faq && page.faq.length > 0 && (
         <section className="container mx-auto px-4 py-12">
           <h2 className="text-2xl font-extrabold mb-8 text-center">
-            أسئلة <span className="text-gold-gradient">شائعة</span>
+            {t('l.faq')}
           </h2>
           <div className="max-w-2xl mx-auto space-y-3">
             {page.faq.map((f, i) => (
@@ -292,10 +294,10 @@ export function LandingView() {
           <div className="absolute inset-0 hero-glow" aria-hidden="true" />
           <div className="relative">
             <h2 className="text-2xl md:text-3xl font-extrabold mb-3">
-              جاهز تبدأ؟ {cta} اليوم
+              {t('l.ready', { cta })}
             </h2>
             <p className="text-sm text-primary-foreground/70 mb-6">
-              دفع عند الاستلام • توصيل لكل المحافظات • ضمان الجودة
+              {t('l.trust')}
             </p>
             <Button size="lg" className="btn-gold border-0" onClick={() => setView('shop')}>
               <Sparkles className="h-5 w-5 ml-2" />
@@ -308,7 +310,7 @@ export function LandingView() {
       {/* ===== Sticky mobile CTA ===== */}
       <div className="fixed bottom-0 inset-x-0 z-30 glass border-t p-3 md:hidden">
         <Button className="w-full btn-gold border-0" size="lg" onClick={() => setView('shop')}>
-          {cta} — دفع عند الاستلام
+          {t('l.ctaCod', { cta })}
         </Button>
       </div>
     </div>

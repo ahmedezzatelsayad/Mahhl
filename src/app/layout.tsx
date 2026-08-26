@@ -114,6 +114,12 @@ export default async function RootLayout({
       <head>
         <link rel="icon" href={iconUrl} />
         <link rel="apple-touch-icon" href={iconUrl} />
+        {/* set dir/lang before first paint so EN visitors never see an RTL flash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var r=localStorage.getItem('mahhl-lang');var l=(r==='en'||(r&&r.indexOf('"lang":"en"')>-1))?'en':'ar';var h=document.documentElement;if(l==='en'){h.setAttribute('dir','ltr');h.setAttribute('lang','en');h.classList.add('lang-en');}}catch(e){}`,
+          }}
+        />
       </head>
       <body
         className={`${plexArabic.variable} ${tajawal.variable} antialiased bg-background text-foreground min-h-screen`}
