@@ -1,0 +1,202 @@
+// Ecomerg Arabic E-commerce + AI Behavior Engine - Full Schema (PostgreSQL/Neon)
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Category {
+  id           String     @id @default(cuid())
+  name         String
+  parentId     String?
+  parent       Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children     Category[] @relation("CategoryTree")
+  slug         String     @unique
+  isSub        Boolean    @default(false)
+  products     Product[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([parentId])
+}
+
+model Product {
+  id              String        @id @default(cuid())
+  slug            String        @unique
+  name            String
+  sku             String        @unique
+  description     String        @default("")
+  metaDescription String?
+  price           Float
+  salePrice       Float
+  quantity        Int           @default(20)
+  trackStock      Boolean       @default(false)
+  disableOOS      Boolean       @default(false)
+  thumb           String?
+  images          String        @default("")
+  categoryId      String?
+  category        Category?     @relation(fields: [categoryId], references: [id])
+  isBestSeller    Boolean       @default(false)
+  variations      String?
+  supplier        String?
+  originalPrice   Float?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  orderItems      OrderItem[]
+
+  // AI relations (passive — referenced via onDelete)
+  viewEvents      UserEvent[]
+  triggerForUpsells UpsellOffer[]
+
+  @@index([categoryId])
+  @@index([isBestSeller])
+  @@index([createdAt])
+}
+
+model Customer {
+  id        String      @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  city      String?
+  address   String?
+  orders    Order[]
+  sessions  UserSession[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([phone])
+  @@index([email])
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  orderNumber  String      @unique
+  customerId   String
+  customer     Customer    @relation(fields: [customerId], references: [id])
+  items        OrderItem[]
+  subtotal     Float
+  shipping     Float       @default(0)
+  total        Float
+  status       String      @default("pending")
+  paymentMethod String    @default("cod")
+  notes        String?
+  governorate  String?
+  area         String?
+  address      String?
+  phone        String?
+  customerName String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+  name        String
+  sku         String
+  price       Float
+  quantity    Int
+  image       String?
+  variations  String?
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         String   @default("admin") // owner, admin, staff
+  createdAt    DateTime @default(now())
+}
+
+// ===== AI Behavior Tracking & Upsell Engine =====
+
+model UserSession {
+  id           String     @id @default(cuid())
+  // stable visitor id, stored in localStorage on client
+  visitorId    String     @unique
+  // optional: only if customer logs in
+  customerId   String?
+  customer     Customer?  @relation(fields: [customerId], references: [id])
+  // last-known geo (city-level, derived from IP at first call)
+  ipHash       String?
+  userAgent    String?
+  referrer     String?
+  // AI-derived traits
+  persona      String?    // e.g. "bargain_hunter", "gadget_lover", "parent_shopper"
+  intentScore  Float      @default(0.5) // 0..1 how close they are to buying
+  budgetTier   String?    // low | mid | high | premium
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  events       UserEvent[]
+
+  @@index([customerId])
+}
+
+enum EventType {
+  page_view
+  product_view
+  search
+  add_to_cart
+  remove_from_cart
+  cart_open
+  checkout_start
+  checkout_complete
+  upsell_shown
+  upsell_clicked
+  upsell_added
+  filter_apply
+}
+
+model UserEvent {
+  id           String     @id @default(cuid())
+  sessionId    String
+  session      UserSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  type         EventType
+  productId    String?
+  product      Product?   @relation(fields: [productId], references: [id], onDelete: SetNull)
+  categoryId   String?
+  query        String?
+  // freeform metadata (price at click, qty, source widget, etc.)
+  metadata     Json?
+  createdAt    DateTime   @default(now())
+
+  @@index([sessionId, createdAt])
+  @@index([type])
+  @@index([productId])
+}
+
+model UpsellOffer {
+  id           String     @id @default(cuid())
+  // composite key: per-session + trigger product gets one cached offer set
+  sessionId    String
+  triggerProductId String?
+  trigger      Product?   @relation(fields: [triggerProductId], references: [id], onDelete: Cascade)
+  // JSON array of recommendations: [{ productId, name, price, image, reason, score }]
+  payload      Json
+  // model version for cache invalidation
+  modelVersion String     @default("v1")
+  expiresAt    DateTime
+  // was it clicked / added to cart? (for analytics)
+  clicked      Boolean    @default(false)
+  added        Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+
+  @@index([sessionId, triggerProductId])
+  @@index([expiresAt])
+}

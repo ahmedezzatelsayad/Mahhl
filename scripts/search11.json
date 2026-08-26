@@ -1,0 +1,47 @@
+[
+  {
+    "url": "https://github.com/sallaapp",
+    "name": "Salla - GitHub",
+    "snippet": "Salla is an e-commerce platform designed to help set up e-commerce stores. Run your code inside a merchant's store, without running a server.",
+    "host_name": "github.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/SallaApp/laravel-starter-kit",
+    "name": "GitHub - SallaApp/laravel-starter-kit",
+    "snippet": "Laravel has the most extensive and thorough documentation and video tutorial library of all modern web application frameworks, making it a breeze to get started ...",
+    "host_name": "github.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/SallaApp/laravel-starter-kit/blob/master/app/Actions/Order/ProductsUpdated.php",
+    "name": "ProductsUpdated.php - SallaApp/laravel-starter-kit - GitHub",
+    "snippet": "An awesome starter template to create your Salla Apps today! Solutions BY COMPANY SIZE Enterprises Small and medium. Advanced SecurityEnterprise-grade security ...",
+    "host_name": "github.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://dev.to/salladev/integration-and-seamless-e-commerce-world-by-salla-668",
+    "name": "Integration and Seamless E-commerce World by Salla",
+    "snippet": "Dec 19, 2023 · On Github, Salla offers tool kits such as Salla CLI, theme-raed, laravel starter kit, express starter kit, passport strategy, ZATCA, Twilight VS ...",
+    "host_name": "dev.to",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/SallaApp/laravel-starter-kit/issues",
+    "name": "Issues · SallaApp/laravel-starter-kit - GitHub",
+    "snippet": "An awesome starter template to create your Salla Apps today! Solutions BY COMPANY SIZE Enterprises. AI features Premium SupportEnterprise-grade 24/7 support ...",
+    "host_name": "github.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  }
+]

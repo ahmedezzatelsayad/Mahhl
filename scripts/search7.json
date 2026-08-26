@@ -1,0 +1,65 @@
+[
+  {
+    "url": "https://github.com/topics/laravel-shop",
+    "name": "laravel-shop · GitHub Topics",
+    "snippet": "GitHub is where people build software. Free and open-source multi-vendor Laravel eCommerce solution that is fully customizable and ready to use.",
+    "host_name": "github.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/topics/laravel-shopping-cart?l=php&o=desc&s=updated",
+    "name": "laravel-shopping-cart",
+    "snippet": "A Laravel 8+ compatible shopping cart package , Forked by Crinsane's original. Easily add, update, and manage cart items with support for model binding, ...",
+    "host_name": "github.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/summerblue/laravel-shop",
+    "name": "summerblue/laravel-shop: Laravel 电商实战教程的项目代码",
+    "snippet": "Laravel is a web application framework. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and ...",
+    "host_name": "github.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/SallaApp/laravel-starter-kit/blob/master/app/Actions/Store/BranchCreated.php",
+    "name": "BranchCreated.php - SallaApp/laravel-starter-kit",
+    "snippet": "An awesome starter template to create your Salla Apps today! - laravel -starter-kit/app/Actions/Store/BranchCreated. php . Platform AI CODE CREATION GitHub ...",
+    "host_name": "github.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/topics/laravel-cart",
+    "name": "laravel-cart · GitHub Topics",
+    "snippet": "A package used to create and manage carts (such as shopping, recently viewed, compared items...) in Laravel application.",
+    "host_name": "github.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.facebook.com/groups/ElzeroWebSchool/posts/3700765163385854",
+    "name": "E-shop features with Laravel",
+    "snippet": "Laravel e-commerce system with admin and user interfaces. Requirements • PHP >= 8.1. Public Open source and free ecommerce project under ...",
+    "host_name": "www.facebook.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/AmarTomas/Laravel_Online_Shopping",
+    "name": "A full-featured E-Commerce platform built with Laravel 10 &",
+    "snippet": "مشروع متجر إلكتروني متكامل مبني بإطار العمل Laravel 10 و PHP 8.1 +، مع واجهة متجر احترافية ولوحة تحكم إدارية متقدمة لإدارة المنتجات، الطلبات، العملاء، والتقارير.",
+    "host_name": "github.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  }
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://github.com/bagisto/bagisto",
+    "name": "bagisto/bagisto: Open Source eCommerce Platform Built",
+    "snippet": "Bagisto is an opensource laravel eCommerce framework built on some of the hottest technologies such as Laravel (a PHP framework) and Vue.js a progressive ... Read more",
+    "host_name": "github.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/bagisto/opensource-ecommerce-mobile-app/issues/68",
+    "name": "Issue #68 · bagisto/opensource-ecommerce-mobile-app",
+    "snippet": "Jun 29, 2026 — Is this package currently missing Arabic translations, or is there a configuration to make it use the same language as the main Bagisto admin ... Read more",
+    "host_name": "github.com",
+    "rank": 1,
+    "date": "Jun 29, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.facebook.com/groups/bagisto/posts/799783197553616",
+    "name": "Hi, I made a small store for a client using Bagisto with",
+    "snippet": "I made a small store for a client using Bagisto with English as a default language , Prestashop 1.7 language switch issue. This is GitHub ...",
+    "host_name": "www.facebook.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/prestashop/TranslationFiles",
+    "name": "PrestaShop/TranslationFiles: [READ-ONLY] This repository",
+    "snippet": "[READ-ONLY] This repository contains all the necessary files to generate translation packs for PrestaShop 1.6, 1.7 and higher. It's updated automatically.",
+    "host_name": "github.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://bagisto.com/en/ecommerce-language-translation-in-bagisto",
+    "name": "A comprehensive guide to language translation in Bagisto",
+    "snippet": "Apr 6, 2026 — By using language translation in Bagisto, you can easily localise your website and translates your online e-commerce store with just few ...",
+    "host_name": "bagisto.com",
+    "rank": 4,
+    "date": "Apr 6, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/PrestaShop/PrestaShop/issues/14184",
+    "name": "Cannot use accented URL with arabic language #14184",
+    "snippet": "Jun 13, 2019 — When I create a category with Friendly URL = إكسسوارات in the Arabic language , I have an error \"إكسسوارات\" is invalid. join this conversation ...",
+    "host_name": "github.com",
+    "rank": 5,
+    "date": "Jun 13, 2019",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/bagisto/bagsito-bulk-add-to-cart",
+    "name": "bagisto/bagsito-bulk-add-to-cart: The Laravel",
+    "snippet": "The Laravel eCommerce Bulk Add To Cart module allows the customer to add the bulk products to the cart with different quantities.",
+    "host_name": "github.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://forum.prestashop.com/topic/159438-arabic-translation-for-prestashop-1470-full-front-office-only",
+    "name": "Arabic translation for Prestashop 1.4.7.0 (Full Front Office",
+    "snippet": "Mar 8, 2012 — This is the Arabic Language translation for Prestashop 1.4.7.0 (Full Front Office only) based upon the latest Official PrestaShop Arabic ... Read more",
+    "host_name": "forum.prestashop.com",
+    "rank": 7,
+    "date": "Mar 8, 2012",
+    "favicon": ""
+  }
+]

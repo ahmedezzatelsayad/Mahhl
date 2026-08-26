@@ -1,0 +1,47 @@
+[
+  {
+    "url": "https://harranali.github.io",
+    "name": "Harran Ali: Laravel Full Stack Developer | Backend API",
+    "snippet": "A modern, Arabic RTL e-commerce store built with Laravel 12, Vue 3, and Inertia.js. Features dynamic product listings, live shopping cart, simulated checkout, ... Read more",
+    "host_name": "harranali.github.io",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/ferjal0/vue-inertia-laravel",
+    "name": "Vue Inertia Laravel - Project Starter",
+    "snippet": "This project implements a modern monolithic architecture using Laravel as the backend framework and Vue 3 for the frontend, seamlessly connected via Inertia .js. Read more",
+    "host_name": "github.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/laravilt/laravilt",
+    "name": "laravilt",
+    "snippet": "A modern Laravel Admin Panel built with Vue 3, Inertia .js, and AI capabilities. Inspired by Filament but powered by the frontend. - laravilt/laravilt.",
+    "host_name": "github.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/wanrif/inertia-blog",
+    "name": "This is a blog web application built using Laravel 9, Inertia",
+    "snippet": "This blog web app is a great example of how to use Laravel, Inertia, Vue , and Tailwind CSS to create a modern and user-friendly web application. It has a lot of ... Read more",
+    "host_name": "github.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://inertiajs.com",
+    "name": "Inertia.js - The Modern Monolith",
+    "snippet": "Elevate your application with the modern monolith. Inertia is packed with production-ready features designed to accelerate your development and make frontend ... Read more",
+    "host_name": "inertiajs.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  }
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://florinelchis.medium.com/top-20-open-source-e-commerce-platforms-on-github-by-stars-c812d4c85917",
+    "name": "Top 20 Open-Source E-Commerce Platforms on GitHub (By",
+    "snippet": "Saleor is a Python (Django)-based headless e-commerce platform . is a mature open-source e-commerce platform. Sylius is an open-source e- ...",
+    "host_name": "florinelchis.medium.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/saleor",
+    "name": "Saleor Commerce",
+    "snippet": "Saleor is an API-first commerce platform for solving complex commerce use cases. provides standard commerce modules like Checkout, Payments, Products, and ...",
+    "host_name": "github.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/olivrg/Awesome-Open-Source-eCommerce-Platforms",
+    "name": "Awesome list of open source e-commerce platforms",
+    "snippet": "Sylius is an Open Source eCommerce. Solidus Solidus is a complete open source ecommerce solution built with Ruby on Rails. Commerce is an open-source headless ...",
+    "host_name": "github.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/sylius/sylius",
+    "name": "Sylius/Sylius: Headless open-source eCommerce platform",
+    "snippet": "Sylius is an Open Source eCommerce framework on top of Symfony. The highest quality of code, strong testing culture, built-in Agile (BDD) workflow and ... Read more",
+    "host_name": "github.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://magendoo.ro/insights/top-20-open-source-ecommerce-platforms-on-github-a-strategic-analysis-2026",
+    "name": "Top 20 Open Source Ecommerce Platforms on GitHub",
+    "snippet": "Apr 23, 2026 — Saleor is a headless commerce platform built with Django and GraphQL. Solidus (5,289★) A fork of Spree Commerce focused on stability and ...",
+    "host_name": "magendoo.ro",
+    "rank": 4,
+    "date": "Apr 23, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://saleor.io/open-source",
+    "name": "The Open Source Commerce Engine for Builders",
+    "snippet": "Saleor is #1 e-commerce platform on GitHub and the most future-proof strategy for any brand viewing technology, extensibility and openness as vital for ...",
+    "host_name": "saleor.io",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/saleor/saleor",
+    "name": "Saleor Core: the high performance, composable, headless",
+    "snippet": "Saleor Core : the high performance, composable, headless commerce API. Commerce that works with your language and stack GraphQL native, API-only platform for ...",
+    "host_name": "github.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/ecommerce/comments/18j1v4r/please_give_me_your_experiences_of_working_with",
+    "name": "Please give me your experiences of working with my",
+    "snippet": "What is common between Spree , Sylius and Medusa is that they are designed to be extended using specific technologies: Spree - Ruby, Medusa - ... Read more",
+    "host_name": "www.reddit.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

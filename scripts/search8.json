@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://www.youtube.com/watch?v=k787AkYmrFg",
+    "name": "Build an E-commerce App with Django, React (Next.js) & Stripe",
+    "snippet": "May 26, 2025 · ... (React +Next.js + Django + Stripe Integration): https://selar.com/171g11 - Backend Only (Django): https://github.com/CodeWithClinton ...",
+    "host_name": "www.youtube.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/topics/django-ecommerce",
+    "name": "django-ecommerce · GitHub Topics",
+    "snippet": "PyShop is an online Python Ecommerce website built with Django, SQLite and Bootstrap. A simple and lightweight ecommerce app easily deployable",
+    "host_name": "github.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.facebook.com/groups/selftaughtprogrammers/posts/1398088347221562",
+    "name": "Any open source Django e-commerce projects on GitHub? - Facebook",
+    "snippet": "May 8, 2021 · Frontend built in NextJs and React and Backend built with Python using it web framework Django Graphene to carryout GraphQL operations.",
+    "host_name": "www.facebook.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/ShahadatShuvo/FullStack-Ecommerce",
+    "name": "This is a full functional Ecommerce App, built with NextJs and Django",
+    "snippet": "This repository contains the code for the front-end and back-end components of a web application built with React and Django. high-level Python web framework.",
+    "host_name": "github.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/oyavuzjr/Django-Nextjs-Ecommerce-Boilerplate",
+    "name": "oyavuzjr/Django-Nextjs-Ecommerce  - GitHub",
+    "snippet": "A full stack e-commerce web application created as a template for building analytics and machine learning tools in the admin interface. React with Next JS.",
+    "host_name": "github.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/topics/python-ecommerce",
+    "name": "python-ecommerce · GitHub Topics",
+    "snippet": "PyShop is an online Python Ecommerce website built with Django, SQLite and Bootstrap. A simple and lightweight ecommerce app easily deployable anywhere",
+    "host_name": "github.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=t9bz_FsYjHY",
+    "name": "Full Stack Next.js 14 Ecommerce In Arabic 2024 - YouTube",
+    "snippet": "Jan 8, 2024 · Full Stack Next.js 14 Ecommerce In Arabic 2024 | Next.js 14, React.js, TailwindCss, Strapi, Stripe · Comments.",
+    "host_name": "www.youtube.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://florinelchis.medium.com/top-20-open-source-e-commerce-platforms-on-github-by-stars-c812d4c85917",
+    "name": "Top 20 Open-Source E-Commerce Platforms on GitHub (By Stars)",
+    "snippet": "Dec 10, 2025 · Saleor is a Python (Django)-based headless e-commerce platform. Next.js Commerce is a React/Next.js based ultra-high-performance e-commerce … ...",
+    "host_name": "florinelchis.medium.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://themeselection.com/blog/django-ecommerce-project/?srsltid=AfmBOopcee9oJVK-zaKpam-gIo-NQyxLP89uhWnre3YCGgAjp2x8iCc8",
+    "name": "10 Best Django eCommerce Project 2024 - ThemeSelection",
+    "snippet": "Oct 17, 2023 · Discover the best Django eCommerce project available on GitHub out there to build your online store quickly.",
+    "host_name": "themeselection.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/reactjs/comments/14dgjxm/good_example_projects_with_nextjs_flaskfastapi_on",
+    "name": "Good example projects with Next.js, Flask/FastApi on Github? - Reddit",
+    "snippet": "Jun 20, 2023 · Next is a backend framework for node servers that happens to output React pages. If you just want to build a React + Flask app which is cool ...",
+    "host_name": "www.reddit.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

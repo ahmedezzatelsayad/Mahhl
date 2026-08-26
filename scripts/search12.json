@@ -1,0 +1,47 @@
+[
+  {
+    "url": "https://github.com/bagisto/bagisto",
+    "name": "GitHub - bagisto/bagisto: Open Source eCommerce Platform Built with",
+    "snippet": "Bagisto is an opensource laravel eCommerce framework built on some of the hottest technologies such as Laravel (a PHP framework) and Vue.js a progressive ...",
+    "host_name": "github.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://bagisto.com/en",
+    "name": "Bagisto - Open Source eCommerce Platform for Marketplaces and B2B",
+    "snippet": "An Open source Laravel eCommerce platform for building marketplaces, mobile. Bagisto, the open-source Laravel commerce platform. GitHub stars 152.8k+",
+    "host_name": "bagisto.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://laravel-news.com/package/bagisto-bagisto",
+    "name": "Bagisto PHP Package | Laravel News",
+    "snippet": "Bagisto is an opensource laravel eCommerce framework built on some of the hottest technologies such as Laravel (a PHP framework) and Vue.js a progressive ...",
+    "host_name": "laravel-news.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://bagisto.com/en/ecommerce-language-translation-in-bagisto",
+    "name": "A comprehensive guide to language translation in Bagisto",
+    "snippet": "Apr 6, 2026 · By using language translation in Bagisto, you can easily localise your website and translates your online e-commerce store with just few ...",
+    "host_name": "bagisto.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/bagisto/bagsito-bulk-add-to-cart",
+    "name": "GitHub - bagisto/bagsito-bulk-add-to-cart",
+    "snippet": "The Laravel eCommerce Bulk Add To Cart module allows the customer to add the bulk products to the cart with different quantities.",
+    "host_name": "github.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  }
+]
