@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useState, useEffect, useSyncExternalStore } from 'react';
 import { trackFB } from '@/lib/facebook-pixel';
+import { trackGA4 } from '@/lib/ga4';
 
 interface Brand {
   siteName: string;
@@ -79,6 +80,7 @@ export function Header() {
       setSearch(q.trim());
       setMobileMenuOpen(false);
       trackFB('Search', { search_string: q.trim() });
+      trackGA4('search', { search_term: q.trim() });
     }
   }
 

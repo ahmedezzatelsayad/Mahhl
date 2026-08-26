@@ -22,6 +22,7 @@ import { ProductCard } from '@/components/store/product-card';
 import { UpsellWidget } from '@/components/store/upsell-widget';
 import { trackEvent } from '@/lib/behavior-tracker';
 import { trackFB } from '@/lib/facebook-pixel';
+import { trackGA4, ga4Item } from '@/lib/ga4';
 
 interface Variation {
   label: string;
@@ -88,6 +89,15 @@ export function ProductView() {
             content_type: 'product',
             value: data.product.salePrice || data.product.price,
             currency: 'KWD',
+          });
+          trackGA4('view_item', {
+            currency: 'KWD',
+            value: data.product.salePrice || data.product.price,
+            items: [ga4Item({
+              sku: data.product.sku,
+              name: data.product.name,
+              price: data.product.salePrice || data.product.price,
+            })],
           });
           // Pre-select first variation values
           if (data.product.variations) {

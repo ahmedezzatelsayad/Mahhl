@@ -174,6 +174,15 @@ export function AdminOrdersView() {
                       <Badge className={STATUS_COLORS[o.status]}>
                         {STATUS_LABELS[o.status] || o.status}
                       </Badge>
+                      {(o as any).utmSource && (
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] border-blue-300 text-blue-700 bg-blue-50"
+                          title={`إعلان: ${(o as any).utmSource}${(o as any).utmCampaign ? ` / ${(o as any).utmCampaign}` : ''}`}
+                        >
+                          إعلان: {(o as any).utmSource}
+                        </Badge>
+                      )}
                     </div>
                     <p className="text-sm">
                       <strong>العميل:</strong>{' '}

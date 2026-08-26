@@ -2,6 +2,11 @@ import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db';
 import type { NextRequest } from 'next/server';
 
+// Phone helpers live in a dependency-free module (src/lib/kw-phone.ts) so
+// client components can import them WITHOUT pulling Prisma/bcrypt into the
+// browser bundle. Re-exported here for existing server-side imports.
+export { normalizeKwPhone, isValidKwPhone } from './kw-phone';
+
 /**
  * Customer authentication — Kuwaiti-simple by design:
  *  • username = phone number
@@ -11,18 +16,6 @@ import type { NextRequest } from 'next/server';
  * Token format mirrors the admin one: base64url(id|ts|sig)
  * where sig = bcrypt(`${id}:${ts}:${passwordHash}`)
  */
-
-export function normalizeKwPhone(input: string): string {
-  let p = (input || '').replace(/\s|-|\(|\)/g, '');
-  if (p.startsWith('+965')) p = p.slice(4);
-  else if (p.startsWith('00965')) p = p.slice(5);
-  else if (p.startsWith('965') && p.length > 8) p = p.slice(3);
-  return p;
-}
-
-export function isValidKwPhone(p: string): boolean {
-  return /^[45679]\d{7}$/.test(p); // Kuwaiti 8-digit numbers
-}
 
 export async function makeCustomerToken(customerId: string): Promise<string> {
   const customer = await db.customer.findUnique({ where: { id: customerId } });

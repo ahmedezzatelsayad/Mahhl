@@ -71,7 +71,9 @@ export interface ShippingSettings {
 }
 
 const SHIPPING_KEY = 'shipping';
-const DEFAULT_SHIPPING: ShippingSettings = { price: 2, freeThreshold: 50, note: '' };
+// Public policy: 1 KWD flat delivery, free from 50 KWD — must stay in sync
+// with the storefront copy (footer, FAQ, info pages, llms.txt).
+const DEFAULT_SHIPPING: ShippingSettings = { price: 1, freeThreshold: 50, note: '' };
 
 export async function getShippingSettings(): Promise<ShippingSettings> {
   try {
@@ -102,6 +104,54 @@ export async function saveShippingSettings(
   await db.siteSetting.upsert({
     where: { key: SHIPPING_KEY },
     create: { key: SHIPPING_KEY, value: next as any },
+    update: { value: next as any },
+  });
+  return next;
+}
+
+// ===== Google Analytics 4 settings =====
+
+export interface Ga4Settings {
+  enabled: boolean;
+  measurementId: string; // e.g. "G-XXXXXXXXXX"
+}
+
+const GA4_KEY = 'ga4';
+const DEFAULT_GA4: Ga4Settings = { enabled: false, measurementId: '' };
+
+export async function getGa4Settings(): Promise<Ga4Settings> {
+  try {
+    const row = await db.siteSetting.findUnique({ where: { key: GA4_KEY } });
+    if (row?.value) {
+      const v = row.value as Record<string, unknown>;
+      return {
+        enabled: typeof v.enabled === 'boolean' ? v.enabled : false,
+        measurementId: String(v.measurementId || '').trim(),
+      };
+    }
+  } catch {
+    /* fall through */
+  }
+  return DEFAULT_GA4;
+}
+
+export async function saveGa4Settings(
+  partial: Partial<Ga4Settings>
+): Promise<Ga4Settings> {
+  const current = await getGa4Settings();
+  const next: Ga4Settings = {
+    enabled: partial.enabled ?? current.enabled,
+    measurementId: (partial.measurementId ?? current.measurementId)
+      .trim()
+      .toUpperCase(),
+  };
+  // A malformed measurement ID can never be saved
+  if (next.enabled && !/^G-[A-Z0-9]{6,}$/.test(next.measurementId)) {
+    throw new Error('معرّف GA4 غير صالح — يجب أن يبدأ بـ G- (مثال: G-ABC123DEF4)');
+  }
+  await db.siteSetting.upsert({
+    where: { key: GA4_KEY },
+    create: { key: GA4_KEY, value: next as any },
     update: { value: next as any },
   });
   return next;

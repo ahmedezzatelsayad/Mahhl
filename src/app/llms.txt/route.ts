@@ -60,7 +60,7 @@ export async function GET() {
   lines.push(`- عدد المنتجات: ${productCount || '2600+'}`);
   lines.push(`- اللغة: العربية (واجهة RTL كاملة)`);
   lines.push(`- رابط المتجر: ${base}`);
-  lines.push(`- البريد: info@mahalshop.com`);
+  lines.push(`- واتساب/هاتف خدمة العملاء: +965 6604 6358 (يومياً 9ص–11م)`);
   lines.push(`- البحث داخل المتجر: ${base}/?q={استعلام البحث}`);
   lines.push(`- خريطة الموقع الكاملة (XML): ${base}/sitemap.xml`);
   lines.push('');

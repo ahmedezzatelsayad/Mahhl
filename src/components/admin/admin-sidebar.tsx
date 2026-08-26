@@ -35,7 +35,7 @@ const navItems: NavItem[] = [
   { view: 'admin-orders', label: 'الطلبات', icon: ShoppingCart },
   { view: 'admin-categories', label: 'الفئات', icon: Tags },
   { view: 'admin-insights', label: 'محرك الذكاء', icon: Brain },
-  { view: 'admin-facebook', label: 'تتبع فيسبوك', icon: Facebook },
+  { view: 'admin-facebook', label: 'التتبع والتحليلات', icon: Facebook },
   { view: 'admin-settings', label: 'الإعدادات', icon: Settings },
 ];
 

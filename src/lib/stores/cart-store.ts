@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { trackEvent } from '@/lib/behavior-tracker';
 import { trackFB } from '@/lib/facebook-pixel';
+import { trackGA4, ga4Item } from '@/lib/ga4';
 
 export interface CartItem {
   productId: string;
@@ -58,6 +59,12 @@ export const useCartStore = create<CartState>()(
               currency: 'KWD',
               contents: [{ id: item.sku || item.productId, quantity: qty, item_price: item.price }],
               num_items: qty,
+            });
+            trackGA4('add_to_cart', {
+              currency: 'KWD',
+              value: item.price * qty,
+              num_items: qty,
+              items: [ga4Item({ sku: item.sku, name: item.name, price: item.price, quantity: qty })],
             });
           }
           if (existing) {

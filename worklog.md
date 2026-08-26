@@ -307,3 +307,51 @@ Stage Summary:
 - الشحن التلقائي 10ص + "سيصل في الميعاد المنسق مع خدمة العملاء والمندوب"
 - إدارة المنتجات تعمل (كانت placeholder!) وكل APIs محمية
 - هوية المتجر قابلة للتغيير من اللوحة بدون نشر جديد
+
+---
+Task ID: 7 (production-hardening)
+Agent: main (full-stack + review team)
+Task: تنفيذ مراجعة Production قبل الإعلانات — P0 كامل + GA4/UTM + محتوى صادق
+
+Work Log:
+- P0-1/2 محتوى صادق: حذف info@mahalshop.com من الفوتر وصفحة التواصل وseo.ts وllms.txt،
+  حذف +96512345678 الوهمي من Organization schema (أصبح +96566046358 مع contactPoint)،
+  إحصائيات الهيرو أصبحت حقائق (+2,600 منتج/6 محافظات/شحن مجاني 50+/COD) بدل
+  4.9 وعميل سعيد و24س، "منتجات أصلية" → "منتجات مختارة بعناية" في كل المواضع
+  (home features + landing FALLBACK + prompt الذكاء يمنع اختلاق الأرقام والشهادات)
+- P0-5 السعر من السيرفر فقط: POST /api/orders يعيد جلب name/sku/price/salePrice
+  من DB — أسعار العميل تُتجاهل تماماً، variations تُنقّى، الكميات 1..20 والدمج
+  بالمجموع، حد 50 سطر سلة
+- P0-5 الشحن من السيرفر: getShippingSettings() يحسب 1 د.ك / مجاني ≥50 — عميل
+  الدفع يعرض نفس الحساب، وحُدّث DEFAULT_SHIPPING وDB row إلى price=1 (سكريبت
+  fix-shipping-policy.ts) مع مزامنة كل النصوص (FAQ/سياسة الاسترجاع/llms.txt)
+- P0-4 منع التكرار والسبام: duplicate guard (نفس الهاتف+نفس الإجمالي خلال 90 ثانية
+  يرجع نفس الطلب)، rate limit 6/15 دقيقة لكل IP (429 برسالة واتساب)، honeypot
+  "website"، قفل submitLock مزدوج في الواجهة، تحقق هاتف كويتي ^[569]\d{7}$
+  ومحافظة من قائمة معتمدة وتنقية كل النصوص وحدود أطوال
+- P0-6 الطلب يُحفظ آمناً: order.create atomic مع items + فحص disableOOS + خصم
+  مخزون من قيم DB
+- P0-7 تدقيق أسرار: NEXT_PUBLIC_SITE_URL فقط عام، صفر أسرار في src/، واستخراج
+  normalizeKwPhone/isValidKwPhone إلى lib/kw-phone.ts مستقلة حتى لا يدخل
+  bcrypt/Prisma في حزمة المتصفح
+- P1 GA4 كامل: SiteSetting "ga4" + تحقق ^G-[A-Z0-9]{6,}$، /api/settings/ga4
+  عام + /api/admin/ga4 محمي، lib/ga4.ts (gtag inject + page_view + trackGA4)،
+  أحداث view_item/add_to_cart/begin_checkout/purchase/search في كل نقاط
+  الفيسبوك نفسها، بطاقة GA4 في "التتبع والتحليلات" (تاب+معرّف+حفظ)
+- P1 UTM: lib/utm.ts يلتقط utm_* والصفحة الأولى (localStorage 30 يوم، first-touch
+  wins)، checkout يرفقها بالطلب، Order جدد به utmSource/Medium/Campaign/Term/
+  Content/landingPath، وشارة "إعلان: facebook" في لوحة الطلبات
+- InitiateCheckout كان يحسب الشحن hard-coded (50?0:2) — أصبح من إعدادات الشحن
+- E2E: scripts/e2e-orders-test.ts — 19/19 نجح (سعر مزيّف مُتجاهَل، شحن مجاني ≥50
+  محسوب سيرفريًا، duplicate يرجع نفس الطلب، honeypot صامت، 400 للهاتف/المحافظة/
+  الكمية/المنتج، 429 للحظر، تتبع يعمل + هاتف غلط لا يكشف الطلب) + cleanup سكريبت
+- تحقق متصفح: الرئيسية صادقة وصفر بيانات تجريبية، شراء كامل ORD-MTACT3DL بأسعار
+  DB (6+1=7)، حساب تلقائي + دخول فاطمة + ثبات الجلسة بعد reload، لوحة التتبع
+  ببطاقة GA4 (حفظ/رفض معرّف خاطئ/endpoint عام)، صفر أخطاء console وpage errors
+- lint: 0 errors | build: نجح بكل المسارات الجديدة
+
+Stage Summary:
+- كل بنود P0 في المراجعة منفذة ومُثبتة باختبارات آلية ومتصفح
+- GA4+UTM جاهزان للإعلانات: الإعلان X → زيارات → أحداث → طلب موسوم بالمصدر
+- الموقع لم يعد يعرض أي بيانات تجريبية أو أرقام غير مثبتة
+- الشحن موحد 1 د.ك/مجاني 50+ في الكود وDB وكل النصوص

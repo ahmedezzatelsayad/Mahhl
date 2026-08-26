@@ -98,11 +98,22 @@ model Order {
   deliveredAt  DateTime?
   /** human arrival promise shown to the customer */
   arrivalNote  String?
+
+  // Ad-traffic attribution (utm params captured on first landing)
+  utmSource    String?
+  utmMedium    String?
+  utmCampaign  String?
+  utmTerm      String?
+  utmContent   String?
+  /** landing page path the session started from */
+  landingPath  String?
+
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
   @@index([status])
   @@index([createdAt])
+  @@index([utmSource])
 }
 
 model OrderItem {

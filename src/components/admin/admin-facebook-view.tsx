@@ -1,12 +1,11 @@
 'use client';
 
 /**
- * AdminFacebookView — Facebook Pixel / Conversions API settings.
+ * AdminFacebookView — tracking & analytics settings.
  *
- * Founder pastes the Pixel ID (from Meta Events Manager) and optionally a
- * System-User access token to unlock server-side Conversions API tracking.
- * Includes a live "test event" button that fires ViewContent through both
- * the browser pixel and the CAPI forwarder.
+ * 1) Facebook Pixel / Conversions API — founder pastes the Pixel ID and
+ *    optionally a System-User access token for server-side CAPI.
+ * 2) Google Analytics 4 — founder pastes the Measurement ID (G-...).
  */
 import { useEffect, useState } from 'react';
 import { useAppStore } from '@/lib/stores/app-store';
@@ -25,6 +24,7 @@ import {
   Info,
   CheckCircle2,
   XCircle,
+  BarChart3,
 } from 'lucide-react';
 
 interface FBSettings {
@@ -32,6 +32,11 @@ interface FBSettings {
   pixelId: string;
   accessToken: string;
   testEventCode: string;
+}
+
+interface GA4Settings {
+  enabled: boolean;
+  measurementId: string;
 }
 
 export function AdminFacebookView() {
@@ -47,16 +52,28 @@ export function AdminFacebookView() {
   const [testing, setTesting] = useState(false);
   const [hasToken, setHasToken] = useState(false);
 
+  // GA4 state
+  const [ga4, setGa4] = useState<GA4Settings>({ enabled: false, measurementId: '' });
+  const [ga4Saving, setGa4Saving] = useState(false);
+
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch('/api/admin/facebook', {
-          headers: { Authorization: `Bearer ${adminToken}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
+        const [fbRes, ga4Res] = await Promise.all([
+          fetch('/api/admin/facebook', {
+            headers: { Authorization: `Bearer ${adminToken}` },
+          }),
+          fetch('/api/admin/ga4', {
+            headers: { Authorization: `Bearer ${adminToken}` },
+          }),
+        ]);
+        if (fbRes.ok) {
+          const data = await fbRes.json();
           setSettings(data);
           setHasToken(!!data.accessToken);
+        }
+        if (ga4Res.ok) {
+          setGa4(await ga4Res.json());
         }
       } catch {
         toast.error('فشل تحميل الإعدادات');
@@ -129,6 +146,35 @@ export function AdminFacebookView() {
     }
   }
 
+  async function saveGa4(e?: React.FormEvent) {
+    e?.preventDefault();
+    setGa4Saving(true);
+    try {
+      const res = await fetch('/api/admin/ga4', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify(ga4),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        try {
+          sessionStorage.removeItem('mahhl_ga4_settings');
+        } catch {}
+        setGa4(data.settings);
+        toast.success('تم حفظ إعدادات Google Analytics');
+      } else {
+        toast.error(data.error || 'فشل الحفظ');
+      }
+    } catch {
+      toast.error('فشل الاتصال');
+    } finally {
+      setGa4Saving(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
@@ -144,9 +190,9 @@ export function AdminFacebookView() {
           <Facebook className="h-6 w-6 text-primary" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold">تتبع فيسبوك</h1>
+          <h1 className="text-2xl font-bold">التتبع والتحليلات</h1>
           <p className="text-sm text-muted-foreground">
-            Facebook Pixel + Conversions API — تتبع سلوك الزوار وقياس إعلاناتك
+            Facebook Pixel + Conversions API + Google Analytics 4 — قياس إعلاناتك بدقة
           </p>
         </div>
       </div>
@@ -278,7 +324,7 @@ export function AdminFacebookView() {
       <Card className="mt-6">
         <CardHeader>
           <CardTitle className="text-lg">الأحداث المتتبعة تلقائياً</CardTitle>
-          <CardDescription>كل حدث يُرسل من المتصفح ومن السيرفر معاً بدون تكرار</CardDescription>
+          <CardDescription>تُرسل لفيسبوك (متصفح+سيرفر) ولجوجل أنالييتكس معاً</CardDescription>
         </CardHeader>
         <CardContent>
           <ul className="space-y-2 text-sm">
@@ -303,6 +349,65 @@ export function AdminFacebookView() {
           </ul>
         </CardContent>
       </Card>
+
+      {/* ================= Google Analytics 4 ================= */}
+      <form onSubmit={saveGa4} className="mt-8">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 rounded-lg bg-amber-500/10">
+            <BarChart3 className="h-5 w-5 text-amber-600" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold">Google Analytics 4</h2>
+            <p className="text-xs text-muted-foreground">
+              تحليلات جوجل — مصدر ثانٍ مستقل لقياس الزيارات والتحويلات
+            </p>
+          </div>
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">إعدادات GA4</CardTitle>
+            <CardDescription>
+              أنشئ Property في analytics.google.com ← Data Streams ← Web ← انسخ معرّف
+              القياس (يبدأ بـ G-)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between rounded-lg border p-4">
+              <div>
+                <Label className="font-bold">تفعيل GA4</Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  يُرسل page_view و view_item و add_to_cart و begin_checkout و purchase و search
+                </p>
+              </div>
+              <Switch
+                checked={ga4.enabled}
+                onCheckedChange={(v) => setGa4((s) => ({ ...s, enabled: v }))}
+                aria-label="تفعيل GA4"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="measurementId">معرّف القياس (Measurement ID)</Label>
+              <Input
+                id="measurementId"
+                dir="ltr"
+                placeholder="G-XXXXXXXXXX"
+                value={ga4.measurementId}
+                onChange={(e) =>
+                  setGa4((s) => ({ ...s, measurementId: e.target.value.toUpperCase() }))
+                }
+              />
+            </div>
+            <Button type="submit" disabled={ga4Saving}>
+              {ga4Saving ? (
+                <Loader2 className="h-4 w-4 ml-2 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4 ml-2" />
+              )}
+              حفظ إعدادات GA4
+            </Button>
+          </CardContent>
+        </Card>
+      </form>
     </div>
   );
 }

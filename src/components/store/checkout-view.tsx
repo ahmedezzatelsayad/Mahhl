@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCartStore } from '@/lib/stores/cart-store';
 import { useAppStore } from '@/lib/stores/app-store';
 import { Button } from '@/components/ui/button';
@@ -10,10 +10,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { formatKwd } from '@/lib/utils/format';
 import { toast } from 'sonner';
-import { ArrowLeft, CheckCircle, Loader2, ShoppingBag, KeyRound, Truck } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Loader2, ShoppingBag, KeyRound, Truck, ShieldCheck } from 'lucide-react';
 import { UpsellWidget } from '@/components/store/upsell-widget';
 import { trackEvent } from '@/lib/behavior-tracker';
 import { trackFB } from '@/lib/facebook-pixel';
+import { trackGA4, ga4Item } from '@/lib/ga4';
+import { getUtmForOrder, captureUtm } from '@/lib/utm';
+import { normalizeKwPhone, isValidKwPhone } from '@/lib/kw-phone';
 
 const KUWAIT_GOVERNORATES = [
   'محافظة العاصمة',
@@ -34,7 +37,9 @@ export function CheckoutView() {
   const customerToken = useAppStore((s) => s.customerToken);
 
   const [loading, setLoading] = useState(false);
-  const [shippingCfg, setShippingCfg] = useState({ price: 2, freeThreshold: 50, note: '' });
+  const [honeypot, setHoneypot] = useState('');
+  const submitLock = useRef(false); // hard double-submit lock
+  const [shippingCfg, setShippingCfg] = useState({ price: 1, freeThreshold: 50, note: '' });
   const [form, setForm] = useState({
     customerName: '',
     phone: '',
@@ -85,11 +90,16 @@ export function CheckoutView() {
 
   // Track checkout_start once on mount
   useEffect(() => {
+    captureUtm(); // make sure attribution exists even on a direct checkout entry
     trackEvent('checkout_start', { metadata: { itemsCount: items.length, subtotal } });
-    // Facebook Pixel — InitiateCheckout (with cart contents)
     if (items.length > 0) {
+      const estShip =
+        shippingCfg.freeThreshold > 0 && subtotal >= shippingCfg.freeThreshold
+          ? 0
+          : shippingCfg.price;
+      // Facebook Pixel — InitiateCheckout (with cart contents)
       trackFB('InitiateCheckout', {
-        value: subtotal + (subtotal >= 50 ? 0 : 2),
+        value: subtotal + estShip,
         currency: 'KWD',
         content_type: 'product',
         content_ids: items.map((i) => i.sku || i.productId),
@@ -100,8 +110,16 @@ export function CheckoutView() {
         })),
         num_items: items.reduce((sum, i) => sum + i.quantity, 0),
       });
+      // GA4 — begin_checkout
+      trackGA4('begin_checkout', {
+        currency: 'KWD',
+        value: subtotal + estShip,
+        num_items: items.reduce((sum, i) => sum + i.quantity, 0),
+        items: items.map((i) => ga4Item(i)),
+      });
     }
-  }, [items.length, subtotal]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const shipping = shippingCfg.freeThreshold > 0 && subtotal >= shippingCfg.freeThreshold ? 0 : shippingCfg.price;
   const total = subtotal + shipping;
@@ -112,6 +130,7 @@ export function CheckoutView() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (submitLock.current) return; // double-click / Enter race
     if (items.length === 0) {
       toast.error('السلة فارغة');
       return;
@@ -120,6 +139,12 @@ export function CheckoutView() {
       toast.error('يرجى تعبئة البيانات المطلوبة');
       return;
     }
+    const normalizedPhone = normalizeKwPhone(form.phone);
+    if (!isValidKwPhone(normalizedPhone)) {
+      toast.error('رقم الهاتف غير صحيح — اكتب رقم كويتي 8 أرقام يبدأ بـ 5 أو 6 أو 9');
+      return;
+    }
+    submitLock.current = true;
     setLoading(true);
     try {
       const res = await fetch('/api/orders', {
@@ -130,24 +155,29 @@ export function CheckoutView() {
         },
         body: JSON.stringify({
           ...form,
+          phone: normalizedPhone,
+          website: honeypot, // honeypot — must stay empty
+          ...getUtmForOrder(),
           items: items.map((i) => ({
             productId: i.productId,
-            name: i.name,
-            sku: i.sku,
-            price: i.price,
             quantity: i.quantity,
-            image: i.image,
             variations: i.variations,
+            // NOTE: price/name/sku are re-fetched server-side — the
+            // client copies are display-only and can never be trusted.
           })),
-          shipping,
         }),
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.order) {
+        if (data.duplicate) {
+          // same order already received seconds ago — don't create noise
+          toast.info('استلمنا طلبك هذا من قبل — رقم الطلب نفسه');
+        } else {
+          toast.success('تم إنشاء طلبك بنجاح!');
+        }
         setLastOrder(data.order.orderNumber);
         clearCart();
         setView('order-success');
-        toast.success('تم إنشاء طلبك بنجاح!');
         // persist account hint for the success page
         if (data.accountCreated && data.loginHint) {
           try {
@@ -161,6 +191,15 @@ export function CheckoutView() {
         // Track successful checkout
         trackEvent('checkout_complete', {
           metadata: { orderId: data.order.id, total: data.order.total },
+        });
+        // GA4 — purchase
+        trackGA4('purchase', {
+          currency: 'KWD',
+          value: data.order.total,
+          transaction_id: data.order.orderNumber,
+          shipping: data.order.shipping,
+          num_items: (data.order.items || []).reduce((s: number, i: any) => s + i.quantity, 0),
+          items: (data.order.items || []).map((i: any) => ga4Item(i)),
         });
         // Facebook Pixel — Purchase (highest-value conversion event)
         // Phone goes only to OUR server, which hashes it (SHA-256) before Meta.
@@ -187,6 +226,7 @@ export function CheckoutView() {
     } catch (e: any) {
       toast.error(e.message || 'فشل الاتصال');
     } finally {
+      submitLock.current = false;
       setLoading(false);
     }
   }
@@ -210,7 +250,18 @@ export function CheckoutView() {
           <Button onClick={() => setView('shop')}>تصفح المنتجات</Button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6" noValidate>
+          {/* Honeypot — invisible to humans, bots fill it and get rejected */}
+          <input
+            type="text"
+            name="website"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            className="absolute -top-[9999px] h-0 w-0 opacity-0"
+          />
           {/* Form */}
           <div className="lg:col-span-2 space-y-5">
             <div className="border rounded-lg p-5 bg-card space-y-4">
@@ -393,6 +444,10 @@ export function CheckoutView() {
                   'تأكيد الطلب'
                 )}
               </Button>
+              <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 text-green-600 shrink-0" />
+                تدفع فقط <b>عند الاستلام</b> — نتصل بك لتأكيد الطلب قبل شحنه، بدون أي رسوم مقدمة
+              </p>
 
               {/* Last-chance AI upsell */}
               <div className="mt-4">

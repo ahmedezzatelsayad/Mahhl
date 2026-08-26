@@ -162,8 +162,14 @@ export function organizationJsonLd(url: string) {
     alternateName: SITE_NAME_EN,
     url,
     logo: `${url}/icon.svg`,
-    email: 'info@mahalshop.com',
-    telephone: '+96512345678',
+    telephone: '+96566046358',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+96566046358',
+      contactType: 'customer service',
+      availableLanguage: ['Arabic', 'Kuwaiti Arabic'],
+      areaServed: 'KW',
+    },
     description: DEFAULT_SEO.description,
     areaServed: {
       '@type': 'Country',

@@ -130,13 +130,13 @@ export function HomeView() {
               </Button>
             </div>
 
-            {/* Trust stats — social proof row */}
+            {/* Honest, verifiable facts only — no invented ratings/counts */}
             <div className="mt-10 flex flex-wrap gap-6 md:gap-10">
               {[
-                ['+2,600', 'منتج أصلي'],
-                ['+500', 'عميل سعيد'],
-                ['24س', 'متوسط التوصيل'],
-                ['4.9', 'تقييم العملاء'],
+                ['+2,600', 'منتج متوفر الآن'],
+                ['6', 'محافظات نغطيها'],
+                ['50 د.ك+', 'شحن مجاني للطلب'],
+                ['COD', 'دفع عند الاستلام'],
               ].map(([v, l]) => (
                 <div key={l}>
                   <p className="text-xl md:text-2xl font-extrabold text-gold-gradient">{v}</p>
@@ -154,8 +154,8 @@ export function HomeView() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Feature icon={<Truck className="h-6 w-6" />} title="توصيل سريع" desc="لكل المحافظات" />
             <Feature icon={<CreditCard className="h-6 w-6" />} title="دفع آمن" desc="عند الاستلام" />
-            <Feature icon={<Shield className="h-6 w-6" />} title="ضمان الجودة" desc="منتجات أصلية" />
-            <Feature icon={<Headphones className="h-6 w-6" />} title="دعم 24/7" desc="خدمة العملاء" />
+            <Feature icon={<Shield className="h-6 w-6" />} title="منتجات مختارة" desc="بعناية وفقاءة" />
+            <Feature icon={<Headphones className="h-6 w-6" />} title="دعم يومي" desc="واتساب 9ص–11م" />
           </div>
         </div>
       </section>

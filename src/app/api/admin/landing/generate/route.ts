@@ -38,19 +38,19 @@ const FALLBACK: GeneratedLanding = {
   features: [
     { icon: 'truck', title: 'توصيل سريع', desc: 'لكل محافظات الكويت' },
     { icon: 'shield', title: 'دفع آمن', desc: 'عند الاستلام' },
-    { icon: 'star', title: 'جودة مضمونة', desc: 'منتجات أصلية' },
-    { icon: 'headset', title: 'دعم فوري', desc: 'نرد بسرعة' },
+    { icon: 'star', title: 'منتجات مختارة', desc: 'بعناية وافتنان' },
+    { icon: 'headset', title: 'دعم واتساب', desc: 'يومياً 9ص–11م' },
   ],
+  // Honest, verifiable numbers only — invented ratings/customer counts
+  // damage trust and violate advertising policy.
   stats: [
     { value: '+2600', label: 'منتج' },
-    { value: '+500', label: 'عميل سعيد' },
-    { value: '24س', label: 'شحن سريع' },
-    { value: '4.9', label: 'تقييم العملاء' },
+    { value: '6', label: 'محافظات' },
+    { value: 'COD', label: 'دفع عند الاستلام' },
+    { value: '10ص', label: 'شحن يومي' },
   ],
-  testimonials: [
-    { name: 'أحمد م.', text: 'منتجات ممتازة والتوصيل كان أسرع من المتوقع. تجربة تسوق راقية.', rating: 5 },
-    { name: 'نورة ع.', text: 'أسعار منافسة وجودة عالية. تعاملت معهم أكثر من مرة وأنصح بهم.', rating: 5 },
-  ],
+  // No fabricated testimonials — real reviews get added after launch.
+  testimonials: [],
   faq: [
     { q: 'كيف أدفع؟', a: 'الدفع عند الاستلام متاح لجميع المحافظات.' },
     { q: 'كم يستغرق التوصيل؟', a: 'من 24 إلى 48 ساعة داخل الكويت.' },
@@ -94,10 +94,10 @@ ${tone ? `النبرة المطلوبة: ${tone}` : 'النبرة: حماسية 
 - شارة Hero قصيرة
 - نص زر CTA رئيسي وثانوي
 - 4 ميزات (أيقونة من: truck/shield/star/headset/tag/gift/lock/clock + عنوان + وصف ≤ 8 كلمات)
-- 4 أرقام إحصائية للثقة
-- شهادتا عميل واقعيتان بالعربية (أسماء كويتية شائعة)
+- 4 أرقام إحصائية للثقة — حقائق فقط يثبتها المتجر: +2600 منتج، 6 محافظات، شحن مجاني من 50 د.ك، دفع عند الاستلام، شحن يومي 10 صباحاً. ممنوع منعاً باتاً اختراع تقييمات أو أعداد عملاء أو أرقام غير مثبتة.
+- testimonials: أعد مصفوفة فارغة [] دائماً (شهادات العملاء تُضاف يدوياً بعد الإطلاق عندما تصبح حقيقية)
 - سؤالان شائعان مع إجابات قصيرة
-- جملة استعجال (urgency)
+- جملة استعجال (urgency) بدون تواريخ أو أرقام كاذبة
 
 أرجع JSON فقط بهذا الشكل:
 {

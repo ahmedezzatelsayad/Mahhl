@@ -5,7 +5,7 @@ import { useAppStore, type InfoPage } from '@/lib/stores/app-store';
 import { Button } from '@/components/ui/button';
 import {
   Store, MessageCircle, Truck, ShieldCheck, RefreshCcw, HelpCircle,
-  Lock, FileText, Phone, Mail, MapPin, ChevronDown,
+  Lock, FileText, Phone, MapPin, ChevronDown,
 } from 'lucide-react';
 import { useBrand, waHref } from '@/components/store/header';
 
@@ -108,11 +108,15 @@ export function InfoView() {
               <p className="font-bold mb-1">واتساب (الأسرع)</p>
               <p className="text-sm text-muted-foreground" dir="ltr">+965 {brand.whatsapp}</p>
             </a>
-            <div className="rounded-xl border bg-card p-5">
-              <Mail className="h-7 w-7 text-gold-deep mb-2" />
-              <p className="font-bold mb-1">البريد الإلكتروني</p>
-              <p className="text-sm text-muted-foreground" dir="ltr">info@mahalshop.com</p>
-            </div>
+            <a
+              href={`tel:+965${brand.whatsapp.replace(/\D/g, '')}`}
+              className="rounded-xl border bg-card p-5 hover:border-accent/50 transition-colors"
+            >
+              <Phone className="h-7 w-7 text-gold-deep mb-2" />
+              <p className="font-bold mb-1">هاتف المتجر</p>
+              <p className="text-sm text-muted-foreground" dir="ltr">+965 {brand.whatsapp}</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">اتصال مباشر خلال أوقات العمل</p>
+            </a>
             <div className="rounded-xl border bg-card p-5">
               <MapPin className="h-7 w-7 text-gold-deep mb-2" />
               <p className="font-bold mb-1">موقعنا</p>
@@ -177,7 +181,7 @@ export function InfoView() {
               'المنتج بحالته الأصلية وكامل ملحقاته وتغليفه.',
               'إرفاق فاتورة الطلب أو رقم الطلب عند التواصل.',
               'الاسترجاع متاح للمنتجات غير المستخدمة فقط (لأسباب صحية لا تُستبدل العطور والمنتجات الشخصية بعد الفتح).',
-              'رسوم التوصيل الأصلية (2 د.ك) غير مسترجعة عند الاسترجاع الكامل للطلب.',
+              `رسوم التوصيل الأصلية (${shipping ? shipping.price.toFixed(2) : '1.00'} د.ك) غير مسترجعة عند الاسترجاع الكامل للطلب.`,
             ].map((t, i) => (
               <li key={i} className="flex items-start gap-2">
                 <span className="mt-2.5 h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
@@ -211,7 +215,7 @@ export function InfoView() {
               q: 'كم رسوم التوصيل؟',
               a: shipping
                 ? `التوصيل ${shipping.price.toFixed(2)} د.ك لكل محافظات الكويت، ومجاني للطلبات من ${shipping.freeThreshold.toFixed(2)} د.ك وما فوق.`
-                : 'التوصيل 2.00 د.ك لكل محافظات الكويت، ومجاني للطلبات من 50.00 د.ك وما فوق.',
+                : 'التوصيل 1.00 د.ك لكل محافظات الكويت، ومجاني للطلبات من 50.00 د.ك وما فوق.',
             },
             {
               q: 'متى يوصل طلبي؟',

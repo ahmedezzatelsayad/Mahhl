@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAppStore } from '@/lib/stores/app-store';
-import { Store, Mail, MapPin, MessageCircle, Truck, ShieldCheck } from 'lucide-react';
+import { Store, MapPin, MessageCircle, Truck, ShieldCheck } from 'lucide-react';
 import { useBrand, waHref } from '@/components/store/header';
 import type { InfoPage } from '@/lib/stores/app-store';
 
@@ -165,7 +165,7 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Trust strip */}
+        {/* Trust strip — honest, policy-backed badges only */}
         <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
           <div className="flex items-center gap-2 rounded-lg border border-primary-foreground/10 px-4 py-3">
             <Truck className="h-5 w-5 text-accent shrink-0" />
@@ -175,10 +175,17 @@ export function Footer() {
             <ShieldCheck className="h-5 w-5 text-accent shrink-0" />
             <span className="text-primary-foreground/75">دفع آمن عند الاستلام</span>
           </div>
-          <div className="flex items-center gap-2 rounded-lg border border-primary-foreground/10 px-4 py-3">
-            <Mail className="h-5 w-5 text-accent shrink-0" />
-            <span className="text-primary-foreground/75">info@mahalshop.com</span>
-          </div>
+          <a
+            href={waHref(brand.whatsapp, 'هلا محل شوب، عندي استفسار عن الطلب 🙏')}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 rounded-lg border border-primary-foreground/10 px-4 py-3 hover:border-primary-foreground/30 transition-colors"
+          >
+            <MessageCircle className="h-5 w-5 text-green-400 shrink-0" />
+            <span className="text-primary-foreground/75">
+              خدمة العملاء واتساب <span dir="ltr">+965 {brand.whatsapp}</span>
+            </span>
+          </a>
         </div>
 
         <div className="mt-8 pt-6 border-t border-primary-foreground/10 text-center text-xs text-primary-foreground/40 space-y-1">
