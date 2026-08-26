@@ -16,6 +16,7 @@ import {
   Megaphone,
   Settings,
   Search,
+  Images,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -29,6 +30,7 @@ const navItems: NavItem[] = [
   { view: 'admin-dashboard', label: 'الرئيسية', icon: LayoutDashboard },
   { view: 'admin-reports', label: 'التقارير اليومية', icon: BarChart3 },
   { view: 'admin-landing', label: 'صفحات الهبوط', icon: Megaphone },
+  { view: 'admin-slider', label: 'السلايدر', icon: Images },
   { view: 'admin-seo', label: 'SEO والبحث', icon: Search },
   { view: 'admin-products', label: 'المنتجات', icon: Package },
   { view: 'admin-inventory', label: 'المخزون', icon: Boxes },

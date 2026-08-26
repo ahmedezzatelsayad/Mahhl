@@ -9,6 +9,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Truck, Shield, CreditCard, Headphones, Sparkles, Megaphone, HelpCircle } from 'lucide-react';
 import { useBrand } from '@/components/store/header';
 import { HeroSlider, type Slide } from '@/components/store/hero-slider';
+import type { SliderSlide } from '@/lib/slider-types';
 
 interface LandingPromo {
   slug: string;
@@ -54,60 +55,59 @@ export function HomeView() {
   const [shipping, setShipping] = useState<{ price: number; freeThreshold: number } | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // ===== Slides for the hero carousel (clear, high-contrast copy) =====
-  const slides: Slide[] = [
+  // ===== Founder-managed hero slides (real photos + AI copy, dashboard-controlled) =====
+  const [heroSlides, setHeroSlides] = useState<SliderSlide[]>([]);
+  const [autoplayMs, setAutoplayMs] = useState<number | undefined>(undefined);
+  const [appendPromos, setAppendPromos] = useState(true);
+
+  // offline / API-failure fallback so the hero never renders empty
+  const FALLBACK_SLIDES: SliderSlide[] = [
     {
-      id: 'brand',
+      id: 'fb-brand',
       eyebrow: '✨ أكثر من 2,600 منتج — دفع عند الاستلام',
       title: 'تسوّق بذكاء،',
       highlight: 'وفّر أكثر مع محل شوب',
-      subtitle:
-        'منتجات مختارة بعناية من الألعاب والإلكترونيات والأدوات المنزلية. توصيل سريع لكل محافظات الكويت، وذكاء اصطناعي يقترح لك الأفضل لسلتك.',
-      cta: { label: 'تسوق الآن', action: 'shop' },
-      ctaSecondary: { label: 'الأكثر مبيعاً', action: 'category' },
+      subtitle: 'منتجات مختارة بعناية من الألعاب والإلكترونيات والأدوات المنزلية — توصيل سريع لكل محافظات الكويت.',
       tone: 'dark',
-      chips: ['+2,600 منتج', '6 محافظات', 'شحن مجاني من 50 د.ك', 'COD'],
+      chips: ['+2,600 منتج', 'شحن مجاني من 50 د.ك', 'COD'],
+      cta: { label: 'تسوق الآن', action: 'shop' },
+      active: true,
     },
-    {
-      id: 'shipping',
-      eyebrow: '🚚 توصيل لكل الكويت',
-      title: 'أجرة توصيل 1 د.ك فقط —',
-      highlight: 'ومجانية من 50 د.ك',
-      subtitle:
-        shipping
-          ? `اطلب اليوم وادفع كاش عند الاستلام. الطلبات فوق ${shipping.freeThreshold} د.ك توصيلها مجاني لكل المحافظات.`
-          : 'اطلب اليوم وادفع كاش عند الاستلام — توصيل سريع لكل محافظات الكويت.',
-      cta: { label: 'ابدأ التسوق', action: 'shop' },
-      ctaSecondary: { label: 'تتبع طلبك', action: 'track' },
-      tone: 'green',
-      chips: ['العاصمة', 'حولي', 'الفروانية', 'الأحمدي', 'الجهراء', 'مبارك الكبير'],
-    },
-    ...landingPromos.slice(0, 2).map<Slide>((p) => ({
-      id: `landing-${p.slug}`,
-      eyebrow: p.heroBadge || 'عرض خاص لفترة محدودة',
-      title: p.title,
-      subtitle: p.subtitle,
-      cta: { label: 'اكتشف العرض', action: 'landing', payload: p.slug },
-      ctaSecondary: { label: 'كل المنتجات', action: 'shop' },
-      tone: 'gold',
-    })),
   ];
+
+  const slides: Slide[] =
+    (heroSlides.length > 0 ? heroSlides : FALLBACK_SLIDES).concat(
+      appendPromos
+        ? landingPromos.slice(0, 2).map<SliderSlide>((p) => ({
+            id: `landing-${p.slug}`,
+            eyebrow: p.heroBadge || 'عرض خاص لفترة محدودة',
+            title: p.title,
+            subtitle: p.subtitle,
+            cta: { label: 'اكتشف العرض', action: 'landing', payload: p.slug },
+            ctaSecondary: { label: 'كل المنتجات', action: 'shop' },
+            tone: 'gold',
+            active: true,
+          }))
+        : []
+    );
 
   useEffect(() => {
     (async () => {
       try {
-        const [featRes, bsRes, catRes, landingRes, shipRes] = await Promise.all([
+        const [featRes, bsRes, catRes, landingRes, shipRes, sliderRes] = await Promise.all([
           fetch('/api/products?limit=12&sort=newest'),
           fetch('/api/best-sellers'),
           fetch('/api/categories'),
           fetch('/api/landing'),
           fetch('/api/settings/shipping'),
+          fetch('/api/settings/slider'),
         ]);
         const featData = await featRes.json();
         const bsData = await bsRes.json();
         const catData = await catRes.json();
         const landingData = await landingRes.json();
         const shipData = await shipRes.json();
+        const sliderData = await sliderRes.json().catch(() => null);
         setFeatured(featData.items || []);
         setBestSellers(Array.isArray(bsData) ? bsData.slice(0, 8) : []);
         if (Array.isArray(catData)) {
@@ -119,6 +119,12 @@ export function HomeView() {
         if (shipData && typeof shipData.price === 'number') {
           setShipping({ price: shipData.price, freeThreshold: shipData.freeThreshold || 0 });
         }
+        if (sliderData && Array.isArray(sliderData.slides)) {
+          setHeroSlides(sliderData.slides.filter((s: SliderSlide) => s.active));
+          if (typeof sliderData.autoplayMs === 'number') setAutoplayMs(sliderData.autoplayMs);
+          if (typeof sliderData.appendLandingPromos === 'boolean')
+            setAppendPromos(sliderData.appendLandingPromos);
+        }
       } catch (e) {
         console.error('Failed to load home data', e);
       } finally {
@@ -129,8 +135,8 @@ export function HomeView() {
 
   return (
     <div>
-      {/* Hero carousel — clear, readable copy on high-contrast scrims */}
-      <HeroSlider slides={slides} loading={loading} />
+      {/* Hero carousel — founder-managed real-photo slides, clear readable copy */}
+      <HeroSlider slides={slides} loading={loading} autoplayMs={autoplayMs} />
 
       {/* Features */}
       <section className="border-b bg-card">

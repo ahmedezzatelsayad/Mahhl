@@ -34,6 +34,7 @@ export type View =
   | 'admin-reports'
   | 'admin-landing'
   | 'admin-seo'
+  | 'admin-slider'
   | 'admin-settings'
   | 'admin-add-product'
   | 'admin-edit-product';

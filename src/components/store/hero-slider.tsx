@@ -12,33 +12,34 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppStore } from '@/lib/stores/app-store';
+import type { SliderSlide } from '@/lib/slider-types';
 
-export interface Slide {
-  id: string;
-  eyebrow?: string;
-  title: string;
-  highlight?: string;
-  subtitle: string;
-  cta: { label: string; action: 'shop' | 'category' | 'landing' | 'track'; payload?: string };
-  ctaSecondary?: { label: string; action: 'shop' | 'category' | 'landing' | 'track'; payload?: string };
-  /** background image url (optional — slides work as pure gradient too) */
-  image?: string | null;
-  /** tailwind gradient classes used when no image */
-  tone?: 'dark' | 'gold' | 'green' | 'blue';
-  chips?: string[];
-}
+export type Slide = SliderSlide;
+export type { SlideAction } from '@/lib/slider-types';
 
-const AUTOPLAY_MS = 5200;
+const DEFAULT_AUTOPLAY_MS = 5200;
 
-export function HeroSlider({ slides, loading }: { slides: Slide[]; loading?: boolean }) {
+export function HeroSlider({
+  slides,
+  loading,
+  autoplayMs,
+}: {
+  slides: Slide[];
+  loading?: boolean;
+  /** founder-controlled autoplay speed (ms) */
+  autoplayMs?: number;
+}) {
+  const speed = Math.min(12000, Math.max(3000, autoplayMs || DEFAULT_AUTOPLAY_MS));
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const touchX = useRef<number | null>(null);
   const count = slides.length;
 
   const openCategory = useAppStore((s) => s.openCategory);
+  const categoryMap = useAppStore((s) => s.categoryMap);
   const setView = useAppStore((s) => s.setView);
   const openLanding = useAppStore((s) => s.openLanding);
+  const openProduct = useAppStore((s) => s.openProduct);
 
   const go = useCallback(
     (next: number) => {
@@ -56,12 +57,12 @@ export function HeroSlider({ slides, loading }: { slides: Slide[]; loading?: boo
       else setPaused(false);
     };
     document.addEventListener('visibilitychange', onVis);
-    const t = setInterval(() => go(index + 1), AUTOPLAY_MS);
+    const t = setInterval(() => go(index + 1), speed);
     return () => {
       clearInterval(t);
       document.removeEventListener('visibilitychange', onVis);
     };
-  }, [index, paused, count, go]);
+  }, [index, paused, count, go, speed]);
 
   if (loading || count === 0) {
     return (
@@ -76,8 +77,14 @@ export function HeroSlider({ slides, loading }: { slides: Slide[]; loading?: boo
   const act = (a: Slide['cta']) => {
     if (!a) return;
     if (a.action === 'shop') setView('shop');
-    else if (a.action === 'category') openCategory(null);
-    else if (a.action === 'landing' && a.payload) openLanding(a.payload);
+    else if (a.action === 'category') {
+      // resolve the category slug (if known) so the URL stays shareable: /?cat=<slug>
+      const slug = a.payload
+        ? Object.keys(categoryMap).find((sl) => categoryMap[sl] === a.payload) || null
+        : null;
+      openCategory(a.payload || null, a.payload ? slug : undefined);
+    } else if (a.action === 'landing' && a.payload) openLanding(a.payload);
+    else if (a.action === 'product' && a.payload) openProduct(a.payload);
     else if (a.action === 'track') setView('track-order');
   };
 

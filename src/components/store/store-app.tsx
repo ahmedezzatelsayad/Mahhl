@@ -32,6 +32,7 @@ import { AdminInsightsView } from '@/components/admin/admin-insights-view';
 import { AdminFacebookView } from '@/components/admin/admin-facebook-view';
 import { AdminReportsView } from '@/components/admin/admin-reports-view';
 import { AdminLandingView } from '@/components/admin/admin-landing-view';
+import { AdminSliderView } from '@/components/admin/admin-slider-view';
 import { AdminSeoView } from '@/components/admin/admin-seo-view';
 import { AdminSettingsView } from '@/components/admin/admin-settings-view';
 import { FacebookPixel } from '@/components/store/facebook-pixel';
@@ -224,6 +225,7 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
   else if (view === 'admin-facebook' && isAdmin) content = <AdminFacebookView />;
   else if (view === 'admin-reports' && isAdmin) content = <AdminReportsView />;
   else if (view === 'admin-landing' && isAdmin) content = <AdminLandingView />;
+  else if (view === 'admin-slider' && isAdmin) content = <AdminSliderView />;
   else if (view === 'admin-seo' && isAdmin) content = <AdminSeoView />;
   else if (view === 'admin-settings' && isAdmin) content = <AdminSettingsView />;
   else content = <HomeView />;
