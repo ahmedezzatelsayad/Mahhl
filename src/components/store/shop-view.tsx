@@ -44,6 +44,7 @@ export function ShopView() {
     setPriceFilter,
     toggleBestSellerFilter,
     resetFilters,
+    setCategoryMap,
   } = useAppStore();
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -74,9 +75,14 @@ export function ShopView() {
   useEffect(() => {
     fetch('/api/categories')
       .then((r) => r.json())
-      .then((data) => setCategories(Array.isArray(data) ? data : []))
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setCategories(data);
+          setCategoryMap(data); // slug->id map for back/forward navigation
+        }
+      })
       .catch(() => {});
-  }, []);
+  }, [setCategoryMap]);
 
   // Load products when filters change
   useEffect(() => {
@@ -101,13 +107,21 @@ export function ShopView() {
     setPage(1);
   }, [selectedCategoryId, searchQuery, filterBestSeller, priceMin, priceMax, sort]);
 
+  const slugOfCategory = (id: string | null) =>
+    id ? categories.find((c) => c.id === id)?.slug ?? null : null;
+
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-bold">
-            {searchQuery ? `نتائج البحث عن: "${searchQuery}"` : 'كل المنتجات'}
+            {searchQuery
+              ? `نتائج البحث عن: "${searchQuery}"`
+              : selectedCategoryId
+                ? categories.find((c) => c.id === selectedCategoryId)?.name ||
+                  'تسوق حسب الفئة'
+                : 'كل المنتجات'}
           </h1>
           <p className="text-sm text-muted-foreground">{total.toLocaleString()} منتج</p>
         </div>
@@ -142,7 +156,7 @@ export function ShopView() {
           <FilterPanel
             categories={categories}
             selectedCategoryId={selectedCategoryId}
-            onCategoryChange={openCategory}
+            onCategoryChange={(id) => openCategory(id, slugOfCategory(id))}
             searchQuery={searchQuery}
             onSearchChange={setSearch}
             priceMin={priceMin}
@@ -171,7 +185,7 @@ export function ShopView() {
                 categories={categories}
                 selectedCategoryId={selectedCategoryId}
                 onCategoryChange={(id) => {
-                  openCategory(id);
+                  openCategory(id, slugOfCategory(id));
                   setShowFilters(false);
                 }}
                 searchQuery={searchQuery}

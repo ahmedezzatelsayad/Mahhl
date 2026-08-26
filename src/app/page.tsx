@@ -1,94 +1,159 @@
-'use client';
+import type { Metadata } from 'next';
+import {
+  getSeoSettings,
+  getSiteUrl,
+  productTitle,
+  productDescription,
+  firstImage,
+  resolveSeoPage,
+} from '@/lib/seo';
+import { StoreApp, InitialUrlState } from '@/components/store/store-app';
+import { SeoHtml } from '@/components/store/seo-html';
 
-import { useEffect, useState } from 'react';
-import { useAppStore } from '@/lib/stores/app-store';
-import { Header } from '@/components/store/header';
-import { Footer } from '@/components/store/footer';
-import { CartDrawer } from '@/components/store/cart-drawer';
-import { HomeView } from '@/components/store/home-view';
-import { ShopView } from '@/components/store/shop-view';
-import { ProductView } from '@/components/store/product-view';
-import { CartView } from '@/components/store/cart-view';
-import { CheckoutView, OrderSuccessView } from '@/components/store/checkout-view';
-import { AdminLoginView } from '@/components/admin/admin-login-view';
-import { AdminSidebar, AdminMobileNav } from '@/components/admin/admin-sidebar';
-import { AdminDashboardView } from '@/components/admin/admin-dashboard-view';
-import { AdminProductsView, AdminAddProductView, AdminEditProductView } from '@/components/admin/admin-products-view';
-import { AdminInventoryView } from '@/components/admin/admin-inventory-view';
-import { AdminOrdersView } from '@/components/admin/admin-orders-view';
-import { AdminCategoriesView } from '@/components/admin/admin-categories-view';
-import { AdminInsightsView } from '@/components/admin/admin-insights-view';
-import { AdminFacebookView } from '@/components/admin/admin-facebook-view';
-import { AdminReportsView } from '@/components/admin/admin-reports-view';
-import { AdminLandingView } from '@/components/admin/admin-landing-view';
-import { AdminSettingsView } from '@/components/admin/admin-settings-view';
-import { FacebookPixel } from '@/components/store/facebook-pixel';
-import { LandingView } from '@/components/store/landing-view';
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-export default function Home() {
-  const view = useAppStore((s) => s.view);
-  const isAdmin = useAppStore((s) => s.isAdmin);
-  const setView = useAppStore((s) => s.setView);
+const INDEX_FOLLOW = { index: true, follow: true };
+const NO_INDEX = { index: false, follow: false };
 
-  // Redirect away from admin pages if not logged in
-  useEffect(() => {
-    if (view.startsWith('admin-') && view !== 'admin-login' && !isAdmin) {
-      setView('admin-login');
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+  const sp = await searchParams;
+  const [page, seo, siteUrl] = await Promise.all([
+    resolveSeoPage(sp),
+    getSeoSettings(),
+    getSiteUrl(),
+  ]);
+
+  const ogBase = {
+    siteName: 'محل شوب',
+    locale: 'ar_KW',
+    type: 'website' as const,
+  };
+
+  switch (page.kind) {
+    case 'product': {
+      const p = page.product;
+      const canonical = `${siteUrl}/?p=${encodeURIComponent(p.slug)}`;
+      const image = firstImage(p);
+      return {
+        title: productTitle(p),
+        description: productDescription(p),
+        keywords: [
+          p.name,
+          p.category?.name || '',
+          'شراء أونلاين الكويت',
+          'محل شوب',
+          `${p.sku}`,
+        ].filter(Boolean),
+        alternates: { canonical },
+        robots: INDEX_FOLLOW,
+        openGraph: {
+          ...ogBase,
+          title: `${p.name} | محل شوب`,
+          description: productDescription(p),
+          url: canonical,
+          images: image ? [{ url: image, width: 800, height: 800, alt: p.name }] : undefined,
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title: `${p.name} — ${p.salePrice} د.ك | محل شوب`,
+          description: productDescription(p),
+          images: image ? [image] : undefined,
+        },
+      };
     }
-  }, [view, isAdmin, setView]);
+    case 'category': {
+      const c = page.category;
+      const canonical = `${siteUrl}/?cat=${encodeURIComponent(c.slug)}`;
+      return {
+        title: `${c.name} — تسوق أونلاين بأفضل الأسعار في الكويت`,
+        description: `تصفح منتجات ${c.name} في محل شوب بأسعار بالدينار الكويتي. دفع عند الاستلام وتوصيل سريع لجميع محافظات الكويت.`,
+        keywords: [c.name, `${c.name} الكويت`, 'تسوق أونلاين', 'محل شوب', 'أسعار الكويت'],
+        alternates: { canonical },
+        robots: INDEX_FOLLOW,
+        openGraph: {
+          ...ogBase,
+          title: `${c.name} | محل شوب`,
+          description: `منتجات ${c.name} بأسعار تنافسية — توصيل لكل الكويت ودفع عند الاستلام.`,
+          url: canonical,
+        },
+      };
+    }
+    case 'landing': {
+      const canonical = `${siteUrl}/?l=${encodeURIComponent(
+        new URLSearchParams(
+          Object.entries(sp).flatMap(([k, v]) =>
+            k === 'l' && typeof v === 'string' ? [[k, v] as [string, string]] : []
+          )
+        ).get('l') || ''
+      )}`;
+      return {
+        title: page.title,
+        description: `${page.title} — عرض خاص من محل شوب الكويت: أسعار بالدينار الكويتي، دفع عند الاستلام، وتوصيل سريع لجميع المحافظات.`,
+        alternates: { canonical },
+        robots: INDEX_FOLLOW,
+        openGraph: { ...ogBase, title: page.title, url: canonical },
+      };
+    }
+    case 'search':
+      // thin search results — keep out of the index, follow links
+      return { title: `نتائج البحث: ${page.q}`, robots: { index: false, follow: true } };
+    case 'admin':
+      return { title: 'لوحة التحكم', robots: NO_INDEX };
+    default:
+      return {
+        title: seo.siteTitle,
+        description: seo.description,
+        keywords: seo.keywords.split(',').map((k) => k.trim()).filter(Boolean),
+        alternates: { canonical: siteUrl },
+        robots: INDEX_FOLLOW,
+        openGraph: {
+          ...ogBase,
+          title: seo.siteTitle,
+          description: seo.description,
+          url: siteUrl,
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title: seo.siteTitle,
+          description: seo.description,
+        },
+      };
+  }
+}
 
-  // Scroll to top on view change
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [view]);
+export default async function Page({ searchParams }: PageProps) {
+  const sp = await searchParams;
+  const [page, siteUrl] = await Promise.all([resolveSeoPage(sp), getSiteUrl()]);
 
-  const isAdminView = view.startsWith('admin-') && view !== 'admin-login' && isAdmin;
-
-  // Render the correct view
-  let content: React.ReactNode;
-  if (view === 'home') content = <HomeView />;
-  else if (view === 'shop') content = <ShopView />;
-  else if (view === 'product') content = <ProductView />;
-  else if (view === 'cart') content = <CartView />;
-  else if (view === 'checkout') content = <CheckoutView />;
-  else if (view === 'order-success') content = <OrderSuccessView />;
-  else if (view === 'landing') content = <LandingView />;
-  else if (view === 'admin-login') content = <AdminLoginView />;
-  else if (view === 'admin-dashboard' && isAdmin) content = <AdminDashboardView />;
-  else if (view === 'admin-products' && isAdmin) content = <AdminProductsView />;
-  else if (view === 'admin-add-product' && isAdmin) content = <AdminAddProductView />;
-  else if (view === 'admin-edit-product' && isAdmin) content = <AdminEditProductView />;
-  else if (view === 'admin-inventory' && isAdmin) content = <AdminInventoryView />;
-  else if (view === 'admin-orders' && isAdmin) content = <AdminOrdersView />;
-  else if (view === 'admin-categories' && isAdmin) content = <AdminCategoriesView />;
-  else if (view === 'admin-insights' && isAdmin) content = <AdminInsightsView />;
-  else if (view === 'admin-facebook' && isAdmin) content = <AdminFacebookView />;
-  else if (view === 'admin-reports' && isAdmin) content = <AdminReportsView />;
-  else if (view === 'admin-landing' && isAdmin) content = <AdminLandingView />;
-  else if (view === 'admin-settings' && isAdmin) content = <AdminSettingsView />;
-  else content = <HomeView />;
-
-  if (isAdminView) {
-    return (
-      <div className="min-h-screen flex flex-col bg-background">
-        <div className="flex flex-1">
-          <AdminSidebar />
-          <div className="flex-1 flex flex-col min-w-0">
-            <AdminMobileNav />
-            <main className="flex-1">{content}</main>
-          </div>
-        </div>
-      </div>
-    );
+  // Build the initial client state so deep links open the right SPA view
+  const initial: InitialUrlState = { view: 'home' };
+  const one = (k: string) => {
+    const v = sp[k];
+    return Array.isArray(v) ? v[0] : v;
+  };
+  if (page.kind === 'product') {
+    initial.view = 'product';
+    initial.productSlug = page.product.slug;
+  } else if (page.kind === 'category') {
+    initial.view = 'shop';
+    initial.categoryId = page.category.id;
+    initial.categorySlug = page.category.slug;
+  } else if (page.kind === 'landing') {
+    initial.view = 'landing';
+    initial.landingSlug = one('l') || null;
+  } else if (page.kind === 'search') {
+    initial.view = 'shop';
+    initial.searchQuery = page.q;
+  } else if (one('all') === '1') {
+    initial.view = 'shop';
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <FacebookPixel />
-      <Header />
-      <main className="flex-1">{content}</main>
-      <Footer />
-      <CartDrawer />
-    </div>
+    <>
+      <SeoHtml page={page} siteUrl={siteUrl} />
+      <StoreApp initial={initial} />
+    </>
   );
 }

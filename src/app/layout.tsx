@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cairo, Rubik } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { getSeoSettings, getSiteUrl, DEFAULT_SITE_URL } from "@/lib/seo";
 
 const cairo = Cairo({
   variable: "--font-body",
@@ -16,19 +17,82 @@ const rubik = Rubik({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "محل شوب | متجر إلكتروني عربي احترافي",
-  description:
-    "محل شوب — متجر إلكتروني عربي احترافي. أكثر من 2638 منتج بأسعار تنافسية. توصيل سريع لجميع المحافظات، دفع عند الاستلام.",
-  keywords: [
-    "محل شوب",
-    "متجر إلكتروني",
-    "تسوق",
-    "mahal shop",
-    "متجر عربي",
-    "الكويت",
-  ],
-  authors: [{ name: "Mahal Shop" }],
+export async function generateMetadata(): Promise<Metadata> {
+  let seo = await getSeoSettings();
+  let siteUrl = DEFAULT_SITE_URL;
+  try {
+    siteUrl = await getSiteUrl();
+  } catch {
+    /* keep localhost fallback */
+  }
+
+  const keywords = seo.keywords.split(',').map((k) => k.trim()).filter(Boolean);
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title: {
+      default: seo.siteTitle,
+      template: seo.titleTemplate.includes('%s') ? seo.titleTemplate : `%s | محل شوب`,
+    },
+    description: seo.description,
+    keywords,
+    authors: [{ name: "Mahal Shop", url: siteUrl }],
+    creator: "Mahal Shop",
+    publisher: "محل شوب",
+    applicationName: "محل شوب",
+    category: "shopping",
+    formatDetection: { telephone: true, address: false, email: false },
+    alternates: {
+      canonical: "./",
+      languages: {
+        ar: siteUrl,
+        "ar-KW": siteUrl,
+        "x-default": siteUrl,
+      },
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+    verification: {
+      google: seo.googleVerification || undefined,
+      other: seo.bingVerification
+        ? { "msvalidate.01": seo.bingVerification }
+        : undefined,
+    },
+    openGraph: {
+      type: "website",
+      siteName: "محل شوب",
+      title: seo.siteTitle,
+      description: seo.description,
+      url: siteUrl,
+      locale: "ar_KW",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seo.siteTitle,
+      description: seo.description,
+    },
+    other: {
+      "geo.region": "KW",
+      "geo.placename": "الكويت, Kuwait",
+      ICBM: "29.3759, 47.9774",
+      "ai-content-declaration": "product-listings",
+    },
+  };
+}
+
+export const viewport: Viewport = {
+  themeColor: "#1C1917",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

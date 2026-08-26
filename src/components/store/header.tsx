@@ -7,7 +7,7 @@ import { useCartStore } from '@/lib/stores/cart-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import { trackFB } from '@/lib/facebook-pixel';
 
 export function Header() {
@@ -18,6 +18,13 @@ export function Header() {
   const totalItems = useCartStore((s) => s.getTotalItems());
   const [q, setQ] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  // Cart badge depends on persisted localStorage — render it only after hydration
+  // (useSyncExternalStore: false on server, true on client — no setState effect).
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   function submitSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -94,7 +101,7 @@ export function Header() {
               aria-label="السلة"
             >
               <ShoppingCart className="h-5 w-5" />
-              {totalItems > 0 && (
+              {mounted && totalItems > 0 && (
                 <Badge
                   variant="destructive"
                   className="absolute -top-1 -left-1 h-5 w-5 flex items-center justify-center p-0 text-[10px]"

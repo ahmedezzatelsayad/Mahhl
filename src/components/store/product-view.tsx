@@ -77,6 +77,8 @@ export function ProductView() {
         if (data.product) {
           setProduct(data.product);
           setRelated(data.related || []);
+          // Keep the browser tab title in sync with the product (UX + sharing)
+          document.title = `${data.product.name} | محل شوب`;
           // Track product_view event (fire and forget)
           trackEvent('product_view', { productId: data.product.id });
           // Facebook Pixel — ViewContent

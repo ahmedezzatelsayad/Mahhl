@@ -5,7 +5,8 @@ import { useAppStore } from '@/lib/stores/app-store';
 import { ProductCard } from '@/components/store/product-card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Truck, Shield, CreditCard, Headphones, Sparkles, Megaphone } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Truck, Shield, CreditCard, Headphones, Sparkles, Megaphone, HelpCircle } from 'lucide-react';
 
 interface LandingPromo {
   slug: string;
@@ -41,37 +42,48 @@ export function HomeView() {
   const setView = useAppStore((s) => s.setView);
   const openCategory = useAppStore((s) => s.openCategory);
   const openLanding = useAppStore((s) => s.openLanding);
+  const setCategoryMap = useAppStore((s) => s.setCategoryMap);
 
   const [featured, setFeatured] = useState<Product[]>([]);
   const [bestSellers, setBestSellers] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [landingPromos, setLandingPromos] = useState<LandingPromo[]>([]);
+  const [shipping, setShipping] = useState<{ price: number; freeThreshold: number } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       try {
-        const [featRes, bsRes, catRes, landingRes] = await Promise.all([
+        const [featRes, bsRes, catRes, landingRes, shipRes] = await Promise.all([
           fetch('/api/products?limit=12&sort=newest'),
           fetch('/api/best-sellers'),
           fetch('/api/categories'),
           fetch('/api/landing'),
+          fetch('/api/settings/shipping'),
         ]);
         const featData = await featRes.json();
         const bsData = await bsRes.json();
         const catData = await catRes.json();
         const landingData = await landingRes.json();
+        const shipData = await shipRes.json();
         setFeatured(featData.items || []);
         setBestSellers(Array.isArray(bsData) ? bsData.slice(0, 8) : []);
-        setCategories(Array.isArray(catData) ? catData : []);
+        if (Array.isArray(catData)) {
+          setCategories(catData);
+          // register slug->id map for browser back/forward support
+          setCategoryMap(catData);
+        }
         setLandingPromos(Array.isArray(landingData) ? landingData.slice(0, 3) : []);
+        if (shipData && typeof shipData.price === 'number') {
+          setShipping({ price: shipData.price, freeThreshold: shipData.freeThreshold || 0 });
+        }
       } catch (e) {
         console.error('Failed to load home data', e);
       } finally {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [setCategoryMap]);
 
   return (
     <div>
@@ -184,7 +196,7 @@ export function HomeView() {
             {categories.slice(0, 6).map((c) => (
               <button
                 key={c.id}
-                onClick={() => openCategory(c.id)}
+                onClick={() => openCategory(c.id, c.slug)}
                 className="group flex flex-col items-center justify-center p-4 border rounded-lg bg-card hover:border-primary hover:bg-accent transition-colors"
               >
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg mb-2 group-hover:scale-110 transition-transform">
@@ -248,6 +260,59 @@ export function HomeView() {
             تصفح كل المنتجات (2,638)
           </Button>
         </div>
+      </section>
+
+      {/* FAQ — visible Q&A (matches FAQPage JSON-LD; helps Google & AI assistants) */}
+      <section className="container mx-auto px-4 py-10 max-w-3xl">
+        <h2 className="text-xl md:text-2xl font-bold mb-5 flex items-center gap-2">
+          <HelpCircle className="h-6 w-6 text-primary" />
+          الأسئلة الشائعة عن محل شوب
+        </h2>
+        <Accordion type="single" collapsible>
+          <AccordionItem value="faq-1">
+            <AccordionTrigger className="text-right">
+              هل يوجد توصيل لجميع محافظات الكويت؟
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground leading-relaxed">
+              نعم — محل شوب يوصّل لجميع محافظات الكويت الست (العاصمة، حولي، الفروانية،
+              الأحمدي، الجهراء، مبارك الكبير).{' '}
+              {shipping
+                ? `سعر التوصيل ${shipping.price} د.ك${
+                    shipping.freeThreshold > 0
+                      ? ` والتوصيل مجاني للطلبات من ${shipping.freeThreshold} د.ك فأكثر`
+                      : ''
+                }.`
+                : 'التوصيل مجاني للطلبات الكبيرة.'}
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="faq-2">
+            <AccordionTrigger className="text-right">
+              ما هي طرق الدفع المتاحة؟
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground leading-relaxed">
+              الدفع عند الاستلام (COD) — تدفع نقداً للمندوب عند وصول طلبك. جميع الأسعار
+              المعروضة بالدينار الكويتي دون أي رسوم خفية.
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="faq-3">
+            <AccordionTrigger className="text-right">
+              كم عدد المنتجات والفئات في محل شوب؟
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground leading-relaxed">
+              أكثر من 2,600 منتج في 38 فئة تشمل: الأجهزة الكهربائية، مستلزمات المطبخ،
+              الأحزمة والمشدات، الألعاب، العناية الشخصية، الأدوات المنزلية وغيرها.
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="faq-4">
+            <AccordionTrigger className="text-right">
+              كيف أطلب من محل شوب؟
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground leading-relaxed">
+              اختر المنتج المطلوب، اضغط "أضف للسلة"، ثم أكمل الطلب بكتابة اسمك ورقم
+              هاتفك والمحافظة والمنطقة والعنوان — سنتصل بك لتأكيد الطلب قبل التوصيل.
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </section>
     </div>
   );
