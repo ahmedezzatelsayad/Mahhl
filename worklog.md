@@ -114,3 +114,54 @@ Stage Summary:
 - قاعدة البيانات: Neon PostgreSQL (2638 منتج، 38 فئة) عبر NEON_DATABASE_URL
 - حساب الفاوندر مُختبَر من الواجهة والأ API
 - رابط المعاينة للمستخدم عبر لوحة Preview
+
+---
+Task ID: 3 (fb-tracking-rebrand)
+Agent: main
+Task: تتبع Facebook Pixel API + تغيير هوية الموقع إلى محل شوب
+
+Work Log:
+- إضافة SiteSetting model إلى prisma/schema.prisma + db:push إلى Neon
+- بناء src/lib/facebook-pixel.ts — مكتبة تتبع مزدوجة:
+  • Browser Pixel (window.fbq stub مطابق للكود الرسمي)
+  • Conversions API عبر /api/track/facebook (server-side)
+  • event_id مشترك للحدثين = deduplication تلقائي من Meta
+  • caching للإعدادات في sessionStorage
+- إصلاح bug: الـ stub كان على document.fbq بدل window.fbq
+- بناء 3 API routes:
+  • GET /api/settings/facebook (public) — bootstrap البكسل
+  • GET/PUT /api/admin/facebook (admin-guarded) — إدارة الإعدادات
+  • POST /api/track/facebook — تحويل CAPI مع fbp/fbc + IP/UA + هاتف مشفر SHA-256
+- src/lib/settings.ts — قراءة/حفظ إعدادات فيسبوك (DB أولاً ثم env fallback)
+- دمج التتبع في 5 نقاط:
+  • FacebookPixel component في page.tsx → PageView
+  • product-view → ViewContent (SKU + الاسم + السعر)
+  • cart-store addItem → AddToCart (contents + num_items)
+  • checkout-view → InitiateCheckout (mount) + Purchase (نجاح الطلب مع الهاتف للسيرفر فقط)
+  • header submitSearch → Search
+- بناء AdminFacebookView — لوحة كاملة:
+  • 3 status cards + toggle + Pixel ID + Access Token (masked) + Test Event Code
+  • زر "إرسال حدث تجريبي" (يحفظ ثم يطلق ViewContent)
+  • مرجع الأحداث المتتبعة
+- إضافة admin-facebook view في app-store + sidebar (أيقونة Facebook من lucide)
+- تغيير الهوية إي ميرج → محل شوب في: layout.tsx (title/desc/keywords/authors),
+  header, footer (+info@mahalshop.com), checkout success, admin login
+- .env.example — توثيق FB_PIXEL_ID / FB_ACCESS_TOKEN / FB_TEST_EVENT_CODE
+- اختبار بالمتصفح (agent-browser):
+  • العنوان: "محل شوب | متجر إلكتروني عربي احترافي" ✅
+  • fbq function + queue فيه init + track(PageView) ✅
+  • ViewContent بـ SKU وeventID ✅
+  • AddToCart بـ contents/num_items ✅
+  • InitiateCheckout بقيمة 9 (شامل الشحن) ✅
+  • Purchase بـ ORD-MTA1J9GQ وقيمة 9 KWD ✅
+  • 8 POSTs إلى /api/track/facebook (كل الأحداث CAPI) ✅
+  • لوحة الإدارة: حفظ + قراءة + حدث تجريبي ✅
+  • بعد التصفير: لا سكريبت ولا أخطاء console ✅
+- الإعدادات التجريبية صُفّرت (disabled) — جاهزة ل pixel حقيقي من المستخدم
+- lint: 0 errors (تحذيران قديمان فقط)
+- commit b195408 + push — SHA البعيد = المحلي
+
+Stage Summary:
+- تتبع فيسبوك مزدوج المسار (متصفح + سيرفر) مع dedup — مُختبَر بالكامل
+- الهوية الجديدة: محل شوب في كل الواجهات
+- المستخدم يحتاج فقط: يدخل لوحة الإدارة → تتبع فيسبوك → يلصق Pixel ID (+ Access Token اختياري)
