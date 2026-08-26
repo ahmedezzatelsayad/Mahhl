@@ -45,3 +45,28 @@ Work Log:
 Stage Summary:
 - Slider now: real photos by default, full founder control (سلايدر tab), per-product AI copywriter, dynamic AI product slider with preview-before-apply. Honest-copy policy enforced in all prompts (real prices/facts only).
 - Deploy state: local main = 044fef4 (build ✓). NOT yet on GitHub — push pending PAT. Vercel deployment protection blocker from Task 1 still applies.
+
+---
+Task ID: 3
+Agent: Super Z (main)
+Task: Push pending commits with founder's new PAT + global e-commerce best-practices research + implementation
+
+Work Log:
+- Pushed pending slider commits 0d1c2db..1af5fa1 with new PAT (from user message).
+- Web research (10 queries → scripts/research/): Baymard (70.19% cart abandonment, hidden costs = #1 reason), Kissmetrics (reviews +270% conversion, 5+ images +60%), Salesforce/Prefixbox (site-search users convert up to 6.4x), trust signals (+20-35%), mobile thumb-zone design, Core Web Vitals (1s delay = -7% conversions), product schema rich snippets, post-purchase retention, Kuwait market (KNET essential, COD 30-40% and dropping, offer COD as first-buyer trust step).
+- Gap analysis: site already has COD/K-Cash, Schema.org, FAQ, tracking; MISSING = reviews, search autocomplete, shipping cost on product page, free-shipping progress, sticky mobile CTA, honest social proof.
+- NEW Review model in Prisma (pushed to Neon): productId, rating 1-5, title/comment, isVerified, isApproved, helpfulCount; verified = matched against real non-cancelled orders by phone suffix → auto-publishes; unverified waits for founder.
+- APIs: /api/reviews (GET summary+distribution+soldCount 60s cache; POST with 5/hour/IP rate-limit, dup guard, Kuwait phone normalization) and /api/admin/reviews (GET by status+search+stats, PATCH approve/reject/verify, DELETE).
+- ReviewsSection component: stars summary card with distribution bars, review list with verified badge/firstName masking/timeAgo, write-review form (star radiogroup, phone-for-verification explainer), success via toast (fixed hidden-feedback bug), empty-state invitation. useReviewSummary shared hook powers compact (5.0 (1 تقييم)) line + "🔥 طُلب X مرة" honest sold-count under title.
+- productJsonLd now accepts rating → aggregateRating ONLY when real approved reviews exist (verified: no aggregateRating in HTML with zero reviews). SeoHtml computes it server-side via aggregate query.
+- Admin: 'التقييمات' sidebar tab (admin-reviews view) — pending/approved tabs with counts, search, approve/reject/verify/delete, product thumb + click-through. E2E verified: login → approve pending → public API reflected.
+- SearchBox component with live autocomplete: /api/search/suggest (60s prefix micro-cache, 6 products + 3 categories), debounced 220ms, thumbnails+prices+bestseller badge, keyboard nav (arrows/enter/escape), recent searches (localStorage, 5 max) + popular term chips, "شاهد كل نتائج" footer, outside-click close, aborts stale fetches. Replaced header search (desktop + mobile).
+- Shipping transparency box on product page (1 د.ك / مجاني ≥50 / الدفع عند الاستلام) + low-stock honest urgency badge (≤5 قطع) + FreeShippingBar (reusable, module-cached settings fetch) in cart drawer AND cart page summary: progress bar, "أضف X د.ك واحصل على شحن مجاني", green celebrate state at threshold.
+- Sticky mobile ATC bar: IntersectionObserver on #main-atc-block, md:hidden bottom bar with total price + CTA; body[data-sticky-atc] + .float-stack CSS lifts AI-chat/WhatsApp buttons above it (verified matrix translateY(-76px)).
+- Verified E2E via agent-browser: suggest dropdown (عطر → 6 options → click → /?p=elec-0017), review submit unverified (pending) + verified phone 55123456 of real order ORD-MTACT3DL (auto-published ✓), moderation approve flow, cart drawer bar (12 من 50 د.ك · أضف 38 د.ك), mobile sticky bar logic, empty-state reviews.
+- Cleaned ALL test reviews from production DB (honest-content policy). lint 0 errors (35 pre-existing warnings); build ✓; committed c54ed98 and pushed to GitHub main — Vercel auto-deploys.
+
+Stage Summary:
+- Global-benchmark features live: reviews engine (biggest conversion lever), 6.4x search autocomplete, shipping transparency + free-shipping progress, sticky mobile CTA, honest social proof (sold counts, verified reviews, low stock).
+- Deploy state: GitHub main = c54ed98 (build ✓, lint clean). Founder should: (1) set Vercel Deployment Protection → Public, (2) approve incoming reviews from التقييمات tab, (3) encourage first buyers to leave reviews with their phone for instant verified publishing.
+- Research sources archived in scripts/research/ (SUMMARY.txt + r1-r10.json).
