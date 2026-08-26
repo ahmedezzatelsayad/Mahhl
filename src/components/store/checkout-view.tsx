@@ -32,6 +32,7 @@ export function CheckoutView() {
   const setLastOrder = useAppStore((s) => s.setLastOrder);
 
   const [loading, setLoading] = useState(false);
+  const [shippingCfg, setShippingCfg] = useState({ price: 2, freeThreshold: 50, note: '' });
   const [form, setForm] = useState({
     customerName: '',
     phone: '',
@@ -43,13 +44,25 @@ export function CheckoutView() {
     paymentMethod: 'cod',
   });
 
+  // Load admin-configured shipping settings
+  useEffect(() => {
+    fetch('/api/settings/shipping')
+      .then((r) => r.json())
+      .then((s) => {
+        if (s && typeof s.price === 'number') {
+          setShippingCfg({ price: s.price, freeThreshold: s.freeThreshold, note: s.note || '' });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   // Track checkout_start once on mount
   useEffect(() => {
     trackEvent('checkout_start', { metadata: { itemsCount: items.length, subtotal } });
     // Facebook Pixel — InitiateCheckout (with cart contents)
     if (items.length > 0) {
       trackFB('InitiateCheckout', {
-        value: subtotal + (subtotal > 50 ? 0 : 2),
+        value: subtotal + (subtotal >= 50 ? 0 : 2),
         currency: 'KWD',
         content_type: 'product',
         content_ids: items.map((i) => i.sku || i.productId),
@@ -63,7 +76,7 @@ export function CheckoutView() {
     }
   }, [items.length, subtotal]);
 
-  const shipping = subtotal > 50 ? 0 : 2;
+  const shipping = shippingCfg.freeThreshold > 0 && subtotal >= shippingCfg.freeThreshold ? 0 : shippingCfg.price;
   const total = subtotal + shipping;
 
   function update<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
@@ -317,6 +330,14 @@ export function CheckoutView() {
                     <span>{formatKwd(shipping)}</span>
                   )}
                 </div>
+                {shipping > 0 && shippingCfg.freeThreshold > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    أضف بقيمة {formatKwd(Math.max(0, shippingCfg.freeThreshold - subtotal))} للحصول على شحن مجاني
+                  </p>
+                )}
+                {shippingCfg.note && (
+                  <p className="text-xs text-muted-foreground">{shippingCfg.note}</p>
+                )}
                 <div className="border-t pt-2 flex justify-between font-bold text-base">
                   <span>الإجمالي:</span>
                   <span className="text-primary">{formatKwd(total)}</span>

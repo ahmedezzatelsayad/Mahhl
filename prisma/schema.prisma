@@ -126,9 +126,31 @@ model AdminUser {
 // ===== Site Settings (Facebook Pixel / integrations) =====
 
 model SiteSetting {
-  key       String   @id // e.g. "facebook_pixel"
+  key       String   @id // e.g. "facebook_pixel", "deepseek", "shipping"
   value     Json     // { enabled, pixelId, accessToken, testEventCode }
   updatedAt DateTime @updatedAt
+}
+
+// ===== AI-Generated Landing Pages =====
+
+model LandingPage {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  subtitle  String
+  // AI-generated content: { sections: { features: [], testimonials: [], faq: [] }, cta: {...}, theme: {...} }
+  content   Json
+  // optional product ids to showcase
+  productIds Json?
+  heroImage  String?
+  isActive   Boolean  @default(false)
+  isFeatured Boolean  @default(false) // show link on storefront
+  views      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([isFeatured])
 }
 
 // ===== AI Behavior Tracking & Upsell Engine =====

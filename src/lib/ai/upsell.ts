@@ -8,6 +8,7 @@
  */
 import { db } from '@/lib/db';
 import ZAI from 'z-ai-web-dev-sdk';
+import { deepSeekChat, extractJson } from '@/lib/deepseek';
 
 const MODEL_VERSION = 'v1';
 const OFFER_TTL_MIN = 30; // cache offers for 30 minutes
@@ -249,6 +250,22 @@ ${itemsList}
 }`;
 
   try {
+    // Priority 1: DeepSeek (founder's paid key, configured in admin AI page)
+    const ds = await deepSeekChat(
+      [
+        { role: 'system', content: 'أنت مساعد تسويق محترم يعيد JSON صحيح فقط.' },
+        { role: 'user', content: prompt },
+      ],
+      { temperature: 0.7, maxTokens: 600, jsonMode: true, timeoutMs: 15000 }
+    );
+    if (ds.ok) {
+      const parsed = extractJson<{ reasons: string[] }>(ds.content);
+      if (parsed && Array.isArray(parsed.reasons) && parsed.reasons.length === recs.length) {
+        return recs.map((r, i) => ({ ...r, reason: parsed.reasons[i] || r.reason }));
+      }
+    }
+
+    // Priority 2: built-in workspace SDK
     const zai = await ZAI.create();
     const completion = await zai.chat.completions.create({
       messages: [

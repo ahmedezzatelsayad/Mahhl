@@ -60,7 +60,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Card
       onClick={() => openProduct(product.slug)}
-      className="group cursor-pointer overflow-hidden border-border/60 transition-all hover:border-primary/40 hover:shadow-md"
+      className="card-lift group overflow-hidden border-border/60 hover:border-accent/50"
     >
       <div className="relative aspect-square overflow-hidden bg-muted/30">
         {imgUrl && !imgError ? (
@@ -86,7 +86,7 @@ export function ProductCard({ product }: ProductCardProps) {
             </Badge>
           )}
           {product.isBestSeller && (
-            <Badge className="bg-yellow-500 text-white hover:bg-yellow-600">
+            <Badge className="btn-gold border-0 text-white hover:opacity-90">
               <Star className="h-3 w-3 ml-1" />
               الأكثر مبيعاً
             </Badge>
@@ -107,13 +107,13 @@ export function ProductCard({ product }: ProductCardProps) {
           </p>
         )}
         <h3
-          className="text-sm font-medium line-clamp-2 min-h-[2.5rem] group-hover:text-primary"
+          className="text-sm font-medium line-clamp-2 min-h-[2.5rem] group-hover:text-accent"
           title={product.name}
         >
           {product.name}
         </h3>
         <div className="flex items-baseline gap-2">
-          <span className="text-base font-bold text-primary">
+          <span className="text-base font-extrabold text-foreground">
             {formatKwd(product.salePrice)}
           </span>
           {discount > 0 && (
@@ -124,7 +124,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
         <Button
           size="sm"
-          className="w-full"
+          className="w-full btn-gold border-0 hover:opacity-95"
           disabled={product.quantity <= 0}
           onClick={addToCart}
         >

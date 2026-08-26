@@ -61,3 +61,48 @@ export async function saveFacebookSettings(
   });
   return next;
 }
+
+// ===== Shipping settings =====
+
+export interface ShippingSettings {
+  price: number; // flat shipping fee (KWD)
+  freeThreshold: number; // orders >= this get free shipping (KWD)
+  note: string; // optional note shown at checkout
+}
+
+const SHIPPING_KEY = 'shipping';
+const DEFAULT_SHIPPING: ShippingSettings = { price: 2, freeThreshold: 50, note: '' };
+
+export async function getShippingSettings(): Promise<ShippingSettings> {
+  try {
+    const row = await db.siteSetting.findUnique({ where: { key: SHIPPING_KEY } });
+    if (row?.value) {
+      const v = row.value as Record<string, unknown>;
+      return {
+        price: Number(v.price ?? DEFAULT_SHIPPING.price) || 0,
+        freeThreshold: Number(v.freeThreshold ?? DEFAULT_SHIPPING.freeThreshold) || 0,
+        note: String(v.note || ''),
+      };
+    }
+  } catch {
+    /* fall through */
+  }
+  return DEFAULT_SHIPPING;
+}
+
+export async function saveShippingSettings(
+  partial: Partial<ShippingSettings>
+): Promise<ShippingSettings> {
+  const current = await getShippingSettings();
+  const next: ShippingSettings = {
+    price: Math.max(0, Number(partial.price ?? current.price) || 0),
+    freeThreshold: Math.max(0, Number(partial.freeThreshold ?? current.freeThreshold) || 0),
+    note: String(partial.note ?? current.note).slice(0, 200),
+  };
+  await db.siteSetting.upsert({
+    where: { key: SHIPPING_KEY },
+    create: { key: SHIPPING_KEY, value: next as any },
+    update: { value: next as any },
+  });
+  return next;
+}

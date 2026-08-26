@@ -30,17 +30,30 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur">
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between gap-4">
-          {/* Logo */}
-          <button
-            onClick={() => setView('home')}
-            className="flex items-center gap-2 font-bold text-lg text-primary hover:opacity-90"
-          >
-            <Store className="h-7 w-7" />
-            <span className="hidden sm:inline">محل شوب</span>
-          </button>
+    <header className="sticky top-0 z-40 w-full">
+      {/* Announcement bar — premium gold on dark */}
+      <div className="bg-primary text-primary-foreground">
+        <div className="container mx-auto px-4 py-1.5 text-center text-xs sm:text-sm font-medium">
+          ✨ توصيل مجاني للطلبات 50 د.ك+ — دفع عند الاستلام لكل المحافظات ✨
+        </div>
+      </div>
+
+      {/* Main navbar — frosted glass */}
+      <div className="glass border-b border-border/60">
+        <div className="container mx-auto px-4">
+          <div className="flex h-16 items-center justify-between gap-4">
+            {/* Logo — gold gradient wordmark */}
+            <button
+              onClick={() => setView('home')}
+              className="flex items-center gap-2.5 font-extrabold text-xl hover:opacity-90 cursor-pointer"
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl btn-gold">
+                <Store className="h-5 w-5" />
+              </span>
+              <span className="hidden sm:inline">
+                محل <span className="text-gold-gradient">شوب</span>
+              </span>
+            </button>
 
           {/* Desktop search */}
           <form onSubmit={submitSearch} className="hidden md:flex flex-1 max-w-xl">
@@ -54,7 +67,8 @@ export function Header() {
               />
               <button
                 type="submit"
-                className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
+                className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-accent cursor-pointer"
+                aria-label="بحث"
               >
                 <Search className="h-4 w-4" />
               </button>
@@ -156,6 +170,7 @@ export function Header() {
             </div>
           </div>
         )}
+      </div>
       </div>
     </header>
   );

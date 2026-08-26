@@ -5,7 +5,14 @@ import { useAppStore } from '@/lib/stores/app-store';
 import { ProductCard } from '@/components/store/product-card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Truck, Shield, CreditCard, Headphones, Sparkles } from 'lucide-react';
+import { Truck, Shield, CreditCard, Headphones, Sparkles, Megaphone } from 'lucide-react';
+
+interface LandingPromo {
+  slug: string;
+  title: string;
+  subtitle: string;
+  heroBadge?: string;
+}
 
 interface Product {
   id: string;
@@ -33,26 +40,31 @@ interface Category {
 export function HomeView() {
   const setView = useAppStore((s) => s.setView);
   const openCategory = useAppStore((s) => s.openCategory);
+  const openLanding = useAppStore((s) => s.openLanding);
 
   const [featured, setFeatured] = useState<Product[]>([]);
   const [bestSellers, setBestSellers] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [landingPromos, setLandingPromos] = useState<LandingPromo[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       try {
-        const [featRes, bsRes, catRes] = await Promise.all([
+        const [featRes, bsRes, catRes, landingRes] = await Promise.all([
           fetch('/api/products?limit=12&sort=newest'),
           fetch('/api/best-sellers'),
           fetch('/api/categories'),
+          fetch('/api/landing'),
         ]);
         const featData = await featRes.json();
         const bsData = await bsRes.json();
         const catData = await catRes.json();
+        const landingData = await landingRes.json();
         setFeatured(featData.items || []);
         setBestSellers(Array.isArray(bsData) ? bsData.slice(0, 8) : []);
         setCategories(Array.isArray(catData) ? catData : []);
+        setLandingPromos(Array.isArray(landingData) ? landingData.slice(0, 3) : []);
       } catch (e) {
         console.error('Failed to load home data', e);
       } finally {
@@ -63,28 +75,60 @@ export function HomeView() {
 
   return (
     <div>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-l from-primary/10 via-accent/30 to-primary/5 border-b">
-        <div className="container mx-auto px-4 py-12 md:py-20">
+      {/* Hero — premium dark with gold glow */}
+      <section className="relative overflow-hidden bg-primary text-primary-foreground">
+        <div className="absolute inset-0 hero-glow" aria-hidden="true" />
+        <div
+          className="absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 1px 1px, oklch(0.9 0.05 80) 1px, transparent 0)',
+            backgroundSize: '28px 28px',
+          }}
+          aria-hidden="true"
+        />
+        <div className="relative container mx-auto px-4 py-14 md:py-24">
           <div className="max-w-2xl">
-            <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">
-              تسوق آلاف المنتجات <span className="text-primary">بأسعار تنافسية</span>
+            <span className="inline-block mb-4 px-4 py-1.5 rounded-full text-xs font-bold bg-accent/20 text-accent border border-accent/30">
+              ✨ أكثر من 2,600 منتج — دفع عند الاستلام
+            </span>
+            <h1 className="text-3xl md:text-5xl font-extrabold mb-4 leading-[1.25]">
+              تسوّق بذكاء،
+              <br />
+              وفّر أكثر مع <span className="text-gold-gradient">محل شوب</span>
             </h1>
-            <p className="text-base md:text-lg text-muted-foreground mb-6 leading-relaxed">
-              أكثر من 2,638 منتج من الألعاب والإلكترونيات والأدوات المنزلية وغيرها. توصيل سريع لكل المحافظات ودفع آمن عند الاستلام.
+            <p className="text-sm md:text-lg text-primary-foreground/70 mb-7 leading-relaxed max-w-xl">
+              منتجات مختارة بعناية من الألعاب والإلكترونيات والأدوات المنزلية. توصيل سريع
+              لكل محافظات الكويت، وذكاء اصطناعي يقترح لك الأفضل لسلتك.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Button size="lg" onClick={() => setView('shop')}>
+              <Button size="lg" className="btn-gold border-0" onClick={() => setView('shop')}>
                 <Sparkles className="h-5 w-5 ml-2" />
                 تسوق الآن
               </Button>
               <Button
                 size="lg"
                 variant="outline"
+                className="border-primary-foreground/25 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
                 onClick={() => openCategory(null)}
               >
                 شاهد الأكثر مبيعاً
               </Button>
+            </div>
+
+            {/* Trust stats — social proof row */}
+            <div className="mt-10 flex flex-wrap gap-6 md:gap-10">
+              {[
+                ['+2,600', 'منتج أصلي'],
+                ['+500', 'عميل سعيد'],
+                ['24س', 'متوسط التوصيل'],
+                ['4.9', 'تقييم العملاء'],
+              ].map(([v, l]) => (
+                <div key={l}>
+                  <p className="text-xl md:text-2xl font-extrabold text-gold-gradient">{v}</p>
+                  <p className="text-[11px] md:text-xs text-primary-foreground/60 mt-0.5">{l}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -101,6 +145,36 @@ export function HomeView() {
           </div>
         </div>
       </section>
+
+      {/* Featured landing promos — AI-generated offers */}
+      {landingPromos.length > 0 && (
+        <section className="container mx-auto px-4 pt-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {landingPromos.map((p) => (
+              <button
+                key={p.slug}
+                onClick={() => openLanding(p.slug)}
+                className="card-lift relative overflow-hidden rounded-xl bg-primary text-primary-foreground p-5 text-right"
+              >
+                <div className="absolute inset-0 hero-glow" aria-hidden="true" />
+                <div className="relative">
+                  {p.heroBadge && (
+                    <span className="inline-block mb-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-accent/25 text-accent border border-accent/30">
+                      {p.heroBadge}
+                    </span>
+                  )}
+                  <p className="font-extrabold text-base mb-1">{p.title}</p>
+                  <p className="text-xs text-primary-foreground/70 line-clamp-2">{p.subtitle}</p>
+                  <span className="inline-flex items-center gap-1 text-xs font-bold text-accent mt-3">
+                    اكتشف العرض
+                    <Megaphone className="h-3.5 w-3.5" />
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Categories */}
       {categories.length > 0 && (

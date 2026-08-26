@@ -19,7 +19,11 @@ import { AdminOrdersView } from '@/components/admin/admin-orders-view';
 import { AdminCategoriesView } from '@/components/admin/admin-categories-view';
 import { AdminInsightsView } from '@/components/admin/admin-insights-view';
 import { AdminFacebookView } from '@/components/admin/admin-facebook-view';
+import { AdminReportsView } from '@/components/admin/admin-reports-view';
+import { AdminLandingView } from '@/components/admin/admin-landing-view';
+import { AdminSettingsView } from '@/components/admin/admin-settings-view';
 import { FacebookPixel } from '@/components/store/facebook-pixel';
+import { LandingView } from '@/components/store/landing-view';
 
 export default function Home() {
   const view = useAppStore((s) => s.view);
@@ -48,6 +52,7 @@ export default function Home() {
   else if (view === 'cart') content = <CartView />;
   else if (view === 'checkout') content = <CheckoutView />;
   else if (view === 'order-success') content = <OrderSuccessView />;
+  else if (view === 'landing') content = <LandingView />;
   else if (view === 'admin-login') content = <AdminLoginView />;
   else if (view === 'admin-dashboard' && isAdmin) content = <AdminDashboardView />;
   else if (view === 'admin-products' && isAdmin) content = <AdminProductsView />;
@@ -58,6 +63,9 @@ export default function Home() {
   else if (view === 'admin-categories' && isAdmin) content = <AdminCategoriesView />;
   else if (view === 'admin-insights' && isAdmin) content = <AdminInsightsView />;
   else if (view === 'admin-facebook' && isAdmin) content = <AdminFacebookView />;
+  else if (view === 'admin-reports' && isAdmin) content = <AdminReportsView />;
+  else if (view === 'admin-landing' && isAdmin) content = <AdminLandingView />;
+  else if (view === 'admin-settings' && isAdmin) content = <AdminSettingsView />;
   else content = <HomeView />;
 
   if (isAdminView) {

@@ -8,29 +8,34 @@ export function Footer() {
   const openCategory = useAppStore((s) => s.openCategory);
 
   return (
-    <footer className="mt-auto border-t bg-muted/30">
-      <div className="container mx-auto px-4 py-10">
+    <footer className="mt-auto bg-primary text-primary-foreground">
+      {/* Gold top border */}
+      <div className="h-1 btn-gold" aria-hidden="true" />
+      <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
             <button
               onClick={() => setView('home')}
-              className="flex items-center gap-2 font-bold text-lg text-primary mb-3"
+              className="flex items-center gap-2.5 font-extrabold text-lg mb-4 cursor-pointer"
             >
-              <Store className="h-6 w-6" />
-              محل شوب
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl btn-gold">
+                <Store className="h-5 w-5" />
+              </span>
+              محل <span className="text-gold-gradient">شوب</span>
             </button>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              متجر إلكتروني عربي احترافي يقدم آلاف المنتجات بأسعار تنافسية مع خدمة توصيل سريعة ودفع آمن عند الاستلام.
+            <p className="text-sm text-primary-foreground/60 leading-relaxed">
+              متجر إلكتروني عربي احترافي يقدم آلاف المنتجات بأسعار تنافسية مع خدمة توصيل
+              سريعة ودفع آمن عند الاستلام — مدعوم بالذكاء الاصطناعي.
             </p>
           </div>
 
           <div>
-            <h4 className="font-bold mb-3">روابط سريعة</h4>
+            <h4 className="font-bold mb-3 text-gold-gradient">روابط سريعة</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <button
                   onClick={() => setView('shop')}
-                  className="text-muted-foreground hover:text-primary"
+                  className="text-primary-foreground/60 hover:text-primary-foreground cursor-pointer"
                 >
                   كل المنتجات
                 </button>
@@ -38,7 +43,7 @@ export function Footer() {
               <li>
                 <button
                   onClick={() => openCategory(null)}
-                  className="text-muted-foreground hover:text-primary"
+                  className="text-primary-foreground/60 hover:text-primary-foreground cursor-pointer"
                 >
                   العروض
                 </button>
@@ -46,7 +51,7 @@ export function Footer() {
               <li>
                 <button
                   onClick={() => setView('cart')}
-                  className="text-muted-foreground hover:text-primary"
+                  className="text-primary-foreground/60 hover:text-primary-foreground cursor-pointer"
                 >
                   سلة التسوق
                 </button>
@@ -55,35 +60,35 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-bold mb-3">خدمة العملاء</h4>
+            <h4 className="font-bold mb-3 text-gold-gradient">خدمة العملاء</h4>
             <ul className="space-y-2 text-sm">
-              <li className="text-muted-foreground">سياسة الاستبدال والإرجاع</li>
-              <li className="text-muted-foreground">الأسئلة الشائعة</li>
-              <li className="text-muted-foreground">الشحن والتوصيل</li>
-              <li className="text-muted-foreground">سياسة الخصوصية</li>
+              <li className="text-primary-foreground/60">سياسة الاستبدال والإرجاع</li>
+              <li className="text-primary-foreground/60">الأسئلة الشائعة</li>
+              <li className="text-primary-foreground/60">الشحن والتوصيل</li>
+              <li className="text-primary-foreground/60">سياسة الخصوصية</li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-bold mb-3">تواصل معنا</h4>
+            <h4 className="font-bold mb-3 text-gold-gradient">تواصل معنا</h4>
             <ul className="space-y-2 text-sm">
-              <li className="flex items-center gap-2 text-muted-foreground">
-                <Phone className="h-4 w-4 text-primary" />
+              <li className="flex items-center gap-2 text-primary-foreground/60">
+                <Phone className="h-4 w-4 text-accent" />
                 <span dir="ltr">+965 1234 5678</span>
               </li>
-              <li className="flex items-center gap-2 text-muted-foreground">
-                <Mail className="h-4 w-4 text-primary" />
+              <li className="flex items-center gap-2 text-primary-foreground/60">
+                <Mail className="h-4 w-4 text-accent" />
                 <span>info@mahalshop.com</span>
               </li>
-              <li className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="h-4 w-4 text-primary" />
+              <li className="flex items-center gap-2 text-primary-foreground/60">
+                <MapPin className="h-4 w-4 text-accent" />
                 <span>الكويت - الكويت</span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-8 pt-6 border-t text-center text-xs text-muted-foreground">
+        <div className="mt-10 pt-6 border-t border-primary-foreground/10 text-center text-xs text-primary-foreground/40">
           <p>© {new Date().getFullYear()} محل شوب. جميع الحقوق محفوظة.</p>
         </div>
       </div>

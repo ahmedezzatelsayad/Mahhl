@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { formatKwd } from '@/lib/utils/format';
-import { Edit, Trash2, Search, Plus } from 'lucide-react';
+import { Edit, Trash2, Search, Plus, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Product {
@@ -26,12 +26,14 @@ interface Product {
 
 export function AdminProductsView() {
   const setView = useAppStore((s) => s.setView);
+  const adminToken = useAppStore((s) => s.adminToken);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -66,6 +68,30 @@ export function AdminProductsView() {
     }
   }
 
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const res = await fetch('/api/admin/products/export', {
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
+      if (!res.ok) throw new Error('export failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `mahal-shop-products-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success(`تم تصدير ${total.toLocaleString()} منتج بصيغة CSV`);
+    } catch {
+      toast.error('فشل تصدير المنتجات');
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div className="p-4 md:p-6 space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-2">
@@ -75,10 +101,16 @@ export function AdminProductsView() {
             {total.toLocaleString()} منتج في المتجر
           </p>
         </div>
-        <Button onClick={() => setView('admin-add-product')}>
-          <Plus className="h-4 w-4 ml-2" />
-          إضافة منتج
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExport} disabled={exporting}>
+            <Download className="h-4 w-4 ml-2" />
+            {exporting ? 'جاري التصدير...' : 'تصدير CSV'}
+          </Button>
+          <Button onClick={() => setView('admin-add-product')}>
+            <Plus className="h-4 w-4 ml-2" />
+            إضافة منتج
+          </Button>
+        </div>
       </div>
 
       <div className="relative">

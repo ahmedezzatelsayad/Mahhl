@@ -11,6 +11,7 @@ export type View =
   | 'cart'
   | 'checkout'
   | 'order-success'
+  | 'landing'
   | 'admin-login'
   | 'admin-dashboard'
   | 'admin-products'
@@ -19,6 +20,9 @@ export type View =
   | 'admin-categories'
   | 'admin-insights'
   | 'admin-facebook'
+  | 'admin-reports'
+  | 'admin-landing'
+  | 'admin-settings'
   | 'admin-add-product'
   | 'admin-edit-product';
 
@@ -33,8 +37,10 @@ interface AppState {
   priceMax: number | null;
   filterBestSeller: boolean;
   lastOrderId: string | null;
+  selectedLandingSlug: string | null;
 
   setView: (v: View) => void;
+  openLanding: (slug: string) => void;
   openProduct: (slug: string) => void;
   openCategory: (categoryId: string | null) => void;
   setSearch: (q: string) => void;
@@ -59,8 +65,10 @@ export const useAppStore = create<AppState>()(
       priceMax: null,
       filterBestSeller: false,
       lastOrderId: null,
+      selectedLandingSlug: null,
 
       setView: (v) => set({ view: v }),
+      openLanding: (slug) => set({ view: 'landing', selectedLandingSlug: slug }),
       openProduct: (slug) => set({ view: 'product', selectedProductSlug: slug }),
       openCategory: (categoryId) =>
         set({ selectedCategoryId: categoryId, view: 'shop', searchQuery: '' }),

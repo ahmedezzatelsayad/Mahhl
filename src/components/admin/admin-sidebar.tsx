@@ -12,6 +12,9 @@ import {
   Home,
   Brain,
   Facebook,
+  BarChart3,
+  Megaphone,
+  Settings,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -23,12 +26,15 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { view: 'admin-dashboard', label: 'الرئيسية', icon: LayoutDashboard },
+  { view: 'admin-reports', label: 'التقارير اليومية', icon: BarChart3 },
+  { view: 'admin-landing', label: 'صفحات الهبوط', icon: Megaphone },
   { view: 'admin-products', label: 'المنتجات', icon: Package },
   { view: 'admin-inventory', label: 'المخزون', icon: Boxes },
   { view: 'admin-orders', label: 'الطلبات', icon: ShoppingCart },
   { view: 'admin-categories', label: 'الفئات', icon: Tags },
   { view: 'admin-insights', label: 'محرك الذكاء', icon: Brain },
   { view: 'admin-facebook', label: 'تتبع فيسبوك', icon: Facebook },
+  { view: 'admin-settings', label: 'الإعدادات', icon: Settings },
 ];
 
 export function AdminSidebar() {

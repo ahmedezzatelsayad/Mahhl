@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
-import { Cairo } from "next/font/google";
+import { Cairo, Rubik } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
 const cairo = Cairo({
-  variable: "--font-cairo",
+  variable: "--font-body",
   subsets: ["arabic", "latin"],
+  display: "swap",
+});
+
+const rubik = Rubik({
+  variable: "--font-heading",
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -30,7 +37,7 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body
-        className={`${cairo.variable} antialiased bg-background text-foreground min-h-screen`}
+        className={`${cairo.variable} ${rubik.variable} antialiased bg-background text-foreground min-h-screen`}
       >
         {children}
         <Toaster />
