@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/lib/stores/cart-store';
 import { useAppStore } from '@/lib/stores/app-store';
+import { useT } from '@/lib/i18n';
 import { formatKwd } from '@/lib/utils/format';
 import { Trash2, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
@@ -13,6 +14,7 @@ import { trackEvent } from '@/lib/behavior-tracker';
 import { useEffect } from 'react';
 
 export function CartDrawer() {
+  const { t } = useT();
   const { items, isOpen, closeCart, removeItem, updateQuantity } = useCartStore();
   const subtotal = useCartStore((s) => s.getSubtotal());
   const setView = useAppStore((s) => s.setView);
@@ -30,7 +32,7 @@ export function CartDrawer() {
         <SheetHeader className="px-4 py-4 border-b">
           <SheetTitle className="flex items-center gap-2">
             <ShoppingBag className="h-5 w-5" />
-            سلة التسوق ({items.length})
+            {t('c.cart')} ({items.length})
           </SheetTitle>
         </SheetHeader>
 
@@ -138,13 +140,11 @@ export function CartDrawer() {
             <div className="border-t p-4 space-y-3">
               <FreeShippingBar subtotal={subtotal} />
               <div className="flex justify-between font-bold">
-                <span>المجموع:</span>
+                <span>{t('c.total')}:</span>
                 <span className="text-primary">{formatKwd(subtotal)}</span>
               </div>
               <p className="text-xs text-muted-foreground">
-                {subtotal >= 50
-                  ? '* شحنك مجاني على هذا الطلب'
-                  : '* الشحن 1 د.ك — مجاني للطلبات من 50 د.ك'}
+                {subtotal >= 30 ? t('c.shippingNoteFree') : t('c.shippingNote')}
               </p>
               <Button
                 className="w-full"
@@ -154,7 +154,7 @@ export function CartDrawer() {
                   setView('checkout');
                 }}
               >
-                إتمام الطلب
+                {t('c.checkout')}
               </Button>
               <Button
                 variant="ghost"

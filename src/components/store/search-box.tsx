@@ -9,6 +9,7 @@
  * straight to the product page in one tap.
  */
 
+import { useT } from '@/lib/i18n';
 import { Search, Clock, X, TrendingUp, ArrowLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useAppStore } from '@/lib/stores/app-store';
@@ -75,6 +76,7 @@ export function SearchBox({
   autoFocusOnMount?: boolean;
   onNavigate?: () => void;
 }) {
+  const { t, lang } = useT();
   const setSearch = useAppStore((s) => s.setSearch);
   const openProduct = useAppStore((s) => s.openProduct);
   const openCategory = useAppStore((s) => s.openCategory);
@@ -112,7 +114,7 @@ export function SearchBox({
     const ctrl = new AbortController();
     abortRef.current = ctrl;
     setLoading(true);
-    fetch(`/api/search/suggest?q=${encodeURIComponent(term)}`, { signal: ctrl.signal })
+    fetch(`/api/search/suggest?q=${encodeURIComponent(term)}&lang=${lang}`, { signal: ctrl.signal })
       .then((r) => r.json())
       .then((d: SuggestData) => {
         setData({ products: d.products || [], categories: d.categories || [] });
@@ -121,7 +123,7 @@ export function SearchBox({
       .catch(() => {
         if (ctrl.signal.reason !== 'abort') setLoading(false);
       });
-  }, []);
+  }, [lang]);
 
   function onChange(v: string) {
     setQ(v);
@@ -217,7 +219,7 @@ export function SearchBox({
             role="combobox"
             aria-expanded={open}
             aria-autocomplete="list"
-            placeholder="دوّر على منتج... (ساعة، لعبة، عطر)"
+            placeholder={t('hdr.searchPh')}
             value={q}
             onChange={(e) => onChange(e.target.value)}
             onFocus={() => setOpen(true)}

@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAppStore } from '@/lib/stores/app-store';
 import { formatKwd } from '@/lib/utils/format';
-import { ShoppingCart, Star, Heart } from 'lucide-react';
+import { ShoppingCart, Star, Heart, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/lib/stores/cart-store';
 import { useWishlistStore } from '@/lib/stores/wishlist-store';
@@ -23,6 +23,11 @@ export interface ProductCardProps {
     quantity: number;
     isBestSeller?: boolean;
     category?: { name: string } | null;
+    /** optional social proof (top-demand / related endpoints) */
+    rating?: number;
+    reviewCount?: number;
+    soldCount?: number;
+    demandRank?: number | null;
   };
 }
 
@@ -93,6 +98,19 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
 
+        {/* Kuwait demand rank badge — bottom-left of image */}
+        {product.demandRank != null && product.demandRank <= 100 && (
+          <Badge
+            className={`absolute bottom-2 left-2 border-0 text-white font-extrabold shadow ${
+              product.demandRank <= 3
+                ? 'bg-gradient-to-l from-yellow-500 to-amber-600'
+                : 'bg-primary/90'
+            }`}
+          >
+            #{product.demandRank} في الكويت
+          </Badge>
+        )}
+
         {/* Badges */}
         <div className="absolute top-2 right-2 flex flex-col gap-1">
           {discount > 0 && (
@@ -138,6 +156,24 @@ export function ProductCard({ product }: ProductCardProps) {
         >
           {product.name}
         </h3>
+        {/* social proof — stars + sold count (when provided by the endpoint) */}
+        {(product.rating && product.reviewCount) || product.soldCount ? (
+          <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+            {product.rating > 0 && (
+              <span className="inline-flex items-center gap-1">
+                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                <b className="text-foreground">{product.rating.toFixed(1)}</b>
+                {product.reviewCount ? <span>({product.reviewCount})</span> : null}
+              </span>
+            )}
+            {product.soldCount ? (
+              <span className="inline-flex items-center gap-0.5">
+                <Flame className="h-3 w-3 text-orange-500" />
+                طُلب {product.soldCount}×
+              </span>
+            ) : null}
+          </div>
+        ) : null}
         <div className="flex items-baseline gap-2">
           <span className="text-base font-extrabold text-foreground">
             {formatKwd(product.salePrice)}

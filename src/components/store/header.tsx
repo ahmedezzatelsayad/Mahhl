@@ -1,9 +1,11 @@
 'use client';
 
-import { ShoppingCart, Menu, X, Store, User, Heart, MessageCircle } from 'lucide-react';
+import { ShoppingCart, Menu, X, Store, User, Heart, MessageCircle, Languages } from 'lucide-react';
 import { useAppStore } from '@/lib/stores/app-store';
 import { useCartStore } from '@/lib/stores/cart-store';
 import { useWishlistStore } from '@/lib/stores/wishlist-store';
+import { useLangStore } from '@/lib/stores/lang-store';
+import { useT } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useState, useEffect, useSyncExternalStore } from 'react';
@@ -59,6 +61,9 @@ export function Header() {
   const toggleCart = useCartStore((s) => s.toggleCart);
   const totalItems = useCartStore((s) => s.getTotalItems());
   const wishCount = useWishlistStore((s) => s.items.length);
+  const lang = useLangStore((s) => s.lang);
+  const setLang = useLangStore((s) => s.setLang);
+  const { t } = useT();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   // Cart badge depends on persisted localStorage — render it only after hydration
   const mounted = useSyncExternalStore(
@@ -75,7 +80,7 @@ export function Header() {
       {/* Announcement bar — premium gold on dark */}
       <div className="bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 py-1.5 text-center text-xs sm:text-sm font-medium">
-          ✨ {brand.announcement} ✨
+          ✨ {lang === 'en' ? 'FREE shipping over 30 KWD · Cash on Delivery across Kuwait' : 'شحن مجاني فوق 30 د.ك — توصيل لجميع محافظات الكويت · دفع عند الاستلام'} ✨
         </div>
       </div>
 
@@ -116,6 +121,17 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center gap-1">
+            {/* Language switcher — professional pill (AR ⇄ EN) */}
+            <button
+              onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
+              className="hidden sm:flex h-9 items-center gap-1.5 rounded-full border border-border/80 bg-card px-3 text-xs font-bold text-foreground shadow-sm transition-colors hover:border-accent hover:text-accent cursor-pointer"
+              title={t('hdr.langSwitchTitle')}
+              aria-label={t('hdr.langSwitchTitle')}
+            >
+              <Languages className="h-4 w-4 text-primary" />
+              {t('hdr.langSwitch')}
+            </button>
+
             <Button
               variant="ghost"
               size="sm"
@@ -123,7 +139,7 @@ export function Header() {
               onClick={() => setView('track-order')}
             >
               <MessageCircle className="h-4 w-4" />
-              تتبع طلبك
+              {t('hdr.track')}
             </Button>
 
             {/* حسابي */}
@@ -132,8 +148,8 @@ export function Header() {
               size="icon"
               onClick={() => setView('account')}
               className="relative"
-              aria-label="حسابي"
-              title="حسابي"
+              aria-label={t('hdr.account')}
+              title={t('hdr.account')}
             >
               <User className="h-5 w-5" />
               {mounted && customer && (
@@ -147,8 +163,8 @@ export function Header() {
               size="icon"
               onClick={() => setView('wishlist')}
               className="relative"
-              aria-label="المفضلة"
-              title="المفضلة"
+              aria-label={t('hdr.wishlist')}
+              title={t('hdr.wishlist')}
             >
               <Heart className="h-5 w-5" />
               {mounted && wishCount > 0 && (
@@ -167,8 +183,8 @@ export function Header() {
               size="icon"
               onClick={toggleCart}
               className="relative"
-              aria-label="السلة"
-              title="السلة"
+              aria-label={t('hdr.cart')}
+              title={t('hdr.cart')}
             >
               <ShoppingCart className="h-5 w-5" />
               {mounted && totalItems > 0 && (
@@ -186,7 +202,7 @@ export function Header() {
               size="icon"
               className="md:hidden"
               onClick={() => setMobileMenuOpen((v) => !v)}
-              aria-label="القائمة"
+              aria-label={t('hdr.menu')}
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
@@ -197,15 +213,23 @@ export function Header() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t py-4 space-y-3">
             <SearchBox autoFocusOnMount onNavigate={() => setMobileMenuOpen(false)} />
+            {/* mobile language switcher */}
+            <button
+              onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
+              className="w-full flex h-10 items-center justify-center gap-2 rounded-lg border border-border/80 bg-card text-sm font-bold shadow-sm cursor-pointer"
+            >
+              <Languages className="h-4 w-4 text-primary" />
+              {t('hdr.langSwitch')} — {t('hdr.langSwitchTitle')}
+            </button>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { label: 'كل المنتجات', action: () => setView('shop') },
-                { label: customer ? `حسابي (${customer.name.split(' ')[0]})` : 'حسابي / تسجيل', action: () => setView('account') },
-                { label: 'تتبع طلبك', action: () => setView('track-order') },
-                { label: 'المفضلة', action: () => setView('wishlist') },
-                { label: 'سلة التسوق', action: () => setView('cart') },
+                { label: t('hdr.allProducts'), action: () => setView('shop') },
+                { label: customer ? `${t('hdr.account')} (${customer.name.split(' ')[0]})` : t('hdr.accountLogin'), action: () => setView('account') },
+                { label: t('hdr.track'), action: () => setView('track-order') },
+                { label: t('hdr.wishlist'), action: () => setView('wishlist') },
+                { label: t('hdr.cart'), action: () => setView('cart') },
                 {
-                  label: 'واتساب المتجر',
+                  label: t('hdr.whatsapp'),
                   action: () => window.open(waHref(brand.whatsapp, 'هلا محل شوب، عندي استفسار 🙏'), '_blank'),
                 },
               ].map((item) => (

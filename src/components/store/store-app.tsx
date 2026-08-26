@@ -21,6 +21,9 @@ import { TrackOrderView } from '@/components/store/track-order-view';
 import { WishlistView } from '@/components/store/wishlist-view';
 import { InfoView } from '@/components/store/info-view';
 import { FloatingWidgets } from '@/components/store/floating-widgets';
+import { ExitIntentPopup } from '@/components/store/exit-intent';
+import { RecentlyViewed } from '@/components/store/recently-viewed';
+import { useLangStore } from '@/lib/stores/lang-store';
 import { AdminLoginView } from '@/components/admin/admin-login-view';
 import { AdminSidebar, AdminMobileNav } from '@/components/admin/admin-sidebar';
 import { AdminDashboardView } from '@/components/admin/admin-dashboard-view';
@@ -199,6 +202,15 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [view]);
 
+  // ===== i18n: keep <html> dir/lang in sync (RTL ⇄ LTR) =====
+  const lang = useLangStore((s) => s.lang);
+  useEffect(() => {
+    const html = document.documentElement;
+    html.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+    html.setAttribute('lang', lang);
+    html.classList.toggle('lang-en', lang === 'en');
+  }, [lang]);
+
   const isAdminView = view.startsWith('admin-') && view !== 'admin-login' && isAdmin;
 
   // Render the correct view
@@ -250,10 +262,15 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
     <div className="min-h-screen flex flex-col bg-background">
       <FacebookPixel />
       <Header />
-      <main className="flex-1">{content}</main>
+      <main className="flex-1">
+        {content}
+        {/* recently-viewed rail on every storefront view (not admin/product detail) */}
+        {view !== 'product' && <RecentlyViewed />}
+      </main>
       <Footer />
       <CartDrawer />
       <FloatingWidgets />
+      <ExitIntentPopup />
     </div>
   );
 }

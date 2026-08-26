@@ -5,6 +5,7 @@ import { MessageCircle, X, Send, Store, WhatsAppIcon } from '@/components/store/
 import { useAppStore } from '@/lib/stores/app-store';
 import { useBrand, waHref } from '@/components/store/header';
 import { formatKwd } from '@/lib/utils/format';
+import { useT } from '@/lib/i18n';
 
 interface ChatProduct {
   id: string;
@@ -20,16 +21,13 @@ interface Msg {
   products?: ChatProduct[];
 }
 
-const WELCOME: Msg = {
-  role: 'assistant',
-  content:
-    'هلا والله! 👋 أنا «المحل» — مساعدك الذكي في محل شوب.\nاكتب لي شنو تدور عليه (مثلاً: ساعة رجالية، لعبة للأطفال، عطر) وأجيبه لك بأحسن سعر 🛒',
-};
-
 export function FloatingWidgets() {
   const brand = useBrand();
+  const { t, lang } = useT();
   const [chatOpen, setChatOpen] = useState(false);
-  const [messages, setMessages] = useState<Msg[]>([WELCOME]);
+  const [messages, setMessages] = useState<Msg[]>([
+    { role: 'assistant', content: t('ch.welcome') },
+  ]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -51,8 +49,9 @@ export function FloatingWidgets() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          lang,
           messages: next
-            .filter((m) => m !== WELCOME)
+            .slice(1)
             .map((m) => ({ role: m.role, content: m.content })),
         }),
       });
@@ -66,7 +65,7 @@ export function FloatingWidgets() {
         ...prev,
         {
           role: 'assistant',
-          content: 'صار خطأ بسيط بالاتصال.. جرّب مرة ثانية بعد شوي 🙏',
+          content: t('ch.error'),
         },
       ]);
     } finally {
@@ -81,7 +80,7 @@ export function FloatingWidgets() {
         <div
           className="fixed bottom-20 left-3 sm:left-4 z-50 w-[calc(100vw-1.5rem)] max-w-sm rounded-2xl border bg-card shadow-2xl overflow-hidden flex flex-col"
           role="dialog"
-          aria-label="تحدث مع المحل"
+          aria-label={t('ch.title')}
           style={{ height: 'min(520px, calc(100vh - 120px))' }}
         >
           {/* header */}
@@ -91,16 +90,16 @@ export function FloatingWidgets() {
                 <Store className="h-4 w-4" />
               </span>
               <div>
-                <p className="font-bold text-sm leading-tight">تحدث مع المحل</p>
+                <p className="font-bold text-sm leading-tight">{t('ch.title')}</p>
                 <p className="text-[11px] text-primary-foreground/60 leading-tight">
-                  اكتب اللي تدور عليه — نجيبه لك
+                  {t('ch.sub')}
                 </p>
               </div>
             </div>
             <button
               onClick={() => setChatOpen(false)}
               className="p-1.5 rounded-lg hover:bg-primary-foreground/10 cursor-pointer"
-              aria-label="إغلاق المحادثة"
+              aria-label={t('r.cancel')}
             >
               <X className="h-4 w-4" />
             </button>
@@ -156,7 +155,7 @@ export function FloatingWidgets() {
             {busy && (
               <div className="flex justify-end">
                 <div className="chat-text-sm rounded-2xl bg-card border px-4 py-2 text-muted-foreground">
-                  أدور لك... ⏳
+                  {t('ch.searching')}
                 </div>
               </div>
             )}
@@ -165,7 +164,7 @@ export function FloatingWidgets() {
           {/* quick suggestions */}
           {messages.length <= 1 && (
             <div className="px-3 pb-2 flex gap-2 overflow-x-auto no-scrollbar shrink-0">
-              {['عطور', 'ساعات', 'لعبة أطفال', 'إكسسوارات موبايل'].map((s) => (
+              {[t('ch.sug1'), t('ch.sug2'), t('ch.sug3'), t('ch.sug4')].map((s) => (
                 <button
                   key={s}
                   onClick={() => send(s)}
@@ -188,14 +187,14 @@ export function FloatingWidgets() {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="اكتب اللي تدور عليه..."
+              placeholder={t('ch.placeholder')}
               className="flex-1 text-base px-3 py-2 rounded-xl border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
             />
             <button
               type="submit"
               disabled={busy || !input.trim()}
               className="btn-gold rounded-xl px-3 flex items-center justify-center disabled:opacity-50 cursor-pointer"
-              aria-label="إرسال"
+              aria-label={t('ch.send')}
             >
               <Send className="h-4 w-4" />
             </button>
@@ -203,13 +202,25 @@ export function FloatingWidgets() {
         </div>
       )}
 
-      {/* ===== Floating buttons ===== */}
+      {/* ===== Floating stack (left) — WhatsApp ABOVE the AI bubble ===== */}
       <div className="float-stack fixed bottom-4 left-3 sm:left-4 z-50 flex flex-col gap-2.5 transition-transform duration-200">
+        {/* WhatsApp — founder-requested: sits above the AI bubble */}
+        <a
+          href={waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I have a question 🙏' : 'هلا محل شوب، عندي استفسار 🙏')}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="h-[52px] w-[52px] rounded-full bg-green-600 hover:bg-green-500 shadow-lg flex items-center justify-center transition-colors"
+          aria-label={lang === 'en' ? 'Chat on WhatsApp' : 'تواصل معنا على واتساب'}
+          title="WhatsApp"
+        >
+          <WhatsAppIcon className="h-7 w-7 text-white" />
+        </a>
+
         <button
           onClick={() => setChatOpen((v) => !v)}
           className="relative h-[52px] w-[52px] rounded-full btn-gold shadow-lg flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
-          aria-label="تحدث مع المحل"
-          title="تحدث مع المحل — تلقى اللي تدور عليه"
+          aria-label={t('ch.title')}
+          title={t('ch.sub')}
         >
           {chatOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
           {!chatOpen && (
@@ -218,19 +229,6 @@ export function FloatingWidgets() {
             </span>
           )}
         </button>
-      </div>
-
-      <div className="float-stack fixed bottom-4 right-3 sm:right-4 z-50 transition-transform duration-200">
-        <a
-          href={waHref(brand.whatsapp, 'هلا محل شوب، عندي استفسار 🙏')}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="h-[52px] w-[52px] rounded-full bg-green-600 hover:bg-green-500 shadow-lg flex items-center justify-center transition-colors"
-          aria-label="تواصل معنا على واتساب"
-          title="تواصل واتساب"
-        >
-          <WhatsAppIcon className="h-7 w-7 text-white" />
-        </a>
       </div>
     </>
   );

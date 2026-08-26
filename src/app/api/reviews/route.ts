@@ -27,15 +27,8 @@ function allowRateLimit(ip: string): boolean {
   return true;
 }
 
-// ---- 60s summary cache ----
-type Summary = {
-  count: number;
-  average: number;
-  distribution: { '5': number; '4': number; '3': number; '2': number; '1': number };
-  reviews: unknown[];
-  soldCount?: number;
-  cachedAt: number;
-};
+// ---- 60s summary cache (keyed by slug+page) ----
+const PAGE_SIZE = 7; // Amazon-style: 7 reviews per numbered page
 const cache = new Map<string, Summary>();
 const CACHE_TTL = 60_000;
 
@@ -45,11 +38,24 @@ function normalizeKwPhone(raw: string): string {
   return digits.startsWith('965') ? digits.slice(3) : digits;
 }
 
+type Summary = {
+  count: number;
+  average: number;
+  distribution: { '5': number; '4': number; '3': number; '2': number; '1': number };
+  reviews: unknown[];
+  soldCount?: number;
+  page?: number;
+  pages?: number;
+  cachedAt: number;
+};
+
 export async function GET(req: NextRequest) {
   const slug = req.nextUrl.searchParams.get('slug')?.trim();
   if (!slug) return NextResponse.json({ error: 'slug مطلوب' }, { status: 400 });
+  const page = Math.max(1, parseInt(req.nextUrl.searchParams.get('page') || '1', 10) || 1);
+  const cacheKey = `${slug}#${page}`;
 
-  const cached = cache.get(slug);
+  const cached = cache.get(cacheKey);
   if (cached && Date.now() - cached.cachedAt < CACHE_TTL) {
     return NextResponse.json(cached, { headers: { 'Cache-Control': 'no-store' } });
   }
@@ -57,15 +63,16 @@ export async function GET(req: NextRequest) {
   try {
     const product = await db.product.findUnique({
       where: { slug },
-      select: { id: true },
+      select: { id: true, soldCount: true },
     });
     if (!product) return NextResponse.json({ error: 'المنتج غير موجود' }, { status: 404 });
 
-    const [reviews, agg, soldAgg] = await Promise.all([
+    const [reviews, agg, soldAgg, countAgg] = await Promise.all([
       db.review.findMany({
         where: { productId: product.id, isApproved: true },
         orderBy: [{ helpfulCount: 'desc' }, { createdAt: 'desc' }],
-        take: 30,
+        skip: (page - 1) * PAGE_SIZE,
+        take: PAGE_SIZE,
         select: {
           id: true,
           customerName: true,
@@ -87,7 +94,11 @@ export async function GET(req: NextRequest) {
         where: { productId: product.id, order: { status: { notIn: ['cancelled', 'pending_payment'] } } },
         _sum: { quantity: true },
       }),
+      db.review.count({ where: { productId: product.id, isApproved: true } }),
     ]);
+    const realSold = soldAgg._sum.quantity || 0;
+    // display counter = founder baseline (soldCount) + real orders, at least real orders
+    const displaySold = Math.max(realSold, product.soldCount + realSold);
 
     const dist = { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 } as Summary['distribution'];
     let count = 0;
@@ -105,14 +116,23 @@ export async function GET(req: NextRequest) {
       average: count ? Math.round((total / count) * 10) / 10 : 0,
       distribution: dist,
       reviews,
-      soldCount: soldAgg._sum.quantity || 0,
+      soldCount: displaySold,
+      page,
+      pages: Math.max(1, Math.ceil(countAgg / PAGE_SIZE)),
       cachedAt: Date.now(),
     };
-    cache.set(slug, summary);
+    cache.set(cacheKey, summary);
+    // keep the cache small
+    if (cache.size > 600) {
+      for (const k of cache.keys()) {
+        if (cache.size <= 600) break;
+        cache.delete(k);
+      }
+    }
     return NextResponse.json(summary, { headers: { 'Cache-Control': 'no-store' } });
   } catch {
     return NextResponse.json(
-      { count: 0, average: 0, distribution: { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 }, reviews: [], soldCount: 0 },
+      { count: 0, average: 0, distribution: { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 }, reviews: [], soldCount: 0, page: 1, pages: 1 },
       { status: 200 }
     );
   }
@@ -200,7 +220,8 @@ export async function POST(req: NextRequest) {
       select: { id: true, isApproved: true },
     });
 
-    cache.delete(slug);
+    // invalidates every cached page for this product
+    for (const k of cache.keys()) if (k.startsWith(`${slug}#`)) cache.delete(k);
     return NextResponse.json({
       ok: true,
       isApproved: review.isApproved,

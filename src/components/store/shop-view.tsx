@@ -12,6 +12,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Loader2, SlidersHorizontal, X } from 'lucide-react';
 import { formatKwd } from '@/lib/utils/format';
+import { useT } from '@/lib/i18n';
+import { readLang } from '@/lib/stores/lang-store';
 
 interface Product {
   id: string;
@@ -33,6 +35,8 @@ interface Category {
 }
 
 export function ShopView() {
+  const { t } = useT();
+  const lang = readLang();
   const {
     selectedCategoryId,
     searchQuery,
@@ -54,26 +58,28 @@ export function ShopView() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [sort, setSort] = useState('newest');
+  const [perPage, setPerPage] = useState(24); // Amazon-grade standard: 24/48/72
   const [showFilters, setShowFilters] = useState(false);
 
   // Build query params
   const queryParams = useMemo(() => {
     const params = new URLSearchParams({
       page: String(page),
-      limit: '24',
+      limit: String(perPage),
       sort,
     });
+    if (readLang() === 'en') params.set('lang', 'en');
     if (selectedCategoryId) params.set('categoryId', selectedCategoryId);
     if (searchQuery) params.set('search', searchQuery);
     if (filterBestSeller) params.set('bestSeller', 'true');
     if (priceMin !== null) params.set('minPrice', String(priceMin));
     if (priceMax !== null) params.set('maxPrice', String(priceMax));
     return params.toString();
-  }, [page, sort, selectedCategoryId, searchQuery, filterBestSeller, priceMin, priceMax]);
+  }, [page, perPage, sort, selectedCategoryId, searchQuery, filterBestSeller, priceMin, priceMax]);
 
   // Load categories once
   useEffect(() => {
-    fetch('/api/categories')
+    fetch(`/api/categories${lang === 'en' ? '?lang=en' : ''}`)
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -105,7 +111,7 @@ export function ShopView() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
-  }, [selectedCategoryId, searchQuery, filterBestSeller, priceMin, priceMax, sort]);
+  }, [selectedCategoryId, searchQuery, filterBestSeller, priceMin, priceMax, sort, perPage]);
 
   const slugOfCategory = (id: string | null) =>
     id ? categories.find((c) => c.id === id)?.slug ?? null : null;
@@ -117,13 +123,13 @@ export function ShopView() {
         <div>
           <h1 className="text-xl md:text-2xl font-bold">
             {searchQuery
-              ? `نتائج البحث عن: "${searchQuery}"`
+              ? `${t('shop.results')}: "${searchQuery}"`
               : selectedCategoryId
                 ? categories.find((c) => c.id === selectedCategoryId)?.name ||
-                  'تسوق حسب الفئة'
-                : 'كل المنتجات'}
+                  t('shop.byCategory')
+                : t('shop.all')}
           </h1>
-          <p className="text-sm text-muted-foreground">{total.toLocaleString()} منتج</p>
+          <p className="text-sm text-muted-foreground">{total.toLocaleString()} {t('shop.products')}</p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -134,7 +140,7 @@ export function ShopView() {
             onClick={() => setShowFilters((v) => !v)}
           >
             <SlidersHorizontal className="h-4 w-4 ml-2" />
-            فلتر
+            {t('shop.filter')}
           </Button>
           <Select value={sort} onValueChange={setSort}>
             <SelectTrigger className="w-[140px]">
@@ -176,7 +182,7 @@ export function ShopView() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold">الفلاتر</h3>
+                <h3 className="font-bold">{t('shop.filters')}</h3>
                 <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)}>
                   <X className="h-5 w-5" />
                 </Button>
@@ -211,8 +217,8 @@ export function ShopView() {
             </div>
           ) : products.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <p className="text-muted-foreground mb-4">لا توجد منتجات مطابقة</p>
-              <Button onClick={resetFilters}>إعادة ضبط الفلاتر</Button>
+              <p className="text-muted-foreground mb-4">{t('shop.noMatch')}</p>
+              <Button onClick={resetFilters}>{t('shop.reset')}</Button>
             </div>
           ) : (
             <>
@@ -306,30 +312,30 @@ function FilterPanel({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="font-bold">الفلاتر</h3>
+        <h3 className="font-bold">{t('shop.filters')}</h3>
         <Button variant="ghost" size="sm" onClick={onReset}>
-          مسح الكل
+          {t('shop.clearAll')}
         </Button>
       </div>
 
       {/* Search */}
       <form onSubmit={handleSearchSubmit} className="space-y-2">
-        <Label>البحث</Label>
+        <Label>{t('shop.searchLabel')}</Label>
         <div className="flex gap-2">
           <Input
-            placeholder="اسم المنتج..."
+            placeholder={t('shop.searchPh')}
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
           />
           <Button type="submit" size="icon">
-            ابحث
+            {t('shop.searchBtn')}
           </Button>
         </div>
       </form>
 
       {/* Categories */}
       <div>
-        <Label className="mb-2 block">الفئات</Label>
+        <Label className="mb-2 block">{t('shop.categories')}</Label>
         <div className="space-y-1 max-h-64 overflow-y-auto pr-1">
           <button
             className={`w-full text-right px-3 py-2 text-sm rounded-md transition-colors ${
@@ -339,7 +345,7 @@ function FilterPanel({
             }`}
             onClick={() => onCategoryChange(null)}
           >
-            كل الفئات
+            {t('shop.allCategories')}
           </button>
           {categories.map((c) => (
             <button
@@ -365,18 +371,18 @@ function FilterPanel({
           onCheckedChange={onToggleBestSeller}
         />
         <Label htmlFor="bestseller" className="cursor-pointer">
-          الأكثر مبيعاً فقط
+          {t('shop.bestsellerOnly')}
         </Label>
       </div>
 
       {/* Price range */}
       <div>
-        <Label className="mb-2 block">نطاق السعر</Label>
+        <Label className="mb-2 block">{t('shop.priceRange')}</Label>
         <div className="space-y-2">
           <div className="flex gap-2">
             <Input
               type="number"
-              placeholder="أقل سعر"
+              placeholder={t('shop.minPrice')}
               value={priceMin ?? ''}
               onChange={(e) =>
                 onPriceChange(
@@ -388,7 +394,7 @@ function FilterPanel({
             />
             <Input
               type="number"
-              placeholder="أعلى سعر"
+              placeholder={t('shop.maxPrice')}
               value={priceMax ?? ''}
               onChange={(e) =>
                 onPriceChange(

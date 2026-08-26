@@ -18,11 +18,12 @@ const TTL = 60_000;
 
 export async function GET(req: NextRequest) {
   const q = (req.nextUrl.searchParams.get('q') || '').trim();
+  const lang = req.nextUrl.searchParams.get('lang') === 'en' ? 'en' : 'ar';
   if (q.length < 2) {
     return NextResponse.json({ products: [], categories: [] });
   }
 
-  const cached = cache.get(q);
+  const cached = cache.get(`${lang}:${q}`);
   if (cached && Date.now() - cached.at < TTL) {
     return NextResponse.json(cached.data);
   }
@@ -33,14 +34,17 @@ export async function GET(req: NextRequest) {
         where: {
           OR: [
             { name: { contains: q, mode: 'insensitive' } },
+            { nameEn: { contains: q, mode: 'insensitive' } },
             { description: { contains: q, mode: 'insensitive' } },
+            { descriptionEn: { contains: q, mode: 'insensitive' } },
           ],
         },
-        orderBy: [{ isBestSeller: 'desc' }, { createdAt: 'desc' }],
+        orderBy: [{ isBestSeller: 'desc' }, { soldCount: 'desc' }],
         take: 6,
         select: {
           slug: true,
           name: true,
+          nameEn: true,
           salePrice: true,
           originalPrice: true,
           thumb: true,
@@ -48,15 +52,29 @@ export async function GET(req: NextRequest) {
         },
       }),
       db.category.findMany({
-        where: { name: { contains: q, mode: 'insensitive' } },
+        where: {
+          OR: [
+            { name: { contains: q, mode: 'insensitive' } },
+            { nameEn: { contains: q, mode: 'insensitive' } },
+          ],
+        },
         take: 3,
-        select: { name: true, slug: true },
+        select: { name: true, nameEn: true, slug: true },
       }),
     ]);
 
-    const data = { products, categories };
+    const data = {
+      products: products.map((p) => ({
+        ...p,
+        name: lang === 'en' && p.nameEn ? p.nameEn : p.name,
+      })),
+      categories: categories.map((c) => ({
+        ...c,
+        name: lang === 'en' && c.nameEn ? c.nameEn : c.name,
+      })),
+    };
     if (cache.size > 400) cache.clear();
-    cache.set(q, { data, at: Date.now() });
+    cache.set(`${lang}:${q}`, { data, at: Date.now() });
     return NextResponse.json(data);
   } catch {
     return NextResponse.json({ products: [], categories: [] });

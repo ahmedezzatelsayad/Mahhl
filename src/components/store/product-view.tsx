@@ -23,9 +23,12 @@ import { ProductCard } from '@/components/store/product-card';
 import { UpsellWidget } from '@/components/store/upsell-widget';
 import { BoughtTogether } from '@/components/store/bought-together';
 import { ReviewsSection, useReviewSummary, StarsRow } from '@/components/store/reviews-section';
+import { pushRecentlyViewed } from '@/components/store/recently-viewed';
 import { trackEvent } from '@/lib/behavior-tracker';
 import { trackFB } from '@/lib/facebook-pixel';
 import { trackGA4, ga4Item } from '@/lib/ga4';
+import { useT } from '@/lib/i18n';
+import { readLang } from '@/lib/stores/lang-store';
 
 interface Variation {
   label: string;
@@ -57,8 +60,9 @@ export function ProductView() {
   const setView = useAppStore((s) => s.setView);
   const addItem = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openCart);
+  const { t, lang } = useT();
 
-  const [product, setProduct] = useState<ProductDetail | null>(null);
+  const [product, setProduct] = useState<(ProductDetail & { demandRank?: number | null; liveViewers?: number }) | null>(null);
   const [related, setRelated] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
@@ -76,7 +80,7 @@ export function ProductView() {
     setActiveImage(0);
     setQty(1);
     setSelectedVariations({});
-    fetch(`/api/products/${slug}`)
+    fetch(`/api/products/${slug}${readLang() === 'en' ? '?lang=en' : ''}`)
       .then((r) => r.json())
       .then((data) => {
         if (data.product) {
@@ -84,6 +88,20 @@ export function ProductView() {
           setRelated(data.related || []);
           // Keep the browser tab title in sync with the product (UX + sharing)
           document.title = `${data.product.name} | محل شوب`;
+          // record in recently-viewed rail
+          pushRecentlyViewed({
+            slug: data.product.slug,
+            name: data.product.name,
+            price: data.product.price,
+            salePrice: data.product.salePrice,
+            thumb: data.product.thumb || (data.product.images ? data.product.images.split(',')[0] : ''),
+            id: data.product.id,
+          });
+          try {
+            window.dispatchEvent(new Event('mahhl-rv'));
+          } catch {
+            /* noop */
+          }
           // Track product_view event (fire and forget)
           trackEvent('product_view', { productId: data.product.id });
           // Facebook Pixel — ViewContent
@@ -117,12 +135,12 @@ export function ProductView() {
             }
           }
         } else {
-          toast.error('المنتج غير موجود');
+          toast.error(t('p.notFound'));
           setView('shop');
         }
       })
       .catch(() => {
-        toast.error('فشل تحميل المنتج');
+        toast.error(t('p.loadFail'));
         setView('shop');
       })
       .finally(() => setLoading(false));
@@ -181,7 +199,7 @@ export function ProductView() {
       },
       qty
     );
-    toast.success(`تمت إضافة ${qty} × "${product.name}" إلى السلة`);
+    toast.success(lang === 'en' ? `Added ${qty} × "${product.name}" to cart` : `تمت إضافة ${qty} × "${product.name}" إلى السلة`);
     openCart();
   }
 
@@ -190,11 +208,11 @@ export function ProductView() {
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
         <button onClick={() => setView('home')} className="hover:text-primary">
-          الرئيسية
+          {t('hdr.home')}
         </button>
         <ChevronLeft className="h-4 w-4" />
         <button onClick={() => setView('shop')} className="hover:text-primary">
-          المنتجات
+          {t('p.products')}
         </button>
         {product.category && (
           <>
@@ -257,9 +275,28 @@ export function ProductView() {
             <div className="flex items-center gap-2">
               <Badge className="bg-yellow-500 text-white">
                 <Star className="h-3 w-3 ml-1" />
-                الأكثر مبيعاً
+                {t('p.bestseller')}
               </Badge>
             </div>
+          )}
+
+          {/* Kuwait demand rank — research-based social proof */}
+          {product.demandRank != null && product.demandRank <= 100 && (
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-l from-yellow-500 to-amber-600 text-white px-3 py-1 text-xs font-extrabold w-fit shadow">
+              <Flame className="h-3.5 w-3.5" />
+              #{product.demandRank} {t('p.kwRank')}
+            </div>
+          )}
+
+          {/* live viewers — real 24h view events */}
+          {product.liveViewers != null && product.liveViewers > 0 && (
+            <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+              </span>
+              {t('m.liveViewers', { n: product.liveViewers })}
+            </p>
           )}
 
           {/* Rating summary — clickable, scrolls to reviews */}
@@ -277,14 +314,14 @@ export function ProductView() {
                   <StarsRow value={reviewSummary.average} />
                   <span className="font-semibold">{reviewSummary.average.toFixed(1)}</span>
                   <span className="text-muted-foreground underline decoration-dotted">
-                    ({reviewSummary.count} تقييم)
+                    ({reviewSummary.count} {t('p.reviews')})
                   </span>
                 </a>
               )}
               {reviewSummary.soldCount > 0 && (
                 <span className="inline-flex items-center gap-1 text-muted-foreground">
                   <Flame className="h-3.5 w-3.5 text-orange-500" />
-                  طُلب {reviewSummary.soldCount} مرة
+                  {t('p.soldTimes', { n: reviewSummary.soldCount })}
                 </span>
               )}
             </div>
@@ -301,7 +338,7 @@ export function ProductView() {
                   {formatKwd(product.price)}
                 </span>
                 <Badge className="bg-red-600 text-white">
-                  وفّر {discount}%
+                  {t('p.save')} {discount}%
                 </Badge>
               </>
             )}
@@ -312,16 +349,16 @@ export function ProductView() {
             {product.quantity > 0 ? (
               <>
                 <CheckCircle className="h-4 w-4 text-green-600" />
-                <span className="text-green-700">متوفر ({product.quantity} قطعة)</span>
+                <span className="text-green-700">{t('p.inStock')} ({product.quantity} {t('p.pieces')})</span>
                 {product.quantity > 0 && product.quantity <= 5 && (
                   <Badge variant="destructive" className="text-[10px]">
-                    الكمية محدودة — اطلبها الآن
+                    {t('p.lowStock')}
                   </Badge>
                 )}
               </>
             ) : (
               <>
-                <span className="text-destructive">نفذ المخزون</span>
+                <span className="text-destructive">{t('p.oos')}</span>
               </>
             )}
           </div>
@@ -330,15 +367,29 @@ export function ProductView() {
           <div className="rounded-lg border bg-muted/40 px-3.5 py-2.5 flex items-center gap-2.5 text-sm">
             <Truck className="h-5 w-5 text-primary shrink-0" />
             <p className="text-muted-foreground">
-              الشحن لكل الكويت <b className="text-foreground">1 د.ك</b> —{' '}
-              <b className="text-foreground">مجاني</b> للطلبات من 50 د.ك · الدفع عند الاستلام
+              {t('p.shipping1').split('1 د.ك').map((part, i) => (
+                <span key={i}>
+                  {i > 0 && <b className="text-foreground">1 د.ك</b>}
+                  {part.split('30 د.ك').map((seg, j) => (
+                    <span key={j}>
+                      {j > 0 && <b className="text-foreground">30 د.ك</b>}
+                      {seg.split('مجاني').map((s2, k) => (
+                        <span key={k}>
+                          {k > 0 && <b className="text-foreground">{lang === 'en' ? 'FREE' : 'مجاني'}</b>}
+                          {s2}
+                        </span>
+                      ))}
+                    </span>
+                  ))}
+                </span>
+              ))}
             </p>
           </div>
 
           {/* Description */}
           <div className="prose prose-sm max-w-none">
             <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
-              {product.description || 'لا يوجد وصف متاح لهذا المنتج.'}
+              {product.description || t('p.noDesc')}
             </p>
           </div>
 
@@ -415,7 +466,7 @@ export function ProductView() {
               onClick={handleAddToCart}
             >
               <ShoppingCart className="h-5 w-5 ml-2" />
-              أضف للسلة ({formatKwd(product.salePrice * qty)})
+              {t('p.addToCart')} ({formatKwd(product.salePrice * qty)})
             </Button>
           </div>
 
@@ -430,15 +481,15 @@ export function ProductView() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Truck className="h-4 w-4 text-primary" />
-                توصيل خلال 2-5 أيام
+                {t('p.delivery')}
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Shield className="h-4 w-4 text-primary" />
-                ضمان استبدال 7 أيام
+                {t('p.warranty')}
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <CheckCircle className="h-4 w-4 text-primary" />
-                دفع عند الاستلام
+                {t('p.cod')}
               </div>
             </div>
           </div>
@@ -458,7 +509,7 @@ export function ProductView() {
       {/* Related Products */}
       {related.length > 0 && (
         <section className="mt-12">
-          <h2 className="text-xl font-bold mb-4">منتجات ذات صلة</h2>
+          <h2 className="text-xl font-bold mb-4">{t('p.related')}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
             {related.slice(0, 6).map((p: any) => (
               <ProductCard key={p.id} product={p} />
@@ -487,6 +538,7 @@ function StickyAtcBar({
   qty: number;
   onAdd: () => void;
 }) {
+  const { t } = useT();
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -514,10 +566,10 @@ function StickyAtcBar({
 
   return (
     <div className="fixed bottom-0 inset-x-0 z-40 md:hidden border-t bg-card/95 backdrop-blur shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-      <div className="container px-4 py-2.5 flex items-center gap-3">
+        <div className="container px-4 py-2.5 flex items-center gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-[11px] text-muted-foreground truncate">
-            الإجمالي ({qty} قطعة)
+            {t('p.total')} ({qty} {t('p.pieces')})
           </p>
           <p className="text-lg font-extrabold text-primary leading-tight">
             {formatKwd(price)}
@@ -529,7 +581,7 @@ function StickyAtcBar({
           className="flex-1 max-w-[60%] h-12 text-base gap-2"
         >
           <ShoppingCart className="h-5 w-5" />
-          أضف للسلة
+          {t('p.addToCart')}
         </Button>
       </div>
     </div>

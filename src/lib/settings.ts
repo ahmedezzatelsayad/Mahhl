@@ -73,7 +73,7 @@ export interface ShippingSettings {
 const SHIPPING_KEY = 'shipping';
 // Public policy: 1 KWD flat delivery, free from 50 KWD — must stay in sync
 // with the storefront copy (footer, FAQ, info pages, llms.txt).
-const DEFAULT_SHIPPING: ShippingSettings = { price: 1, freeThreshold: 50, note: '' };
+const DEFAULT_SHIPPING: ShippingSettings = { price: 1, freeThreshold: 30, note: '' };
 
 export async function getShippingSettings(): Promise<ShippingSettings> {
   try {

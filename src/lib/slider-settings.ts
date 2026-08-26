@@ -51,7 +51,7 @@ export const DEFAULT_SLIDER: SliderSettings = {
         'منتجات مختارة بعناية من الألعاب والإلكترونيات والأدوات المنزلية. توصيل سريع لكل محافظات الكويت، وذكاء اصطناعي يقترح لك الأفضل لسلتك.',
       image: IMG_SHOPPING,
       tone: 'dark',
-      chips: ['+2,600 منتج', '6 محافظات', 'شحن مجاني من 50 د.ك', 'COD'],
+      chips: ['+2,600 منتج', '6 محافظات', 'شحن مجاني من 30 د.ك', 'COD'],
       cta: { label: 'تسوق الآن', action: 'shop' },
       ctaSecondary: { label: 'الأكثر مبيعاً', action: 'shop' },
       active: true,

@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Star, BadgeCheck, ThumbsUp, PenLine, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 
 export interface ReviewItem {
   id: string;
@@ -34,6 +34,8 @@ export interface ReviewSummary {
   distribution: { '5': number; '4': number; '3': number; '2': number; '1': number };
   reviews: ReviewItem[];
   soldCount: number;
+  page?: number;
+  pages?: number;
 }
 
 const EMPTY: ReviewSummary = {
@@ -44,19 +46,19 @@ const EMPTY: ReviewSummary = {
   soldCount: 0,
 };
 
-/** shared hook — used by the compact header line AND the full section */
-export function useReviewSummary(slug: string | undefined) {
+/** shared hook — powers the compact header line (page 1) AND the paged section */
+export function useReviewSummary(slug: string | undefined, page = 1) {
   const [summary, setSummary] = useState<ReviewSummary>(EMPTY);
 
   const refresh = useCallback(async () => {
     if (!slug) return;
     try {
-      const r = await fetch(`/api/reviews?slug=${encodeURIComponent(slug)}`);
+      const r = await fetch(`/api/reviews?slug=${encodeURIComponent(slug)}&page=${page}`);
       if (r.ok) setSummary(await r.json());
     } catch {
       /* keep empty */
     }
-  }, [slug]);
+  }, [slug, page]);
 
   useEffect(() => {
     // reset stale summary when switching products, then fetch fresh data
@@ -95,13 +97,30 @@ function timeAgo(iso: string) {
   return `قبل ${Math.floor(months / 12)} سنة`;
 }
 
+/** compact numbered pagination: 1 … 4 5 6 … 17 */
+function pageNumbers(current: number, total: number): (number | '…')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const set = new Set<number>([1, 2, current - 1, current, current + 1, total - 1, total].filter((n) => n >= 1 && n <= total));
+  const sorted = [...set].sort((a, b) => a - b);
+  const out: (number | '…')[] = [];
+  let prev = 0;
+  for (const n of sorted) {
+    if (n - prev > 1) out.push('…');
+    out.push(n);
+    prev = n;
+  }
+  return out;
+}
+
 function firstName(name: string) {
   const parts = name.trim().split(/\s+/);
   return parts[0] + (parts.length > 1 ? ' ' + (parts[parts.length - 1][0] || '') + '.' : '');
 }
 
 export function ReviewsSection({ slug }: { slug: string }) {
-  const { summary, refresh } = useReviewSummary(slug);
+  const [page, setPage] = useState(1);
+  const { summary, refresh } = useReviewSummary(slug, page);
+  const listTopRef = useRef<HTMLDivElement>(null);
   const [showForm, setShowForm] = useState(false);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -293,6 +312,7 @@ export function ReviewsSection({ slug }: { slug: string }) {
 
           {/* list */}
           <div className="md:col-span-2 space-y-4">
+            <div ref={listTopRef} />
             {summary.reviews.map((rv) => (
               <article key={rv.id} className="rounded-xl border p-4">
                 <div className="flex items-center justify-between gap-2 mb-2">
@@ -324,6 +344,55 @@ export function ReviewsSection({ slug }: { slug: string }) {
                 )}
               </article>
             ))}
+
+            {/* Amazon-style numbered pagination — 7 reviews per page */}
+            {(summary.pages || 1) > 1 && (
+              <div className="flex items-center justify-center gap-1.5 pt-2 flex-wrap" dir="rtl">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={(summary.page || 1) <= 1}
+                  onClick={() => {
+                    setPage((pv) => Math.max(1, pv - 1));
+                    listTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                >
+                  ← السابق
+                </Button>
+                {pageNumbers(summary.page || 1, summary.pages || 1).map((pn, i) =>
+                  pn === '…' ? (
+                    <span key={`gap${i}`} className="px-1 text-muted-foreground">
+                      …
+                    </span>
+                  ) : (
+                    <Button
+                      key={pn}
+                      variant={pn === (summary.page || 1) ? 'default' : 'outline'}
+                      size="icon"
+                      className="h-8 w-8 text-sm"
+                      aria-current={pn === (summary.page || 1) ? 'page' : undefined}
+                      onClick={() => {
+                        setPage(pn);
+                        listTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }}
+                    >
+                      {pn}
+                    </Button>
+                  )
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={(summary.page || 1) >= (summary.pages || 1)}
+                  onClick={() => {
+                    setPage((pv) => Math.min(summary.pages || 1, pv + 1));
+                    listTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                >
+                  التالي →
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}

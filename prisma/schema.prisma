@@ -12,6 +12,7 @@ datasource db {
 model Category {
   id           String     @id @default(cuid())
   name         String
+  nameEn       String?    // English translation (i18n)
   parentId     String?
   parent       Category?  @relation("CategoryTree", fields: [parentId], references: [id])
   children     Category[] @relation("CategoryTree")
@@ -41,6 +42,14 @@ model Product {
   categoryId      String?
   category        Category?     @relation(fields: [categoryId], references: [id])
   isBestSeller    Boolean       @default(false)
+  // display social-proof counter (founder baseline + real orders)
+  soldCount       Int           @default(0)
+  // English translations (i18n) — null falls back to Arabic name
+  nameEn          String?
+  descriptionEn   String?
+  // rank in "most demanded in Kuwait/Gulf" scoring (research-based);
+  // 1..100 for homepage Top-100 section, null = not ranked
+  demandRank      Int?
   variations      String?
   supplier        String?
   originalPrice   Float?
@@ -56,6 +65,7 @@ model Product {
   @@index([categoryId])
   @@index([isBestSeller])
   @@index([createdAt])
+  @@index([demandRank])
 }
 
 // ===== Product Reviews & Ratings =====

@@ -22,7 +22,7 @@ export function AdminSettingsView() {
   const adminToken = useAppStore((s) => s.adminToken);
   const logoRef = useRef<HTMLInputElement>(null);
   const faviconRef = useRef<HTMLInputElement>(null);
-  const [shipping, setShipping] = useState({ price: 2, freeThreshold: 50, note: '' });
+  const [shipping, setShipping] = useState({ price: 2, freeThreshold: 30, note: '' });
   const [identity, setIdentity] = useState({
     siteName: '',
     announcement: '',

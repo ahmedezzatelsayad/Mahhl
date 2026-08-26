@@ -7,6 +7,6 @@ export async function GET() {
     const s = await getShippingSettings();
     return NextResponse.json(s);
   } catch {
-    return NextResponse.json({ price: 2, freeThreshold: 50, note: '' });
+    return NextResponse.json({ price: 2, freeThreshold: 30, note: '' });
   }
 }

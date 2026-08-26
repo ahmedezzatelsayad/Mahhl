@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { reqLang, locProduct, CDN_CACHE } from '@/lib/i18n-server';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
+  const lang = reqLang(req);
   const product = await db.product.findUnique({
     where: { slug },
     include: { category: true },
@@ -13,7 +17,7 @@ export async function GET(
   if (!product) {
     return NextResponse.json({ error: 'Product not found' }, { status: 404 });
   }
-  // Related products in same category
+  // Related products in same category (ranked by demand, then newest)
   let related: any[] = [];
   if (product.categoryId) {
     related = await db.product.findMany({
@@ -22,10 +26,29 @@ export async function GET(
         NOT: { id: product.id },
       },
       take: 8,
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ soldCount: 'desc' }, { createdAt: 'desc' }],
     });
   }
-  return NextResponse.json({ product, related });
+  // live viewers — real distinct sessions that viewed this product in last 24h
+  let liveViewers = 0;
+  try {
+    liveViewers = await db.userEvent.count({
+      where: {
+        type: 'product_view',
+        productId: product.id,
+        createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+      },
+    });
+  } catch {
+    /* events table may be cold */
+  }
+  return NextResponse.json(
+    {
+      product: locProduct({ ...product, liveViewers }, lang),
+      related: related.map((r) => locProduct(r, lang)),
+    },
+    { headers: { 'Cache-Control': CDN_CACHE } }
+  );
 }
 
 export async function PUT(

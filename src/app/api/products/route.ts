@@ -1,23 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { reqLang, locProduct, CDN_CACHE } from '@/lib/i18n-server';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '24');
+  const limit = Math.min(72, parseInt(searchParams.get('limit') || '24'));
   const search = searchParams.get('search') || '';
   const categoryId = searchParams.get('categoryId') || '';
   const bestSeller = searchParams.get('bestSeller') === 'true';
   const minPrice = searchParams.get('minPrice');
   const maxPrice = searchParams.get('maxPrice');
   const sort = searchParams.get('sort') || 'newest';
+  const lang = reqLang(req);
 
   const where: any = {};
   if (search) {
+    const like = lang === 'en' ? search : search;
     where.OR = [
-      { name: { contains: search } },
-      { sku: { contains: search } },
-      { description: { contains: search } },
+      { name: { contains: like } },
+      { nameEn: { contains: like } },
+      { sku: { contains: like } },
+      { description: { contains: like } },
     ];
   }
   if (categoryId) where.categoryId = categoryId;
@@ -32,7 +38,8 @@ export async function GET(req: NextRequest) {
     newest: { createdAt: 'desc' },
     'price-asc': { salePrice: 'asc' },
     'price-desc': { salePrice: 'desc' },
-    'name-asc': { name: 'asc' },
+    'name-asc': lang === 'en' ? { nameEn: { sort: 'asc' } } : { name: 'asc' },
+    bestselling: { soldCount: 'desc' },
   }[sort] || { createdAt: 'desc' };
 
   const [total, items] = await Promise.all([
@@ -46,16 +53,19 @@ export async function GET(req: NextRequest) {
     }),
   ]);
 
-  return NextResponse.json({
-    items,
-    pagination: {
-      page,
-      limit,
-      total,
-      pages: Math.ceil(total / limit),
-      hasMore: page * limit < total,
+  return NextResponse.json(
+    {
+      items: items.map((p) => locProduct(p, lang)),
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+        hasMore: page * limit < total,
+      },
     },
-  });
+    { headers: { 'Cache-Control': CDN_CACHE } }
+  );
 }
 
 export async function POST(req: NextRequest) {

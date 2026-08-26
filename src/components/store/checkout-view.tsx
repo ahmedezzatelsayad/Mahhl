@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useT } from '@/lib/i18n';
 import { formatKwd } from '@/lib/utils/format';
 import { toast } from 'sonner';
 import { ArrowLeft, CheckCircle, Loader2, ShoppingBag, KeyRound, Truck, ShieldCheck } from 'lucide-react';
@@ -28,6 +29,7 @@ const KUWAIT_GOVERNORATES = [
 ];
 
 export function CheckoutView() {
+  const { t, lang } = useT();
   const items = useCartStore((s) => s.items);
   const subtotal = useCartStore((s) => s.getSubtotal());
   const clearCart = useCartStore((s) => s.clearCart);
@@ -39,7 +41,7 @@ export function CheckoutView() {
   const [loading, setLoading] = useState(false);
   const [honeypot, setHoneypot] = useState('');
   const submitLock = useRef(false); // hard double-submit lock
-  const [shippingCfg, setShippingCfg] = useState({ price: 1, freeThreshold: 50, note: '' });
+  const [shippingCfg, setShippingCfg] = useState({ price: 1, freeThreshold: 30, note: '' });
   const [form, setForm] = useState({
     customerName: '',
     phone: '',
@@ -241,7 +243,7 @@ export function CheckoutView() {
         العودة للسلة
       </button>
 
-      <h1 className="text-2xl font-bold mb-5">إتمام الطلب</h1>
+      <h1 className="text-2xl font-bold mb-5">{t('ck.title')}</h1>
 
       {items.length === 0 ? (
         <div className="text-center py-12">
@@ -269,7 +271,7 @@ export function CheckoutView() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="mb-1 block">
-                    الاسم الكامل <span className="text-destructive">*</span>
+                    {t('ck.name')} <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     value={form.customerName}
@@ -280,7 +282,7 @@ export function CheckoutView() {
                 </div>
                 <div>
                   <Label className="mb-1 block">
-                    رقم الهاتف <span className="text-destructive">*</span>
+                    {t('ck.phone')} <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     type="tel"
@@ -308,7 +310,7 @@ export function CheckoutView() {
               <h2 className="font-bold">عنوان التوصيل</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-1 block">المحافظة</Label>
+                  <Label className="mb-1 block">{t('ck.gov')}</Label>
                   <select
                     className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
                     value={form.governorate}
@@ -322,7 +324,7 @@ export function CheckoutView() {
                   </select>
                 </div>
                 <div>
-                  <Label className="mb-1 block">المنطقة</Label>
+                  <Label className="mb-1 block">{t('ck.area')}</Label>
                   <Input
                     value={form.area}
                     onChange={(e) => update('area', e.target.value)}
@@ -332,7 +334,7 @@ export function CheckoutView() {
               </div>
               <div>
                 <Label className="mb-1 block">
-                  العنوان التفصيلي <span className="text-destructive">*</span>
+                  {t('ck.address')} <span className="text-destructive">*</span>
                 </Label>
                 <Textarea
                   value={form.address}
@@ -343,7 +345,7 @@ export function CheckoutView() {
                 />
               </div>
               <div>
-                <Label className="mb-1 block">ملاحظات الطلب</Label>
+                <Label className="mb-1 block">{t('ck.notes')}</Label>
                 <Textarea
                   value={form.notes}
                   onChange={(e) => update('notes', e.target.value)}
@@ -354,7 +356,7 @@ export function CheckoutView() {
             </div>
 
             <div className="border rounded-lg p-5 bg-card space-y-4">
-              <h2 className="font-bold">طريقة الدفع</h2>
+              <h2 className="font-bold">{t('ck.payment')}</h2>
               <RadioGroup
                 value={form.paymentMethod}
                 onValueChange={(v) => update('paymentMethod', v)}
@@ -362,9 +364,9 @@ export function CheckoutView() {
                 <label className="flex items-start gap-3 p-3 border rounded-md cursor-pointer hover:bg-accent/50">
                   <RadioGroupItem value="cod" className="mt-1" />
                   <div className="flex-1">
-                    <p className="font-medium">الدفع عند الاستلام (K Cash)</p>
+                    <p className="font-medium">{lang === 'en' ? 'Cash on Delivery (K Cash)' : 'الدفع عند الاستلام (K Cash)'}</p>
                     <p className="text-sm text-muted-foreground">
-                      ادفع نقداً عند استلام طلبك. متاح لجميع المحافظات.
+                      {lang === 'en' ? 'Pay cash when your order arrives. Available in all governorates.' : 'ادفع نقداً عند استلام طلبك. متاح لجميع المحافظات.'}
                     </p>
                   </div>
                 </label>
@@ -384,7 +386,7 @@ export function CheckoutView() {
           {/* Summary */}
           <div className="lg:col-span-1">
             <div className="border rounded-lg p-5 bg-card sticky top-20">
-              <h2 className="font-bold mb-4">ملخص الطلب</h2>
+              <h2 className="font-bold mb-4">{t('ck.summary')}</h2>
               <div className="max-h-64 overflow-y-auto mb-4 space-y-2">
                 {items.map((i, idx) => (
                   <div key={idx} className="flex gap-2 text-sm">
@@ -441,7 +443,7 @@ export function CheckoutView() {
                     جاري إنشاء الطلب...
                   </>
                 ) : (
-                  'تأكيد الطلب'
+                  t('ck.place')
                 )}
               </Button>
               <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
@@ -462,6 +464,7 @@ export function CheckoutView() {
 }
 
 export function OrderSuccessView() {
+  const { t } = useT();
   const lastOrderId = useAppStore((s) => s.lastOrderId);
   const setView = useAppStore((s) => s.setView);
   // this view only renders client-side after checkout — safe to read sessionStorage lazily

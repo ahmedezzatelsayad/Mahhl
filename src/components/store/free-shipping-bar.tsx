@@ -8,6 +8,7 @@
  * the #1 Baymard abandonment driver — unexpected shipping costs.
  */
 
+import { useT } from '@/lib/i18n';
 import { useEffect, useState } from 'react';
 import { Truck, PartyPopper } from 'lucide-react';
 
@@ -28,14 +29,14 @@ async function loadShipping(): Promise<ShippingInfo> {
       .then((d: ShippingInfo) => {
         cached = {
           price: Number(d.price) || 1,
-          freeThreshold: Number(d.freeThreshold) || 50,
+          freeThreshold: Number(d.freeThreshold) || 30,
         };
         inflight = null;
         return cached;
       })
       .catch(() => {
         inflight = null;
-        return { price: 1, freeThreshold: 50 };
+        return { price: 1, freeThreshold: 30 };
       });
   }
   return inflight;
@@ -46,7 +47,8 @@ function fmt(n: number) {
 }
 
 export function FreeShippingBar({ subtotal }: { subtotal: number }) {
-  const [info, setInfo] = useState<ShippingInfo>(cached ?? { price: 1, freeThreshold: 50 });
+  const { t } = useT();
+  const [info, setInfo] = useState<ShippingInfo>(cached ?? { price: 1, freeThreshold: 30 });
 
   useEffect(() => {
     loadShipping().then(setInfo);
@@ -74,11 +76,15 @@ export function FreeShippingBar({ subtotal }: { subtotal: number }) {
         )}
         <p className={`leading-snug ${reached ? 'text-green-800' : 'text-muted-foreground'}`}>
           {reached ? (
-            <span className="font-bold">مبروك! حصلت على شحن مجاني 🎉</span>
+            <span className="font-bold">{t('c.freeUnlocked')}</span>
           ) : (
             <>
-              أضف <b className="text-foreground">{fmt(remaining)} د.ك</b> واحصل على{' '}
-              <b className="text-foreground">شحن مجاني</b>
+              {t('c.addMore', { v: fmt(remaining) }).split(fmt(remaining)).map((seg, i) => (
+                <span key={i}>
+                  {i > 0 && <b className="text-foreground">{fmt(remaining)} د.ك</b>}
+                  {seg}
+                </span>
+              ))}
             </>
           )}
         </p>
@@ -96,7 +102,7 @@ export function FreeShippingBar({ subtotal }: { subtotal: number }) {
       </div>
       {!reached && (
         <p className="mt-1.5 text-[11px] text-muted-foreground">
-          {fmt(subtotal)} من {fmt(threshold)} د.ك · الشحن {fmt(info.price)} د.ك
+          {t('c.progress', { v: fmt(subtotal) })} · {threshold} د.ك
         </p>
       )}
     </div>

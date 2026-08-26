@@ -6,9 +6,11 @@ import { ProductCard } from '@/components/store/product-card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Truck, Shield, CreditCard, Headphones, Sparkles, Megaphone, HelpCircle } from 'lucide-react';
+import { Truck, Shield, CreditCard, Headphones, Sparkles, Megaphone, HelpCircle, Flame } from 'lucide-react';
 import { useBrand } from '@/components/store/header';
 import { HeroSlider, type Slide } from '@/components/store/hero-slider';
+import { useT } from '@/lib/i18n';
+import { readLang } from '@/lib/stores/lang-store';
 import type { SliderSlide } from '@/lib/slider-types';
 
 interface LandingPromo {
@@ -41,15 +43,36 @@ interface Category {
   _count?: { products: number };
 }
 
+interface TopDemandProduct {
+  id: string;
+  slug: string;
+  name: string;
+  price: number;
+  salePrice: number;
+  thumb: string | null;
+  images: string;
+  quantity: number;
+  isBestSeller: boolean;
+  soldCount: number;
+  demandRank: number | null;
+  rating: number;
+  reviewCount: number;
+  category: { name: string } | null;
+}
+
 export function HomeView() {
   const setView = useAppStore((s) => s.setView);
   const openCategory = useAppStore((s) => s.openCategory);
   const openLanding = useAppStore((s) => s.openLanding);
   const setCategoryMap = useAppStore((s) => s.setCategoryMap);
   const brand = useBrand();
+  const { t } = useT();
+  const lang = readLang();
 
   const [featured, setFeatured] = useState<Product[]>([]);
   const [bestSellers, setBestSellers] = useState<Product[]>([]);
+  const [topDemand, setTopDemand] = useState<TopDemandProduct[]>([]);
+  const [topShown, setTopShown] = useState(12);
   const [categories, setCategories] = useState<Category[]>([]);
   const [landingPromos, setLandingPromos] = useState<LandingPromo[]>([]);
   const [shipping, setShipping] = useState<{ price: number; freeThreshold: number } | null>(null);
@@ -69,7 +92,7 @@ export function HomeView() {
       highlight: 'وفّر أكثر مع محل شوب',
       subtitle: 'منتجات مختارة بعناية من الألعاب والإلكترونيات والأدوات المنزلية — توصيل سريع لكل محافظات الكويت.',
       tone: 'dark',
-      chips: ['+2,600 منتج', 'شحن مجاني من 50 د.ك', 'COD'],
+      chips: ['+2,600 منتج', 'شحن مجاني من 30 د.ك', 'COD'],
       cta: { label: 'تسوق الآن', action: 'shop' },
       active: true,
     },
@@ -80,11 +103,11 @@ export function HomeView() {
       appendPromos
         ? landingPromos.slice(0, 2).map<SliderSlide>((p) => ({
             id: `landing-${p.slug}`,
-            eyebrow: p.heroBadge || 'عرض خاص لفترة محدودة',
+            eyebrow: p.heroBadge || t('home.landingBadge'),
             title: p.title,
             subtitle: p.subtitle,
-            cta: { label: 'اكتشف العرض', action: 'landing', payload: p.slug },
-            ctaSecondary: { label: 'كل المنتجات', action: 'shop' },
+            cta: { label: t('home.discover'), action: 'landing', payload: p.slug },
+            ctaSecondary: { label: t('home.allProducts'), action: 'shop' },
             tone: 'gold',
             active: true,
           }))
@@ -94,13 +117,15 @@ export function HomeView() {
   useEffect(() => {
     (async () => {
       try {
-        const [featRes, bsRes, catRes, landingRes, shipRes, sliderRes] = await Promise.all([
-          fetch('/api/products?limit=12&sort=newest'),
-          fetch('/api/best-sellers'),
-          fetch('/api/categories'),
+        const lp = lang === 'en' ? '&lang=en' : '';
+        const [featRes, bsRes, catRes, landingRes, shipRes, sliderRes, topRes] = await Promise.all([
+          fetch(`/api/products?limit=12&sort=newest${lp}`),
+          fetch(`/api/best-sellers${lang === 'en' ? '?lang=en' : ''}`),
+          fetch(`/api/categories${lang === 'en' ? '?lang=en' : ''}`),
           fetch('/api/landing'),
           fetch('/api/settings/shipping'),
           fetch('/api/settings/slider'),
+          fetch(`/api/products/top-demand?limit=100${lp}`),
         ]);
         const featData = await featRes.json();
         const bsData = await bsRes.json();
@@ -108,8 +133,10 @@ export function HomeView() {
         const landingData = await landingRes.json();
         const shipData = await shipRes.json();
         const sliderData = await sliderRes.json().catch(() => null);
+        const topData = await topRes.json().catch(() => []);
         setFeatured(featData.items || []);
         setBestSellers(Array.isArray(bsData) ? bsData.slice(0, 8) : []);
+        setTopDemand(Array.isArray(topData) ? topData : []);
         if (Array.isArray(catData)) {
           setCategories(catData);
           // register slug->id map for browser back/forward support
@@ -142,13 +169,45 @@ export function HomeView() {
       <section className="border-b bg-card">
         <div className="container mx-auto px-4 py-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Feature icon={<Truck className="h-6 w-6" />} title="توصيل سريع" desc="لكل المحافظات" />
-            <Feature icon={<CreditCard className="h-6 w-6" />} title="دفع آمن" desc="عند الاستلام" />
-            <Feature icon={<Shield className="h-6 w-6" />} title="منتجات مختارة" desc="بعناية وفقاءة" />
-            <Feature icon={<Headphones className="h-6 w-6" />} title="دعم يومي" desc="واتساب 9ص–11م" />
+            <Feature icon={<Truck className="h-6 w-6" />} title={t('home.features.delivery')} desc={t('home.features.deliveryD')} />
+            <Feature icon={<CreditCard className="h-6 w-6" />} title={t('home.features.cod')} desc={t('home.features.codD')} />
+            <Feature icon={<Shield className="h-6 w-6" />} title={t('home.features.picked')} desc={t('home.features.pickedD')} />
+            <Feature icon={<Headphones className="h-6 w-6" />} title={t('home.features.support')} desc={t('home.features.supportD')} />
           </div>
         </div>
       </section>
+
+      {/* ===== TOP-100 Kuwait/Gulf most-demanded — research-ranked, founder-requested ===== */}
+      {topDemand.length > 0 && (
+        <section className="container mx-auto px-4 pt-8">
+          <div className="flex items-end justify-between mb-1 gap-3 flex-wrap">
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <Flame className="h-6 w-6 text-orange-500" />
+                {t('home.topDemand')}
+              </h2>
+              <p className="text-xs md:text-sm text-muted-foreground mt-1 max-w-xl">
+                {t('home.topDemandSub')}
+              </p>
+            </div>
+            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-orange-100 text-orange-700 border border-orange-200">
+              TOP 100
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4 mt-5">
+            {topDemand.slice(0, topShown).map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+          {topShown < topDemand.length && (
+            <div className="text-center mt-6">
+              <Button variant="outline" size="lg" onClick={() => setTopShown((v) => Math.min(v + 12, topDemand.length))}>
+                {t('home.topDemandMore')} ({topShown}/{topDemand.length})
+              </Button>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Featured landing promos — AI-generated offers */}
       {landingPromos.length > 0 && (
@@ -170,7 +229,7 @@ export function HomeView() {
                   <p className="font-extrabold text-base mb-1">{p.title}</p>
                   <p className="text-xs text-primary-foreground/70 line-clamp-2">{p.subtitle}</p>
                   <span className="inline-flex items-center gap-1 text-xs font-bold text-accent mt-3">
-                    اكتشف العرض
+                    {t('home.discover')}
                     <Megaphone className="h-3.5 w-3.5" />
                   </span>
                 </div>
@@ -184,9 +243,9 @@ export function HomeView() {
       {categories.length > 0 && (
         <section className="container mx-auto px-4 py-10">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl md:text-2xl font-bold">تسوق حسب القسم</h2>
+            <h2 className="text-xl md:text-2xl font-bold">{t('home.categories')}</h2>
             <Button variant="ghost" size="sm" onClick={() => setView('shop')}>
-              كل المنتجات
+              {t('home.allProducts')}
             </Button>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
@@ -218,7 +277,7 @@ export function HomeView() {
                     </p>
                     {c._count && (
                       <p className="text-white/80 text-[10px] text-center">
-                        {c._count.products} منتج
+                        {c._count.products} {t('home.productCount')}
                       </p>
                     )}
                   </div>
@@ -235,10 +294,10 @@ export function HomeView() {
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
               <Sparkles className="h-6 w-6 text-yellow-500" />
-              الأكثر مبيعاً
+              {t('home.bestsellers')}
             </h2>
             <Button variant="ghost" size="sm" onClick={() => setView('shop')}>
-              عرض الكل
+              {t('home.viewAll')}
             </Button>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
@@ -256,7 +315,7 @@ export function HomeView() {
       {/* Featured Products */}
       <section className="container mx-auto px-4 py-10">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-xl md:text-2xl font-bold">أحدث المنتجات</h2>
+          <h2 className="text-xl md:text-2xl font-bold">{t('home.newest')}</h2>
           <Button variant="ghost" size="sm" onClick={() => setView('shop')}>
             عرض الكل
           </Button>
@@ -272,7 +331,7 @@ export function HomeView() {
         </div>
         <div className="text-center mt-8">
           <Button size="lg" onClick={() => setView('shop')}>
-            تصفح كل المنتجات (2,638)
+            {t('home.browseAll')} (2,638)
           </Button>
         </div>
       </section>
@@ -281,7 +340,7 @@ export function HomeView() {
       <section className="container mx-auto px-4 py-10 max-w-3xl">
         <h2 className="text-xl md:text-2xl font-bold mb-5 flex items-center gap-2">
           <HelpCircle className="h-6 w-6 text-primary" />
-          الأسئلة الشائعة عن محل شوب
+          {t('home.faq')}
         </h2>
         <Accordion type="single" collapsible>
           <AccordionItem value="faq-1">
