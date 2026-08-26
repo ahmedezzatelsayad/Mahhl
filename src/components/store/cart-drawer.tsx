@@ -58,13 +58,13 @@ export function CartDrawer() {
                   key={`${item.productId}-${i}`}
                   className="flex gap-3 pb-3 border-b border-border/50 last:border-0"
                 >
-                  <div className="w-20 h-20 flex-shrink-0 bg-muted/30 rounded-md overflow-hidden">
+                  <div className="w-20 h-20 flex-shrink-0 bg-white rounded-md overflow-hidden border">
                     {item.image && (
-                       
+                      /* eslint-disable-next-line @next/next/no-img-element */
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full img-contain p-1"
                       />
                     )}
                   </div>

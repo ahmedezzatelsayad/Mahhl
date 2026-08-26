@@ -6,7 +6,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-cairo), "Cairo", sans-serif;
+  --font-sans: var(--font-body), "IBM Plex Sans Arabic", "Tajawal", sans-serif;
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -124,11 +124,11 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-body), "Cairo", "Tajawal", sans-serif;
+    font-family: var(--font-body), "IBM Plex Sans Arabic", "Tajawal", sans-serif;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading), "Cairo", sans-serif;
-    letter-spacing: -0.01em;
+    font-family: var(--font-heading), "Tajawal", "IBM Plex Sans Arabic", sans-serif;
+    letter-spacing: 0;
   }
   /* RTL: ensure proper direction for Arabic */
   html[dir="rtl"] {
@@ -141,12 +141,17 @@
 
 /* ===== UI/UX Pro Max — premium utilities ===== */
 
-/* Gold gradient text */
+/* Gold gradient text — always on dark backgrounds only; on light surfaces use .text-gold-deep */
 .text-gold-gradient {
-  background: var(--gold-gradient);
+  background: linear-gradient(135deg, oklch(0.78 0.14 80), oklch(0.62 0.13 65));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* High-contrast gold for LIGHT backgrounds (readable amber) */
+.text-gold-deep {
+  color: oklch(0.5 0.11 60);
 }
 
 /* Premium card with hover lift (150-300ms per checklist) */
@@ -234,4 +239,17 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Product imagery — show the FULL product (never crop) on a clean white mat */
+.img-contain {
+  object-fit: contain;
+  object-position: center;
+  background: #ffffff;
+}
+
+/* Chat widget small clear text */
+.chat-text-sm {
+  font-size: 12.5px;
+  line-height: 1.7;
 }

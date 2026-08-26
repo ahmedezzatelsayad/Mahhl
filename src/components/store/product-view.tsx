@@ -193,13 +193,13 @@ export function ProductView() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10">
         {/* Images */}
         <div className="space-y-3">
-          <div className="relative aspect-square bg-muted/30 rounded-lg overflow-hidden border">
+          <div className="relative aspect-square bg-white rounded-lg overflow-hidden border">
             {images[activeImage] ? (
-               
+              /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={images[activeImage]}
                 alt={product.name}
-                className="h-full w-full object-contain"
+                className="h-full w-full img-contain p-4"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
@@ -222,8 +222,8 @@ export function ProductView() {
                     i === activeImage ? 'border-primary' : 'border-border hover:border-primary/50'
                   }`}
                 >
-                  { }
-                  <img src={url} alt={`صورة ${i + 1}`} className="h-full w-full object-cover" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt={`صورة ${i + 1}`} className="h-full w-full img-contain p-0.5 bg-white" />
                 </button>
               ))}
             </div>

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Truck, Shield, CreditCard, Headphones, Sparkles, Megaphone, HelpCircle } from 'lucide-react';
+import { useBrand } from '@/components/store/header';
 
 interface LandingPromo {
   slug: string;
@@ -43,6 +44,7 @@ export function HomeView() {
   const openCategory = useAppStore((s) => s.openCategory);
   const openLanding = useAppStore((s) => s.openLanding);
   const setCategoryMap = useAppStore((s) => s.setCategoryMap);
+  const brand = useBrand();
 
   const [featured, setFeatured] = useState<Product[]>([]);
   const [bestSellers, setBestSellers] = useState<Product[]>([]);
@@ -188,28 +190,51 @@ export function HomeView() {
         </section>
       )}
 
-      {/* Categories */}
+      {/* Categories — with real imagery from the admin identity settings */}
       {categories.length > 0 && (
         <section className="container mx-auto px-4 py-10">
-          <h2 className="text-xl md:text-2xl font-bold mb-5">تسوق حسب الفئة</h2>
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-            {categories.slice(0, 6).map((c) => (
-              <button
-                key={c.id}
-                onClick={() => openCategory(c.id, c.slug)}
-                className="group flex flex-col items-center justify-center p-4 border rounded-lg bg-card hover:border-primary hover:bg-accent transition-colors"
-              >
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg mb-2 group-hover:scale-110 transition-transform">
-                  {c.name.charAt(0)}
-                </div>
-                <p className="text-xs font-medium text-center line-clamp-2">{c.name}</p>
-                {c._count && (
-                  <p className="text-[10px] text-muted-foreground mt-1">
-                    {c._count.products} منتج
-                  </p>
-                )}
-              </button>
-            ))}
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl md:text-2xl font-bold">تسوق حسب القسم</h2>
+            <Button variant="ghost" size="sm" onClick={() => setView('shop')}>
+              كل المنتجات
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {categories.slice(0, 12).map((c) => {
+              const img = brand.categoryImages?.[c.slug];
+              return (
+                <button
+                  key={c.id}
+                  onClick={() => openCategory(c.id, c.slug)}
+                  className="card-lift group relative h-28 md:h-32 overflow-hidden rounded-xl border bg-card text-right"
+                >
+                  {img ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={img}
+                      alt={c.name}
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-primary/5 flex items-center justify-center text-primary font-extrabold text-2xl">
+                      {c.name.charAt(0)}
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute bottom-0 inset-x-0 p-2.5">
+                    <p className="text-white text-[13px] font-bold text-center line-clamp-1 drop-shadow">
+                      {c.name}
+                    </p>
+                    {c._count && (
+                      <p className="text-white/80 text-[10px] text-center">
+                        {c._count.products} منتج
+                      </p>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </section>
       )}

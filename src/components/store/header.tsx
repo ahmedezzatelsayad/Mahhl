@@ -1,37 +1,83 @@
 'use client';
 
-import Link from 'next/link';
-import { Search, ShoppingCart, Menu, X, Store } from 'lucide-react';
+import { Search, ShoppingCart, Menu, X, Store, User, Heart, MessageCircle } from 'lucide-react';
 import { useAppStore } from '@/lib/stores/app-store';
 import { useCartStore } from '@/lib/stores/cart-store';
+import { useWishlistStore } from '@/lib/stores/wishlist-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
+import { useState, useEffect, useSyncExternalStore } from 'react';
 import { trackFB } from '@/lib/facebook-pixel';
+
+interface Brand {
+  siteName: string;
+  announcement: string;
+  logo: string;
+  whatsapp: string;
+  categoryImages: Record<string, string>;
+}
+
+const DEFAULT_BRAND: Brand = {
+  siteName: 'محل شوب',
+  announcement: 'توصيل لجميع محافظات الكويت — دفع عند الاستلام',
+  logo: '',
+  whatsapp: '66046358',
+  categoryImages: {},
+};
+
+export function useBrand(): Brand {
+  const [brand, setBrand] = useState<Brand>(DEFAULT_BRAND);
+  useEffect(() => {
+    fetch('/api/settings/brand')
+      .then((r) => r.json())
+      .then((b) => {
+        if (b && b.siteName) {
+          setBrand({
+            siteName: b.siteName,
+            announcement: b.announcement || DEFAULT_BRAND.announcement,
+            logo: b.logo || '',
+            whatsapp: b.whatsapp || DEFAULT_BRAND.whatsapp,
+            categoryImages: b.categoryImages || {},
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+  return brand;
+}
+
+export function waHref(whatsapp: string, text?: string) {
+  const num = (whatsapp || '').replace(/\D/g, '');
+  const withCC = num.startsWith('965') ? num : `965${num}`;
+  return `https://wa.me/${withCC}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
+}
 
 export function Header() {
   const setView = useAppStore((s) => s.setView);
   const setSearch = useAppStore((s) => s.setSearch);
-  const openCategory = useAppStore((s) => s.openCategory);
+  const customer = useAppStore((s) => s.customer);
+  const brand = useBrand();
   const toggleCart = useCartStore((s) => s.toggleCart);
   const totalItems = useCartStore((s) => s.getTotalItems());
+  const wishCount = useWishlistStore((s) => s.items.length);
   const [q, setQ] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   // Cart badge depends on persisted localStorage — render it only after hydration
-  // (useSyncExternalStore: false on server, true on client — no setState effect).
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
     () => false
   );
 
+  const [nameFirst, ...rest] = brand.siteName.split(' ');
+  const nameRest = rest.join(' ');
+
   function submitSearch(e: React.FormEvent) {
     e.preventDefault();
     if (q.trim()) {
       setSearch(q.trim());
       setMobileMenuOpen(false);
-      // Facebook Pixel — Search
       trackFB('Search', { search_string: q.trim() });
     }
   }
@@ -41,25 +87,38 @@ export function Header() {
       {/* Announcement bar — premium gold on dark */}
       <div className="bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 py-1.5 text-center text-xs sm:text-sm font-medium">
-          ✨ توصيل مجاني للطلبات 50 د.ك+ — دفع عند الاستلام لكل المحافظات ✨
+          ✨ {brand.announcement} ✨
         </div>
       </div>
 
       {/* Main navbar — frosted glass */}
       <div className="glass border-b border-border/60">
         <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between gap-4">
-            {/* Logo — gold gradient wordmark */}
+          <div className="flex h-16 items-center justify-between gap-3">
+            {/* Logo — uploaded image or gold gradient wordmark */}
             <button
               onClick={() => setView('home')}
               className="flex items-center gap-2.5 font-extrabold text-xl hover:opacity-90 cursor-pointer"
+              aria-label="الرئيسية"
             >
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl btn-gold">
-                <Store className="h-5 w-5" />
-              </span>
-              <span className="hidden sm:inline">
-                محل <span className="text-gold-gradient">شوب</span>
-              </span>
+              {brand.logo ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={brand.logo}
+                  alt={brand.siteName}
+                  className="h-10 w-auto max-w-[160px] object-contain"
+                />
+              ) : (
+                <>
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl btn-gold">
+                    <Store className="h-5 w-5" />
+                  </span>
+                  <span className="hidden sm:inline">
+                    {nameFirst}{' '}
+                    {nameRest && <span className="text-gold-deep">{nameRest}</span>}
+                  </span>
+                </>
+              )}
             </button>
 
           {/* Desktop search */}
@@ -67,10 +126,10 @@ export function Header() {
             <div className="relative w-full">
               <Input
                 type="search"
-                placeholder="ابحث عن منتج..."
+                placeholder="دوّر على منتج... (ساعة، لعبة، عطر)"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                className="w-full pl-10"
+                className="w-full pl-10 bg-white text-foreground border-input"
               />
               <button
                 type="submit"
@@ -83,22 +142,60 @@ export function Header() {
           </form>
 
           {/* Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="sm"
-              className="hidden md:flex"
-              onClick={() => setView('shop')}
+              className="hidden lg:flex gap-1.5"
+              onClick={() => setView('track-order')}
             >
-              كل المنتجات
+              <MessageCircle className="h-4 w-4" />
+              تتبع طلبك
             </Button>
 
+            {/* حسابي */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setView('account')}
+              className="relative"
+              aria-label="حسابي"
+              title="حسابي"
+            >
+              <User className="h-5 w-5" />
+              {mounted && customer && (
+                <span className="absolute bottom-1 left-1 h-2 w-2 rounded-full bg-green-500 border border-background" />
+              )}
+            </Button>
+
+            {/* المفضلة */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setView('wishlist')}
+              className="relative"
+              aria-label="المفضلة"
+              title="المفضلة"
+            >
+              <Heart className="h-5 w-5" />
+              {mounted && wishCount > 0 && (
+                <Badge
+                  variant="destructive"
+                  className="absolute -top-1 -left-1 h-5 w-5 flex items-center justify-center p-0 text-[10px]"
+                >
+                  {wishCount}
+                </Badge>
+              )}
+            </Button>
+
+            {/* السلة */}
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleCart}
               className="relative"
               aria-label="السلة"
+              title="السلة"
             >
               <ShoppingCart className="h-5 w-5" />
               {mounted && totalItems > 0 && (
@@ -109,16 +206,6 @@ export function Header() {
                   {totalItems}
                 </Badge>
               )}
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setView('admin-login')}
-              className="hidden md:inline-flex"
-              title="لوحة التحكم"
-            >
-              <span className="text-xs">الإدارة</span>
             </Button>
 
             <Button
@@ -140,40 +227,44 @@ export function Header() {
               <div className="relative">
                 <Input
                   type="search"
-                  placeholder="ابحث عن منتج..."
+                  placeholder="دوّر على منتج..."
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
-                  className="w-full pl-10"
+                  className="w-full pl-10 bg-white text-foreground"
                 />
                 <button
                   type="submit"
                   className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  aria-label="بحث"
                 >
                   <Search className="h-4 w-4" />
                 </button>
               </div>
             </form>
-            <div className="flex flex-col gap-1">
-              <Button
-                variant="ghost"
-                className="justify-start"
-                onClick={() => {
-                  setView('shop');
-                  setMobileMenuOpen(false);
-                }}
-              >
-                كل المنتجات
-              </Button>
-              <Button
-                variant="ghost"
-                className="justify-start"
-                onClick={() => {
-                  setView('admin-login');
-                  setMobileMenuOpen(false);
-                }}
-              >
-                لوحة التحكم
-              </Button>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { label: 'كل المنتجات', action: () => setView('shop') },
+                { label: customer ? `حسابي (${customer.name.split(' ')[0]})` : 'حسابي / تسجيل', action: () => setView('account') },
+                { label: 'تتبع طلبك', action: () => setView('track-order') },
+                { label: 'المفضلة', action: () => setView('wishlist') },
+                { label: 'سلة التسوق', action: () => setView('cart') },
+                {
+                  label: 'واتساب المتجر',
+                  action: () => window.open(waHref(brand.whatsapp, 'هلا محل شوب، عندي استفسار 🙏'), '_blank'),
+                },
+              ].map((item) => (
+                <Button
+                  key={item.label}
+                  variant="outline"
+                  className="justify-center"
+                  onClick={() => {
+                    item.action();
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  {item.label}
+                </Button>
+              ))}
             </div>
           </div>
         )}

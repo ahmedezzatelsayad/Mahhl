@@ -1,19 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Cairo, Rubik } from "next/font/google";
+import { IBM_Plex_Sans_Arabic, Tajawal } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { getSeoSettings, getSiteUrl, DEFAULT_SITE_URL } from "@/lib/seo";
+import { getSiteIdentity } from "@/lib/site-identity";
 
-const cairo = Cairo({
+const plexArabic = IBM_Plex_Sans_Arabic({
   variable: "--font-body",
   subsets: ["arabic", "latin"],
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
-const rubik = Rubik({
+const tajawal = Tajawal({
   variable: "--font-heading",
   subsets: ["arabic", "latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "700", "800", "900"],
   display: "swap",
 });
 
@@ -95,13 +97,26 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // Dynamic favicon from admin "Site Identity" settings (fallback: generated icon)
+  let iconUrl = "/api/favicon";
+  try {
+    const identity = await getSiteIdentity();
+    if (identity.favicon) iconUrl = identity.favicon;
+  } catch {
+    /* keep fallback */
+  }
+
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href={iconUrl} />
+        <link rel="apple-touch-icon" href={iconUrl} />
+      </head>
       <body
-        className={`${cairo.variable} ${rubik.variable} antialiased bg-background text-foreground min-h-screen`}
+        className={`${plexArabic.variable} ${tajawal.variable} antialiased bg-background text-foreground min-h-screen`}
       >
         {children}
         <Toaster />

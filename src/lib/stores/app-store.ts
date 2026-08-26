@@ -1,10 +1,12 @@
 /**
- * App store - view routing, current product, filters, search query, admin auth.
+ * App store - view routing, current product, filters, search query, admin auth,
+ * and the persistent customer session (حسابي).
  *
  * SEO: every public view keeps the URL in sync (pushState) so each one of the
  * 2,638 products and 38 categories has a unique, crawlable, shareable URL:
  *   /?p=<slug> product · /?cat=<slug> category · /?q=<text> search
- *   /?l=<slug> landing · /?all=1 shop-all
+ *   /?l=<slug> landing · /?all=1 shop-all · /?account=1 حسابي
+ *   /?track=1 تتبع طلب · /?wishlist=1 المفضلة · /?info=<page> صفحات المعلومات
  */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
@@ -17,6 +19,10 @@ export type View =
   | 'checkout'
   | 'order-success'
   | 'landing'
+  | 'account'
+  | 'track-order'
+  | 'wishlist'
+  | 'info'
   | 'admin-login'
   | 'admin-dashboard'
   | 'admin-products'
@@ -32,14 +38,33 @@ export type View =
   | 'admin-add-product'
   | 'admin-edit-product';
 
+export type InfoPage =
+  | 'about'
+  | 'contact'
+  | 'faq'
+  | 'shipping'
+  | 'returns'
+  | 'privacy'
+  | 'terms';
+
+export interface CustomerSession {
+  id: string;
+  name: string;
+  phone: string;
+}
+
 interface AppState {
   view: View;
+  infoPage: InfoPage;
   selectedProductSlug: string | null;
   selectedCategoryId: string | null;
   selectedCategorySlug: string | null;
   searchQuery: string;
   isAdmin: boolean;
   adminToken: string | null;
+  /** persistent customer session (حسابي) */
+  customer: CustomerSession | null;
+  customerToken: string | null;
   priceMin: number | null;
   priceMax: number | null;
   filterBestSeller: boolean;
@@ -47,8 +72,11 @@ interface AppState {
   selectedLandingSlug: string | null;
   /** slug -> id map, filled whenever categories load (for back-button) */
   categoryMap: Record<string, string>;
+  /** edit-product target id (admin) */
+  editProductId: string | null;
 
   setView: (v: View) => void;
+  openInfo: (page: InfoPage) => void;
   openLanding: (slug: string) => void;
   openProduct: (slug: string) => void;
   openCategory: (categoryId: string | null, categorySlug?: string | null) => void;
@@ -57,11 +85,14 @@ interface AppState {
   toggleBestSellerFilter: () => void;
   loginAdmin: (token: string) => void;
   logoutAdmin: () => void;
+  loginCustomer: (customer: CustomerSession, token: string) => void;
+  logoutCustomer: () => void;
   resetFilters: () => void;
   setLastOrder: (id: string) => void;
   setCategoryMap: (cats: { id: string; slug: string }[]) => void;
+  setEditProduct: (id: string | null) => void;
   /** apply a state patch coming from URL parsing — no history push */
-  applyUrlState: (patch: Partial<Pick<AppState, 'view' | 'selectedProductSlug' | 'selectedCategoryId' | 'selectedCategorySlug' | 'searchQuery' | 'selectedLandingSlug'>>) => void;
+  applyUrlState: (patch: Partial<Pick<AppState, 'view' | 'infoPage' | 'selectedProductSlug' | 'selectedCategoryId' | 'selectedCategorySlug' | 'searchQuery' | 'selectedLandingSlug'>>) => void;
 }
 
 function pushUrl(url: string) {
@@ -76,24 +107,35 @@ export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
       view: 'home',
+      infoPage: 'about',
       selectedProductSlug: null,
       selectedCategoryId: null,
       selectedCategorySlug: null,
       searchQuery: '',
       isAdmin: false,
       adminToken: null,
+      customer: null,
+      customerToken: null,
       priceMin: null,
       priceMax: null,
       filterBestSeller: false,
       lastOrderId: null,
       selectedLandingSlug: null,
       categoryMap: {},
+      editProductId: null,
 
       setView: (v) => {
         set({ view: v });
         if (v === 'home') pushUrl('/');
         else if (v === 'shop') pushUrl('/?all=1');
-        // cart/checkout/admin are ephemeral client states — keep URL as-is
+        else if (v === 'account') pushUrl('/?account=1');
+        else if (v === 'track-order') pushUrl('/?track=1');
+        else if (v === 'wishlist') pushUrl('/?wishlist=1');
+        // cart/checkout/info/admin are ephemeral client states — keep URL as-is
+      },
+      openInfo: (page) => {
+        set({ view: 'info', infoPage: page });
+        pushUrl(`/?info=${page}`);
       },
       openLanding: (slug) => {
         set({ view: 'landing', selectedLandingSlug: slug });
@@ -128,6 +170,9 @@ export const useAppStore = create<AppState>()(
         set((s) => ({ filterBestSeller: !s.filterBestSeller })),
       loginAdmin: (token) => set({ isAdmin: true, adminToken: token }),
       logoutAdmin: () => set({ isAdmin: false, adminToken: null, view: 'home' }),
+      loginCustomer: (customer, token) =>
+        set({ customer, customerToken: token }),
+      logoutCustomer: () => set({ customer: null, customerToken: null }),
       resetFilters: () =>
         set({
           priceMin: null,
@@ -144,11 +189,17 @@ export const useAppStore = create<AppState>()(
           for (const c of cats) map[c.slug] = c.id;
           return { categoryMap: map };
         }),
+      setEditProduct: (id) => set({ editProductId: id }),
       applyUrlState: (patch) => set(patch),
     }),
     {
       name: 'ecomerg-app',
-      partialize: (s) => ({ isAdmin: s.isAdmin, adminToken: s.adminToken }),
+      partialize: (s) => ({
+        isAdmin: s.isAdmin,
+        adminToken: s.adminToken,
+        customer: s.customer,
+        customerToken: s.customerToken,
+      }),
     }
   )
 );

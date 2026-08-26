@@ -43,13 +43,13 @@ export function CartView() {
               key={`${item.productId}-${i}`}
               className="flex gap-4 p-4 border rounded-lg bg-card"
             >
-              <div className="w-24 h-24 flex-shrink-0 bg-muted/30 rounded-md overflow-hidden">
+              <div className="w-24 h-24 flex-shrink-0 bg-white rounded-md overflow-hidden border">
                 {item.image && (
-                   
+                  /* eslint-disable-next-line @next/next/no-img-element */
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full img-contain p-1"
                   />
                 )}
               </div>

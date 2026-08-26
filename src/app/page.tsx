@@ -99,8 +99,33 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     case 'search':
       // thin search results — keep out of the index, follow links
       return { title: `نتائج البحث: ${page.q}`, robots: { index: false, follow: true } };
+    case 'account':
+      return {
+        title: 'حسابي — طلباتي ومتابعة الطلب | محل شوب',
+        description: 'سجل دخولك برقم هاتفك وتابع طلباتك خطوة بخطوة — كلمة المرور الافتراضية هي رقم هاتفك.',
+        alternates: { canonical: `${siteUrl}/?account=1` },
+        robots: NO_INDEX,
+      };
+    case 'track':
+      return {
+        title: 'تتبع طلبك — وين وصل شحنتك؟ | محل شوب',
+        description: 'اكتب رقم الطلب ورقم هاتفك وشوف حالة طلبك من محل شوب: تم الاستلام، تم الشحن، وفي الطريق إليك.',
+        alternates: { canonical: `${siteUrl}/?track=1` },
+        robots: INDEX_FOLLOW,
+        openGraph: { ...ogBase, title: 'تتبع طلبك | محل شوب', url: `${siteUrl}/?track=1` },
+      };
+    case 'wishlist':
+      return { title: 'المفضلة', robots: NO_INDEX };
+    case 'info':
+      return {
+        title: page.title,
+        description: page.description,
+        alternates: { canonical: `${siteUrl}/?info=${page.page}` },
+        robots: INDEX_FOLLOW,
+        openGraph: { ...ogBase, title: page.title, url: `${siteUrl}/?info=${page.page}` },
+      };
     case 'admin':
-      return { title: 'لوحة التحكم', robots: NO_INDEX };
+      return { title: 'دخول الإدارة', robots: NO_INDEX };
     default:
       return {
         title: seo.siteTitle,
@@ -146,6 +171,15 @@ export default async function Page({ searchParams }: PageProps) {
   } else if (page.kind === 'search') {
     initial.view = 'shop';
     initial.searchQuery = page.q;
+  } else if (page.kind === 'account') {
+    initial.view = 'account';
+  } else if (page.kind === 'track') {
+    initial.view = 'track-order';
+  } else if (page.kind === 'wishlist') {
+    initial.view = 'wishlist';
+  } else if (page.kind === 'info') {
+    initial.view = 'info';
+    initial.infoPage = page.page;
   } else if (one('all') === '1') {
     initial.view = 'shop';
   }

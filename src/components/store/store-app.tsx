@@ -6,7 +6,7 @@
  * so landing directly on /?p=..., /?cat=..., /?q=... opens the right view.
  */
 import { useEffect } from 'react';
-import { useAppStore, View } from '@/lib/stores/app-store';
+import { useAppStore } from '@/lib/stores/app-store';
 import { Header } from '@/components/store/header';
 import { Footer } from '@/components/store/footer';
 import { CartDrawer } from '@/components/store/cart-drawer';
@@ -15,6 +15,11 @@ import { ShopView } from '@/components/store/shop-view';
 import { ProductView } from '@/components/store/product-view';
 import { CartView } from '@/components/store/cart-view';
 import { CheckoutView, OrderSuccessView } from '@/components/store/checkout-view';
+import { AccountView } from '@/components/store/account-view';
+import { TrackOrderView } from '@/components/store/track-order-view';
+import { WishlistView } from '@/components/store/wishlist-view';
+import { InfoView } from '@/components/store/info-view';
+import { FloatingWidgets } from '@/components/store/floating-widgets';
 import { AdminLoginView } from '@/components/admin/admin-login-view';
 import { AdminSidebar, AdminMobileNav } from '@/components/admin/admin-sidebar';
 import { AdminDashboardView } from '@/components/admin/admin-dashboard-view';
@@ -32,13 +37,18 @@ import { FacebookPixel } from '@/components/store/facebook-pixel';
 import { LandingView } from '@/components/store/landing-view';
 
 export interface InitialUrlState {
-  view: Extract<View, 'home' | 'shop' | 'product' | 'landing'>;
+  view: Extract<View, 'home' | 'shop' | 'product' | 'landing' | 'account' | 'track-order' | 'wishlist' | 'info'>;
+  infoPage?: string | null;
   productSlug?: string | null;
   categoryId?: string | null;
   categorySlug?: string | null;
   searchQuery?: string;
   landingSlug?: string | null;
 }
+
+import type { View, InfoPage } from '@/lib/stores/app-store';
+
+const INFO_PAGES: InfoPage[] = ['about', 'contact', 'faq', 'shipping', 'returns', 'privacy', 'terms'];
 
 export function StoreApp({ initial }: { initial: InitialUrlState }) {
   const view = useAppStore((s) => s.view);
@@ -50,6 +60,9 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
   useEffect(() => {
     applyUrlState({
       view: initial.view,
+      infoPage: (INFO_PAGES.includes(initial.infoPage as InfoPage)
+        ? initial.infoPage
+        : 'about') as InfoPage,
       selectedProductSlug: initial.productSlug ?? null,
       selectedCategoryId: initial.categoryId ?? null,
       selectedCategorySlug: initial.categorySlug ?? null,
@@ -68,6 +81,10 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
       const l = sp.get('l');
       const q = sp.get('q');
       const all = sp.get('all');
+      const account = sp.get('account');
+      const track = sp.get('track');
+      const wishlist = sp.get('wishlist');
+      const info = sp.get('info');
 
       if (p) {
         applyUrlState({ view: 'product', selectedProductSlug: p });
@@ -107,16 +124,40 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
         applyUrlState({ view: 'shop', selectedCategoryId: null, searchQuery: '' });
         return;
       }
+      if (account) {
+        applyUrlState({ view: 'account' });
+        return;
+      }
+      if (track) {
+        applyUrlState({ view: 'track-order' });
+        return;
+      }
+      if (wishlist) {
+        applyUrlState({ view: 'wishlist' });
+        return;
+      }
+      if (info && INFO_PAGES.includes(info as InfoPage)) {
+        applyUrlState({ view: 'info', infoPage: info as InfoPage });
+        return;
+      }
       applyUrlState({ view: 'home' });
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, [applyUrlState]);
 
-  // Redirect away from admin pages if not logged in
+  // Redirect away from admin pages if not logged in (session survives refresh —
+  // adminToken is persisted, so a logged-in founder lands straight in the panel)
   useEffect(() => {
     if (view.startsWith('admin-') && view !== 'admin-login' && !isAdmin) {
       setView('admin-login');
+    }
+  }, [view, isAdmin, setView]);
+
+  // A logged-in admin landing on the login view goes straight to the dashboard
+  useEffect(() => {
+    if (view === 'admin-login' && isAdmin) {
+      setView('admin-dashboard');
     }
   }, [view, isAdmin, setView]);
 
@@ -136,6 +177,10 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
   else if (view === 'checkout') content = <CheckoutView />;
   else if (view === 'order-success') content = <OrderSuccessView />;
   else if (view === 'landing') content = <LandingView />;
+  else if (view === 'account') content = <AccountView />;
+  else if (view === 'track-order') content = <TrackOrderView />;
+  else if (view === 'wishlist') content = <WishlistView />;
+  else if (view === 'info') content = <InfoView />;
   else if (view === 'admin-login') content = <AdminLoginView />;
   else if (view === 'admin-dashboard' && isAdmin) content = <AdminDashboardView />;
   else if (view === 'admin-products' && isAdmin) content = <AdminProductsView />;
@@ -173,6 +218,7 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
       <main className="flex-1">{content}</main>
       <Footer />
       <CartDrawer />
+      <FloatingWidgets />
     </div>
   );
 }

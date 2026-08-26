@@ -337,7 +337,20 @@ export type SeoPageData =
     }
   | { kind: 'search'; q: string }
   | { kind: 'landing'; title: string }
+  | { kind: 'account' }
+  | { kind: 'track' }
+  | { kind: 'wishlist' }
+  | { kind: 'info'; page: InfoPageKind; title: string; description: string }
   | { kind: 'admin' };
+
+export type InfoPageKind =
+  | 'about'
+  | 'contact'
+  | 'faq'
+  | 'shipping'
+  | 'returns'
+  | 'privacy'
+  | 'terms';
 
 export const loadProduct = cache(async (slug: string) => {
   try {
@@ -420,6 +433,45 @@ export async function resolveSeoPage(sp: Record<string, string | string[] | unde
     }
   }
   if (q && q.trim()) return { kind: 'search', q: q.trim() };
+
+  const INFO_META: Record<InfoPageKind, { title: string; description: string }> = {
+    about: {
+      title: 'من نحن — محل شوب متجرك الكويتي الذكي',
+      description: 'محل شوب: متجر إلكتروني كويتي بأكثر من 2,600 منتج بأسعار الدينار الكويتي، توصيل لكل المحافظات ودفع عند الاستلام.',
+    },
+    contact: {
+      title: 'تواصل معنا — واتساب محل شوب',
+      description: 'تواصل مع فريق محل شوب على واتسوب يومياً من 9 صباحاً حتى 11 مساءً — نرد عليك بأسرع وقت.',
+    },
+    faq: {
+      title: 'الأسئلة الشائعة — كل ما تحتاج تعرفه | محل شوب',
+      description: 'شلون أطلب؟ شلون أدفع؟ متى يوصل طلبي؟ — إجابات واضحة على أكثر أسئلة عملائنا في الكويت.',
+    },
+    shipping: {
+      title: 'الشحن والتوصيل — لكل محافظات الكويت | محل شوب',
+      description: 'توصيل لكل محافظات الكويت، الطلبات تشحن تلقائياً الساعة 10 صباحاً، وسيصل طلبك في الميعاد المنسق مع خدمة العملاء والمندوب.',
+    },
+    returns: {
+      title: 'الاستبدال والاسترجاع — خلال 3 أيام | محل شوب',
+      description: 'سياسة استبدال واسترجاع واضحة: خلال 3 أيام من الاستلام للمنتجات بحالتها الأصلية — تواصل معنا على الواتساب.',
+    },
+    privacy: {
+      title: 'سياسة الخصوصية — بياناتك أمانة | محل شوب',
+      description: 'نجمع فقط الاسم والهاتف والعنوان لتنفيذ طلبك — لا نخزن بطاقات ولا نشارك بياناتك مع أي طرف ثالث.',
+    },
+    terms: {
+      title: 'الشروط والأحكام | محل شوب',
+      description: 'شروط استخدام متجر محل شوب: الأسعار بالدينار الكويتي، الدفع عند الاستلام، والتوصيل لكل محافظات الكويت.',
+    },
+  };
+
+  const info = one('info') as InfoPageKind | undefined;
+  if (info && info in INFO_META) {
+    return { kind: 'info', page: info, ...INFO_META[info] };
+  }
+  if (one('account') === '1') return { kind: 'account' };
+  if (one('track') === '1') return { kind: 'track' };
+  if (one('wishlist') === '1') return { kind: 'wishlist' };
 
   return { kind: 'home' };
 }

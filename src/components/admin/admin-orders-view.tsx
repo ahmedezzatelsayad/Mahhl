@@ -8,10 +8,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatKwd } from '@/lib/utils/format';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { Truck, Loader2 } from 'lucide-react';
+import { useAppStore } from '@/lib/stores/app-store';
 
 const STATUS_LABELS: Record<string, string> = {
   pending: 'قيد الانتظار',
   confirmed: 'مؤكد',
+  processing: 'قيد التجهيز',
   shipped: 'تم الشحن',
   delivered: 'تم التسليم',
   cancelled: 'ملغي',
@@ -26,17 +29,49 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export function AdminOrdersView() {
+  const setView = useAppStore((s) => s.setView);
+  const adminToken = useAppStore((s) => s.adminToken);
+  const auth = { Authorization: `Bearer ${adminToken || ''}` };
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [autoShipping, setAutoShipping] = useState(false);
+
+  async function loadOrders() {
+    setLoading(true);
+    try {
+      const r = await fetch('/api/orders', { headers: auth });
+      if (r.status === 401) {
+        toast.error('انتهت جلستك — سجل دخول مرة ثانية');
+        setView('admin-login');
+        return;
+      }
+      const data = await r.json();
+      setOrders(Array.isArray(data) ? data : []);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    fetch('/api/orders')
-      .then((r) => r.json())
-      .then((data) => setOrders(Array.isArray(data) ? data : []))
-      .finally(() => setLoading(false));
+    loadOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function runAutoShip() {
+    setAutoShipping(true);
+    try {
+      const res = await fetch('/api/cron/autoship?force=1', { headers: auth });
+      const data = await res.json();
+      toast.success(data.message || 'تم تنفيذ الشحن التلقائي');
+      await loadOrders();
+    } catch {
+      toast.error('فشل تنفيذ الشحن التلقائي');
+    } finally {
+      setAutoShipping(false);
+    }
+  }
 
   const filtered = filter === 'all' ? orders : orders.filter((o) => o.status === filter);
 
@@ -44,7 +79,7 @@ export function AdminOrdersView() {
     try {
       const res = await fetch(`/api/admin/orders/${id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...auth },
         body: JSON.stringify({ status }),
       });
       if (res.ok) {
@@ -52,6 +87,8 @@ export function AdminOrdersView() {
           os.map((o) => (o.id === id ? { ...o, status } : o))
         );
         toast.success('تم تحديث حالة الطلب');
+      } else {
+        toast.error('فشل التحديث');
       }
     } catch {
       toast.error('فشل التحديث');
@@ -64,11 +101,28 @@ export function AdminOrdersView() {
 
   return (
     <div className="p-4 md:p-6 space-y-4">
-      <div>
-        <h1 className="text-2xl font-bold">الطلبات</h1>
-        <p className="text-sm text-muted-foreground">
-          {orders.length} طلب • إجمالي: {formatKwd(totalRevenue)} • قيد الانتظار: {pendingCount} • تم التسليم: {deliveredCount}
-        </p>
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h1 className="text-2xl font-bold">الطلبات</h1>
+          <p className="text-sm text-muted-foreground">
+            {orders.length} طلب • إجمالي: {formatKwd(totalRevenue)} • قيد الانتظار: {pendingCount} • تم التسليم: {deliveredCount}
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={runAutoShip}
+          disabled={autoShipping}
+          title="يشحن كل الطلبات النشطة الآن ويضيف ميعاد الوصول"
+        >
+          {autoShipping ? <Loader2 className="h-4 w-4 ml-2 animate-spin" /> : <Truck className="h-4 w-4 ml-2" />}
+          تنفيذ الشحن التلقائي الآن
+        </Button>
+      </div>
+
+      <div className="rounded-lg border border-accent/30 bg-accent/10 px-4 py-2.5 text-[13px] flex items-center gap-2">
+        <Truck className="h-4 w-4 text-gold-deep shrink-0" />
+        <span>الشحن التلقائي يعمل يومياً الساعة <b>10:00 صباحاً</b> بتوقيت الكويت — كل طلب نشط يتحول إلى «تم الشحن» مع ميعاد الوصول.</span>
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">
@@ -134,6 +188,12 @@ export function AdminOrdersView() {
                     <p className="text-xs text-muted-foreground">
                       {o.items?.length || 0} منتجات
                     </p>
+                    {o.shippedAt && (
+                      <p className="text-xs text-purple-700 flex items-center gap-1 mt-0.5">
+                        <Truck className="h-3 w-3" />
+                        شُحن: {new Date(o.shippedAt).toLocaleString('ar-KW', { dateStyle: 'short', timeStyle: 'short' })}
+                      </p>
+                    )}
                   </div>
                   <div className="text-left">
                     <p className="font-bold text-primary text-lg">
@@ -173,6 +233,12 @@ export function AdminOrdersView() {
                       <p className="text-muted-foreground text-xs">العنوان</p>
                       <p>{o.area} - {o.address}</p>
                     </div>
+                    {o.arrivalNote && (
+                      <div className="col-span-2 rounded-lg bg-purple-50 border border-purple-200 px-3 py-2">
+                        <p className="text-muted-foreground text-xs">ميعاد الوصول (يظهر للعميل)</p>
+                        <p className="text-[13px] font-medium text-purple-800">{o.arrivalNote}</p>
+                      </div>
+                    )}
                     {o.notes && (
                       <div className="col-span-2">
                         <p className="text-muted-foreground text-xs">ملاحظات</p>

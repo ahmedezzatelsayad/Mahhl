@@ -4,9 +4,10 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAppStore } from '@/lib/stores/app-store';
 import { formatKwd } from '@/lib/utils/format';
-import { ShoppingCart, Star } from 'lucide-react';
+import { ShoppingCart, Star, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/lib/stores/cart-store';
+import { useWishlistStore } from '@/lib/stores/wishlist-store';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 
@@ -28,6 +29,8 @@ export interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const openProduct = useAppStore((s) => s.openProduct);
   const addItem = useCartStore((s) => s.addItem);
+  const toggleWish = useWishlistStore((s) => s.toggle);
+  const wished = useWishlistStore((s) => s.items.some((i) => i.productId === product.id));
   const [imgError, setImgError] = useState(false);
   const [imgUrl, setImgUrl] = useState<string>('');
 
@@ -57,20 +60,32 @@ export function ProductCard({ product }: ProductCardProps) {
     toast.success(`تمت إضافة "${product.name}" إلى السلة`);
   }
 
+  function toggleWishlist(e: React.MouseEvent) {
+    e.stopPropagation();
+    const added = toggleWish({
+      productId: product.id,
+      slug: product.slug,
+      name: product.name,
+      price: product.salePrice,
+      image: imgUrl,
+    });
+    toast.success(added ? 'انضاف للمفضلة ❤️' : 'انشال من المفضلة');
+  }
+
   return (
     <Card
       onClick={() => openProduct(product.slug)}
       className="card-lift group overflow-hidden border-border/60 hover:border-accent/50"
     >
-      <div className="relative aspect-square overflow-hidden bg-muted/30">
+      <div className="relative aspect-square overflow-hidden bg-white">
         {imgUrl && !imgError ? (
-           
+          /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={imgUrl}
             alt={product.name}
             loading="lazy"
             onError={() => setImgError(true)}
-            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+            className="h-full w-full img-contain p-2 transition-transform group-hover:scale-105"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-muted-foreground">
@@ -81,7 +96,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Badges */}
         <div className="absolute top-2 right-2 flex flex-col gap-1">
           {discount > 0 && (
-            <Badge className="bg-red-600 text-white hover:bg-red-700">
+            <Badge className="bg-red-600 text-white hover:bg-red-700 border-0">
               -{discount}%
             </Badge>
           )}
@@ -92,6 +107,17 @@ export function ProductCard({ product }: ProductCardProps) {
             </Badge>
           )}
         </div>
+
+        {/* wishlist heart */}
+        <button
+          onClick={toggleWishlist}
+          aria-label={wished ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+          className="absolute top-2 left-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 border shadow-sm hover:scale-110 transition-transform cursor-pointer"
+        >
+          <Heart
+            className={`h-4 w-4 ${wished ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`}
+          />
+        </button>
 
         {product.quantity <= 0 && (
           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">

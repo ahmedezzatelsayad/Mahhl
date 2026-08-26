@@ -263,3 +263,47 @@ Stage Summary:
   مع llms.txt عربي بالأسعار الحية — عند السؤال "وين أشتري X بالكويت" النماذج
   تجد الكاتالوج كاملاً بروابط وأسعار
 - بعد ربط الدومين: لوحة الإدارة → SEO والبحث → ضع الدومين + كود Google → أرسل sitemap.xml
+---
+Task ID: 6 (kw-commerce-experience)
+Agent: main (full-stack + review team)
+Task: تجربة كويتية كاملة — حساب عميل، تتبع، شحن تلقائي 10ص، إصلاح إدارة المنتجات، هوية المتجر، شات ذكي، واتساب، خطوط حديثة، إصلاح الصور والتباين
+
+Work Log:
+- الخط: IBM Plex Sans Arabic (نصوص) + Tajawal (عناوين) عبر next/font
+- Prisma: Customer +passwordHash/area، Order +shippedAt/deliveredAt/arrivalNote → db:push Neon
+- lib/site-identity.ts — هوية المتجر (اسم/إعلان/واتساب/لوجو/أيقونة/صور أقسام) في SiteSetting
+- lib/customer-auth.ts — توكن عميل (bcrypt) + تطبيع هاتف كويتي 8 أرقام
+- lib/auto-ship.ts — شحن تلقائي 10:00 بتوقيت الكويت (UTC+3) + arrivalNote + lazy cron
+- APIs: customer/register|login|me|orders، orders/track (رقم+هاتف)، cron/autoship،
+  settings/brand، admin/identity، favicon (SVG ذهبي fallback)، ai/chat
+- admin/products: POST إنشاء + GET [id] + حماية adminOnly + حذف ناعم للمنتجات المرتبطة
+- orders POST: إنشاء حساب تلقائي (كلمة المرور=الهاتف) + arrivalNote + ربط بالعميل المسجل
+- orders GET: أصبح محمي (كان يكشف كل الطلبات للعامة!)
+- categories: إخفاء الفارغة افتراضياً (?all=1 للأدمن)
+- app-store: views جديدة (account/track-order/wishlist/info) + جلسة عميل persistent + editProductId
+- wishlist-store جديد (localStorage 100 عنصر)
+- Header جديد: حسابي/المفضلة/السلة/تتبع — بدون زر الإدارة الثقيل، لوجو ديناميكي
+- Footer جديد: 7 صفحات معلومات تعمل + واتساب حقيقي 66046358 + دخول الإدارة نص صغير
+- AccountView: دخول/تسجيل (اسم+هاتف+عنوان) + طلباتي مع timeline + بياناتي + تغيير كلمة المرور
+- TrackOrderView: تتبع ضيف برقم الطلب+الهاتف مع OrderTimeline (4 مراحل)
+- InfoView: 7 صفحات بنصوص كويتية كاملة (شحن/استبدال/خصوصية/شروط/أسئلة/تواصل/من نحن)
+- FloatingWidgets: شات "تحدث مع المحل" (خط 12.5px واضح + chips منتجات) + واتساب عائم
+- الصور: img-contain في كل مكان (بطاقة/منتج/سلة/دروار/checkout/مفضلة) — لا قص بعد اليوم
+- Checkout: تعبئة تلقائية من الحساب + OrderSuccess يظهر بيانات الحساب + زر تتبع
+- admin-login: بدون إيميل مسبوء + زر "أنت عميل؟ ادخل من حسابي"
+- admin-products: ProductForm كامل (رفع ملفات+روابط، خصم تلقائي، فئات، مفتاح الأكثر مبيعاً)
+- admin-settings: بطاقة هوية المتجر (لوجو/أيقونة/اسم/إعلان/واتساب)
+- admin-orders: توكن + وقت الشحن + ميعاد الوصول + زر "تنفيذ الشحن التلقائي الآن"
+- layout: favicon ديناميكي من الهوية + head links
+- صور 12 قسم مجانية عبر image-search → SiteSetting.categoryImages
+- إصلاح useBrand (كان يهمل categoryImages)
+- فحص متصفح شامل: دخول عميل ✓ ثبات جلسة بعد reload (عميل+أدمن) ✓ تتبع ✓
+  شات ذكي بلهجة كويتية ✓ إضافة/تعديل/حذف منتج من الواجهة ✓ هوية ✓
+  مفضلة ✓ موبايل بدون overflow ✓ صفر أخطاء hydration على الرئيسية ✓
+- lint: 0 errors
+
+Stage Summary:
+- الموقع الآن يخاطب الكويتي بالكامل مع حساب عميل حقيقي (كلمة المرور=الهاتف)
+- الشحن التلقائي 10ص + "سيصل في الميعاد المنسق مع خدمة العملاء والمندوب"
+- إدارة المنتجات تعمل (كانت placeholder!) وكل APIs محمية
+- هوية المتجر قابلة للتغيير من اللوحة بدون نشر جديد

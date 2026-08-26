@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { formatKwd } from '@/lib/utils/format';
 import { toast } from 'sonner';
-import { ArrowLeft, CheckCircle, Loader2, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Loader2, ShoppingBag, KeyRound, Truck } from 'lucide-react';
 import { UpsellWidget } from '@/components/store/upsell-widget';
 import { trackEvent } from '@/lib/behavior-tracker';
 import { trackFB } from '@/lib/facebook-pixel';
@@ -30,6 +30,8 @@ export function CheckoutView() {
   const clearCart = useCartStore((s) => s.clearCart);
   const setView = useAppStore((s) => s.setView);
   const setLastOrder = useAppStore((s) => s.setLastOrder);
+  const customer = useAppStore((s) => s.customer);
+  const customerToken = useAppStore((s) => s.customerToken);
 
   const [loading, setLoading] = useState(false);
   const [shippingCfg, setShippingCfg] = useState({ price: 2, freeThreshold: 50, note: '' });
@@ -43,6 +45,31 @@ export function CheckoutView() {
     notes: '',
     paymentMethod: 'cod',
   });
+  const [prefilled, setPrefilled] = useState(false);
+
+  // Prefill from the logged-in customer's account (حسابي)
+  useEffect(() => {
+    if (!customer || prefilled) return;
+    fetch('/api/customer/me', {
+      headers: { Authorization: `Bearer ${customerToken}` },
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.customer) {
+          setForm((prev) => ({
+            ...prev,
+            customerName: data.customer.name || prev.customerName,
+            phone: data.customer.phone || prev.phone,
+            email: data.customer.email || prev.email,
+            governorate: data.customer.city || prev.governorate,
+            area: data.customer.area || prev.area,
+            address: data.customer.address || prev.address,
+          }));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setPrefilled(true));
+  }, [customer, customerToken, prefilled]);
 
   // Load admin-configured shipping settings
   useEffect(() => {
@@ -97,7 +124,10 @@ export function CheckoutView() {
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(customerToken ? { Authorization: `Bearer ${customerToken}` } : {}),
+        },
         body: JSON.stringify({
           ...form,
           items: items.map((i) => ({
@@ -118,6 +148,16 @@ export function CheckoutView() {
         clearCart();
         setView('order-success');
         toast.success('تم إنشاء طلبك بنجاح!');
+        // persist account hint for the success page
+        if (data.accountCreated && data.loginHint) {
+          try {
+            sessionStorage.setItem('last-order-hint', data.loginHint);
+          } catch {}
+        } else {
+          try {
+            sessionStorage.removeItem('last-order-hint');
+          } catch {}
+        }
         // Track successful checkout
         trackEvent('checkout_complete', {
           metadata: { orderId: data.order.id, total: data.order.total },
@@ -297,13 +337,13 @@ export function CheckoutView() {
               <div className="max-h-64 overflow-y-auto mb-4 space-y-2">
                 {items.map((i, idx) => (
                   <div key={idx} className="flex gap-2 text-sm">
-                    <div className="w-12 h-12 flex-shrink-0 bg-muted/30 rounded-md overflow-hidden">
+                    <div className="w-12 h-12 flex-shrink-0 bg-white rounded-md overflow-hidden border">
                       {i.image && (
-                         
+                        /* eslint-disable-next-line @next/next/no-img-element */
                         <img
                           src={i.image}
                           alt={i.name}
-                          className="h-full w-full object-cover"
+                          className="h-full w-full img-contain p-0.5"
                         />
                       )}
                     </div>
@@ -369,27 +409,69 @@ export function CheckoutView() {
 export function OrderSuccessView() {
   const lastOrderId = useAppStore((s) => s.lastOrderId);
   const setView = useAppStore((s) => s.setView);
+  // this view only renders client-side after checkout — safe to read sessionStorage lazily
+  const [loginHint] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      return sessionStorage.getItem('last-order-hint');
+    } catch {
+      return null;
+    }
+  });
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="flex flex-col items-center justify-center gap-4 py-12 text-center max-w-md mx-auto">
+      <div className="flex flex-col items-center justify-center gap-4 py-10 text-center max-w-lg mx-auto">
         <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
           <CheckCircle className="h-12 w-12 text-green-600" />
         </div>
         <h1 className="text-2xl font-bold text-green-700">تم استلام طلبك بنجاح!</h1>
-        <p className="text-muted-foreground">
-          شكراً لتسوقك من محل شوب. سيتواصل معك فريقنا قريباً لتأكيد الطلب.
+        <p className="text-muted-foreground leading-relaxed">
+          شكراً لتسوقك من محل شوب. سيتواصل معك فريقنا لتأكيد الطلب، وطلبك يُشحن
+          تلقائياً كل يوم الساعة 10 صباحاً.
         </p>
         {lastOrderId && (
-          <div className="bg-muted/30 px-4 py-2 rounded-md text-sm">
-            رقم الطلب: <span className="font-mono font-bold">{lastOrderId}</span>
+          <div className="bg-muted/40 px-4 py-2 rounded-md text-sm">
+            رقم الطلب: <span className="font-mono font-bold" dir="ltr">{lastOrderId}</span>
           </div>
         )}
-        <div className="flex gap-3 mt-4">
+
+        {/* arrival promise */}
+        <div className="flex items-center gap-2 rounded-lg bg-accent/10 border border-accent/25 px-4 py-2.5 text-sm w-full">
+          <Truck className="h-4 w-4 text-gold-deep shrink-0" />
+          <span className="font-medium">سيصل في الميعاد المنسق مع خدمة العملاء والمندوب</span>
+        </div>
+
+        {/* auto-created account */}
+        {loginHint && (
+          <div className="rounded-lg border border-green-600/30 bg-green-50 text-right px-4 py-3 w-full space-y-1.5">
+            <p className="flex items-center gap-1.5 font-bold text-sm text-green-800">
+              <KeyRound className="h-4 w-4" />
+              انشأ حسابك تلقائياً 🎉
+            </p>
+            <p className="text-[13px] leading-6 text-green-900/80">{loginHint}</p>
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-green-600/40 text-green-800 hover:bg-green-50"
+              onClick={() => setView('account')}
+            >
+              ادخل حسابك الآن
+            </Button>
+          </div>
+        )}
+
+        <div className="flex flex-wrap justify-center gap-3 mt-2">
+          <Button onClick={() => setView('track-order')} className="btn-gold border-0">
+            <Truck className="h-4 w-4 ml-1" />
+            تتبع طلبك
+          </Button>
           <Button onClick={() => setView('home')} variant="outline">
             الصفحة الرئيسية
           </Button>
-          <Button onClick={() => setView('shop')}>متابعة التسوق</Button>
+          <Button onClick={() => setView('shop')} variant="ghost">
+            متابعة التسوق
+          </Button>
         </div>
       </div>
     </div>

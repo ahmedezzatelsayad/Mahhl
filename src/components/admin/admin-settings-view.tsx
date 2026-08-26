@@ -2,9 +2,10 @@
 
 /**
  * AdminSettingsView — store operations settings.
- * Currently: shipping price control (fee + free threshold + note).
+ * 1. Site identity: logo, browser icon, store name, announcement bar, WhatsApp
+ * 2. Shipping price control (fee + free threshold + note)
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAppStore } from '@/lib/stores/app-store';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,26 +13,54 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import { Truck, Save, Loader2, Coins, Gift, MessageSquareText } from 'lucide-react';
+import {
+  Truck, Save, Loader2, Coins, Gift, MessageSquareText,
+  Store, ImagePlus, Globe, MessageCircle, Trash2,
+} from 'lucide-react';
 
 export function AdminSettingsView() {
   const adminToken = useAppStore((s) => s.adminToken);
+  const logoRef = useRef<HTMLInputElement>(null);
+  const faviconRef = useRef<HTMLInputElement>(null);
   const [shipping, setShipping] = useState({ price: 2, freeThreshold: 50, note: '' });
+  const [identity, setIdentity] = useState({
+    siteName: '',
+    announcement: '',
+    whatsapp: '',
+    logo: '',
+    favicon: '',
+  });
+  const [savingIdentity, setSavingIdentity] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch('/api/admin/shipping', {
-          headers: { Authorization: `Bearer ${adminToken}` },
-        });
-        if (res.ok) {
-          const s = await res.json();
+        const [shipRes, idRes] = await Promise.all([
+          fetch('/api/admin/shipping', {
+            headers: { Authorization: `Bearer ${adminToken}` },
+          }),
+          fetch('/api/admin/identity', {
+            headers: { Authorization: `Bearer ${adminToken}` },
+          }),
+        ]);
+        if (shipRes.ok) {
+          const s = await shipRes.json();
           setShipping({
             price: s.price,
             freeThreshold: s.freeThreshold,
             note: s.note || '',
+          });
+        }
+        if (idRes.ok) {
+          const i = await idRes.json();
+          setIdentity({
+            siteName: i.siteName || '',
+            announcement: i.announcement || '',
+            whatsapp: i.whatsapp || '',
+            logo: i.logo || '',
+            favicon: i.favicon || '',
           });
         }
       } catch {
@@ -41,6 +70,55 @@ export function AdminSettingsView() {
       }
     })();
   }, [adminToken]);
+
+  function pickImage(
+    e: React.ChangeEvent<HTMLInputElement>,
+    key: 'logo' | 'favicon',
+    maxMB: number
+  ) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > maxMB * 1024 * 1024) {
+      toast.error(`الحد الأقصى ${maxMB}MB`);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () =>
+      setIdentity((prev) => ({ ...prev, [key]: String(reader.result) }));
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  }
+
+  async function saveIdentity(ev: React.FormEvent) {
+    ev.preventDefault();
+    setSavingIdentity(true);
+    try {
+      const res = await fetch('/api/admin/identity', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify({
+          siteName: identity.siteName.trim() || 'محل شوب',
+          announcement: identity.announcement.trim(),
+          whatsapp: identity.whatsapp.replace(/\D/g, ''),
+          logo: identity.logo,
+          favicon: identity.favicon,
+        }),
+      });
+      const d = await res.json();
+      if (res.ok) {
+        toast.success('تم حفظ هوية المتجر — حدّث الصفحة تشوف اللوجو والأيقونة ✅');
+      } else {
+        toast.error(d.error || 'فشل الحفظ');
+      }
+    } catch {
+      toast.error('فشل الاتصال');
+    } finally {
+      setSavingIdentity(false);
+    }
+  }
 
   async function saveShipping(e: React.FormEvent) {
     e.preventDefault();
@@ -84,9 +162,127 @@ export function AdminSettingsView() {
           إعدادات المتجر
         </h1>
         <p className="text-sm text-muted-foreground">
-          تحكم في أسعار التوصيل — التغييرات تظهر للعملاء فوراً
+          هوية المتجر وأسعار التوصيل — التغييرات تظهر للعملاء فوراً
         </p>
       </div>
+
+      {/* ============ Site Identity ============ */}
+      <form onSubmit={saveIdentity}>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Store className="h-5 w-5 text-accent" />
+              هوية المتجر
+            </CardTitle>
+            <CardDescription>
+              اللوجو الرسمي، أيقونة المتصفح، اسم المتجر، شريط الإعلان وواتساب التواصل
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            {/* logo + favicon uploads */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5">
+                  <ImagePlus className="h-3.5 w-3.5" />
+                  لوجو المتجر
+                </Label>
+                <div className="h-24 rounded-lg border-2 border-dashed flex items-center justify-center bg-white overflow-hidden">
+                  {identity.logo ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={identity.logo} alt="اللوجو" className="h-full object-contain p-1" />
+                  ) : (
+                    <span className="text-xs text-muted-foreground">PNG بخلفية شفافة (مستحسن)</span>
+                  )}
+                </div>
+                <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={(e) => pickImage(e, 'logo', 1.5)} />
+                <div className="flex gap-2">
+                  <Button type="button" size="sm" variant="outline" className="flex-1" onClick={() => logoRef.current?.click()}>
+                    رفع لوجو
+                  </Button>
+                  {identity.logo && (
+                    <Button type="button" size="sm" variant="ghost" className="text-destructive" onClick={() => setIdentity((p) => ({ ...p, logo: '' }))}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5">
+                  <Globe className="h-3.5 w-3.5" />
+                  أيقونة المتصفح (Favicon)
+                </Label>
+                <div className="h-24 rounded-lg border-2 border-dashed flex items-center justify-center bg-white overflow-hidden">
+                  {identity.favicon ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={identity.favicon} alt="الأيقونة" className="h-16 w-16 object-contain" />
+                  ) : (
+                    <span className="text-xs text-muted-foreground">مربعة 512×512</span>
+                  )}
+                </div>
+                <input ref={faviconRef} type="file" accept="image/*" className="hidden" onChange={(e) => pickImage(e, 'favicon', 0.5)} />
+                <div className="flex gap-2">
+                  <Button type="button" size="sm" variant="outline" className="flex-1" onClick={() => faviconRef.current?.click()}>
+                    رفع أيقونة
+                  </Button>
+                  {identity.favicon && (
+                    <Button type="button" size="sm" variant="ghost" className="text-destructive" onClick={() => setIdentity((p) => ({ ...p, favicon: '' }))}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="flex items-center gap-1.5">
+                <Store className="h-3.5 w-3.5" />
+                اسم المتجر
+              </Label>
+              <Input
+                value={identity.siteName}
+                onChange={(e) => setIdentity((p) => ({ ...p, siteName: e.target.value }))}
+                placeholder="محل شوب"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>شريط الإعلان أعلى الموقع</Label>
+              <Input
+                value={identity.announcement}
+                onChange={(e) => setIdentity((p) => ({ ...p, announcement: e.target.value }))}
+                placeholder="توصيل لجميع محافظات الكويت — دفع عند الاستلام"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="flex items-center gap-1.5">
+                <MessageCircle className="h-3.5 w-3.5" />
+                رقم واتساب التواصل (8 أرقام بدون 965)
+              </Label>
+              <Input
+                dir="ltr"
+                value={identity.whatsapp}
+                onChange={(e) => setIdentity((p) => ({ ...p, whatsapp: e.target.value }))}
+                placeholder="66046358"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                يظهر في الفوتر وزر الواتساب العائم بكل الصفحات
+              </p>
+            </div>
+
+            <Button type="submit" disabled={savingIdentity} className="btn-gold border-0">
+              {savingIdentity ? (
+                <Loader2 className="h-4 w-4 ml-2 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4 ml-2" />
+              )}
+              حفظ هوية المتجر
+            </Button>
+          </CardContent>
+        </Card>
+      </form>
+
+      {/* ============ Shipping ============ */}
 
       <form onSubmit={saveShipping}>
         <Card>

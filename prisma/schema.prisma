@@ -58,16 +58,19 @@ model Product {
 }
 
 model Customer {
-  id        String      @id @default(cuid())
-  name      String
-  phone     String
-  email     String?
-  city      String?
-  address   String?
-  orders    Order[]
-  sessions  UserSession[]
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id           String      @id @default(cuid())
+  name         String
+  phone        String
+  email        String?
+  city         String?
+  area         String?
+  address      String?
+  /** bcrypt hash — default password equals the phone number until changed */
+  passwordHash String?
+  orders       Order[]
+  sessions     UserSession[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   @@index([phone])
   @@index([email])
@@ -90,6 +93,11 @@ model Order {
   address      String?
   phone        String?
   customerName String?
+  /** set daily at 10:00 Kuwait time by the auto-ship job */
+  shippedAt    DateTime?
+  deliveredAt  DateTime?
+  /** human arrival promise shown to the customer */
+  arrivalNote  String?
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
