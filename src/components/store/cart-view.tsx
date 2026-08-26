@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { formatKwd } from '@/lib/utils/format';
 import { Trash2, Minus, Plus, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { FreeShippingBar } from '@/components/store/free-shipping-bar';
 
 export function CartView() {
   const { items, removeItem, updateQuantity } = useCartStore();
@@ -126,6 +127,9 @@ export function CartView() {
         <div className="lg:col-span-1">
           <div className="border rounded-lg p-5 bg-card sticky top-20">
             <h2 className="font-bold mb-4">ملخص الطلب</h2>
+            <div className="mb-4">
+              <FreeShippingBar subtotal={subtotal} />
+            </div>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">المجموع الفرعي:</span>

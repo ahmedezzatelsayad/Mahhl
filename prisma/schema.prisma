@@ -47,6 +47,7 @@ model Product {
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   orderItems      OrderItem[]
+  reviews         Review[]
 
   // AI relations (passive — referenced via onDelete)
   viewEvents      UserEvent[]
@@ -55,6 +56,32 @@ model Product {
   @@index([categoryId])
   @@index([isBestSeller])
   @@index([createdAt])
+}
+
+// ===== Product Reviews & Ratings =====
+// Global best practice: products with reviews convert up to 270% better
+// (Kissmetrics); 92% of buyers hesitate when there are no reviews.
+model Review {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  // order tie (optional): verified-buyer badge when the reviewer actually bought it
+  orderId     String?
+  customerName String
+  rating      Int      // 1..5
+  title       String?
+  comment     String?
+  // verified purchase (matched against real orders server-side)
+  isVerified  Boolean  @default(false)
+  // moderation: only approved reviews are public
+  isApproved  Boolean  @default(false)
+  // helpfulness voting (light-weight, IP-hash based)
+  helpfulCount Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([productId, isApproved])
+  @@index([isApproved, createdAt])
 }
 
 model Customer {

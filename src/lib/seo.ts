@@ -209,7 +209,8 @@ export function websiteJsonLd(url: string) {
 export function productJsonLd(
   p: ProductLike & { sku?: string; slug: string; quantity?: number },
   url: string,
-  shippingPrice: number
+  shippingPrice: number,
+  rating?: { average: number; count: number }
 ) {
   const image = firstImage(p);
   const available =
@@ -226,6 +227,18 @@ export function productJsonLd(
     category: p.category?.name,
     brand: { '@type': 'Brand', name: SITE_NAME },
     url: `${url}/?p=${encodeURIComponent(p.slug)}`,
+    // aggregateRating → star snippets in Google results (only when real reviews exist)
+    ...(rating && rating.count > 0
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: Math.round(rating.average * 10) / 10,
+            reviewCount: rating.count,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }
+      : {}),
     offers: {
       '@type': 'Offer',
       url: `${url}/?p=${encodeURIComponent(p.slug)}`,

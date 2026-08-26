@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://developers.google.com/search/docs/appearance/core-web-vitals",
+    "name": "Understanding Core Web Vitals and Google search results",
+    "snippet": "Core Web Vitals is a set of metrics that measure real-world user experience for loading performance, interactivity, and visual stability of the page.",
+    "host_name": "developers.google.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://web.dev/case-studies/vitals-business-impact",
+    "name": "The business impact of Core Web Vitals | web.dev",
+    "snippet": "Sep 1, 2021 · Redbus Core Web Vitals fixes contributed to 80-100% mobile conversion rates (mCVR), and significant domain ranking uplift across Redbus's ...",
+    "host_name": "web.dev",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://ideafueled.com/blog/core-web-vitals-2026-explained",
+    "name": "Core Web Vitals 2026: Fix Speed or Keep Losing Traffic - Idea Fueled",
+    "snippet": "Apr 6, 2026 · A 1-second delay reduces conversions by 7%. Core Web Vitals 2026 shows how speed impacts rankings, traffic, and revenue, and what to fix ...",
+    "host_name": "ideafueled.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://neilpatel.com/blog/ecommerce-core-web-vitals",
+    "name": "What's the Average Core Web Vital Score for E-commerce Stores?",
+    "snippet": "Oct 30, 2023 · Conversion rates drop by 4.42 percent on partnership led to a 91% increase in total pageviews, surpassing 1 billion in 2022.",
+    "host_name": "neilpatel.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://captainpragmatic.com/blog/pagespeed-core-web-vitals-real-business-impact",
+    "name": "PageSpeed Score & Core Web Vitals Real Impact 2025 - Captain Pragmatic",
+    "snippet": "Sep 18, 2025 · Research from Portent found that sites loading in 1 second convert 5 times better than sites loading in 10 seconds. got 8% more sales, a 15% ...",
+    "host_name": "captainpragmatic.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.nostra.ai/blogs-collection/googles-core-web-vitals-and-why-you-should-improve-them-a-basic-introduction",
+    "name": "Google's Core Web Vitals and Why You Should Improve Them - Nostra ai",
+    "snippet": "Jun 3, 2025 · Deloitte revealed that improving a website's loading speed by 0.1 seconds can enhance retail conversion rates by 8.4%.",
+    "host_name": "www.nostra.ai",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.brightvessel.com/core-web-vitals-in-2025-how-they-affect-google-rankings-and-user-experience",
+    "name": "Core Web Vitals 2025: Impact on Rankings & UX - Bright Vessel",
+    "snippet": "Discover how Core Web Vitals in 2025 affect Google rankings and user experience. Read actionable advice on how to optimize your website performance.",
+    "host_name": "www.brightvessel.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://seoparaecommerce.co/en/blog/core-web-vitals-ecommerce-ventas-2025",
+    "name": "Core Web Vitals for Ecommerce: Boost Sales & SEO 2025",
+    "snippet": "Apr 5, 2026 · Beyond SEO, speed directly impacts the conversion rate. Studies by Google and other sources show that a delay of just one second in load time ...",
+    "host_name": "seoparaecommerce.co",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

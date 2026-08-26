@@ -204,7 +204,7 @@ export function FloatingWidgets() {
       )}
 
       {/* ===== Floating buttons ===== */}
-      <div className="fixed bottom-4 left-3 sm:left-4 z-50 flex flex-col gap-2.5">
+      <div className="float-stack fixed bottom-4 left-3 sm:left-4 z-50 flex flex-col gap-2.5 transition-transform duration-200">
         <button
           onClick={() => setChatOpen((v) => !v)}
           className="relative h-[52px] w-[52px] rounded-full btn-gold shadow-lg flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
@@ -220,7 +220,7 @@ export function FloatingWidgets() {
         </button>
       </div>
 
-      <div className="fixed bottom-4 right-3 sm:right-4 z-50">
+      <div className="float-stack fixed bottom-4 right-3 sm:right-4 z-50 transition-transform duration-200">
         <a
           href={waHref(brand.whatsapp, 'هلا محل شوب، عندي استفسار 🙏')}
           target="_blank"

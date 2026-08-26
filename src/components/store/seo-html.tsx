@@ -140,13 +140,28 @@ export async function SeoHtml({ page, siteUrl }: { page: SeoPageData; siteUrl: s
     const p = page.product;
     const cat = p.category;
     const image = firstImage(p);
+    // real review aggregate (server-side) → star snippets in Google/AI answers
+    let rating: { average: number; count: number } | undefined;
+    try {
+      const agg = await db.review.aggregate({
+        where: { product: { slug: p.slug }, isApproved: true },
+        _avg: { rating: true },
+        _count: { _all: true },
+      });
+      if (agg._count._all > 0) {
+        rating = { average: agg._avg.rating ?? 0, count: agg._count._all };
+      }
+    } catch {
+      /* reviews unavailable — schema without rating is still valid */
+    }
     return (
       <>
         <JsonLd
           data={productJsonLd(
             { ...p, category: cat ? { name: cat.name, slug: cat.slug } : null },
             siteUrl,
-            shipping.price
+            shipping.price,
+            rating
           )}
         />
         <JsonLd

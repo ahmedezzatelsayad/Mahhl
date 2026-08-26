@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAppStore } from '@/lib/stores/app-store';
 import { useCartStore } from '@/lib/stores/cart-store';
 import { Button } from '@/components/ui/button';
@@ -17,10 +17,12 @@ import {
   Truck,
   Shield,
   CheckCircle,
+  Flame,
 } from 'lucide-react';
 import { ProductCard } from '@/components/store/product-card';
 import { UpsellWidget } from '@/components/store/upsell-widget';
 import { BoughtTogether } from '@/components/store/bought-together';
+import { ReviewsSection, useReviewSummary, StarsRow } from '@/components/store/reviews-section';
 import { trackEvent } from '@/lib/behavior-tracker';
 import { trackFB } from '@/lib/facebook-pixel';
 import { trackGA4, ga4Item } from '@/lib/ga4';
@@ -62,6 +64,7 @@ export function ProductView() {
   const [activeImage, setActiveImage] = useState(0);
   const [qty, setQty] = useState(1);
   const [selectedVariations, setSelectedVariations] = useState<Record<string, string>>({});
+  const { summary: reviewSummary } = useReviewSummary(slug ?? undefined);
 
   useEffect(() => {
     if (!slug) {
@@ -259,6 +262,34 @@ export function ProductView() {
             </div>
           )}
 
+          {/* Rating summary — clickable, scrolls to reviews */}
+          {(reviewSummary.count > 0 || reviewSummary.soldCount > 0) && (
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+              {reviewSummary.count > 0 && (
+                <a
+                  href="#reviews"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="inline-flex items-center gap-2 hover:opacity-80"
+                >
+                  <StarsRow value={reviewSummary.average} />
+                  <span className="font-semibold">{reviewSummary.average.toFixed(1)}</span>
+                  <span className="text-muted-foreground underline decoration-dotted">
+                    ({reviewSummary.count} تقييم)
+                  </span>
+                </a>
+              )}
+              {reviewSummary.soldCount > 0 && (
+                <span className="inline-flex items-center gap-1 text-muted-foreground">
+                  <Flame className="h-3.5 w-3.5 text-orange-500" />
+                  طُلب {reviewSummary.soldCount} مرة
+                </span>
+              )}
+            </div>
+          )}
+
           {/* Price */}
           <div className="flex items-baseline gap-3">
             <span className="text-3xl font-bold text-primary">
@@ -282,12 +313,26 @@ export function ProductView() {
               <>
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <span className="text-green-700">متوفر ({product.quantity} قطعة)</span>
+                {product.quantity > 0 && product.quantity <= 5 && (
+                  <Badge variant="destructive" className="text-[10px]">
+                    الكمية محدودة — اطلبها الآن
+                  </Badge>
+                )}
               </>
             ) : (
               <>
                 <span className="text-destructive">نفذ المخزون</span>
               </>
             )}
+          </div>
+
+          {/* Shipping transparency — Baymard #1 abandonment reason is hidden costs */}
+          <div className="rounded-lg border bg-muted/40 px-3.5 py-2.5 flex items-center gap-2.5 text-sm">
+            <Truck className="h-5 w-5 text-primary shrink-0" />
+            <p className="text-muted-foreground">
+              الشحن لكل الكويت <b className="text-foreground">1 د.ك</b> —{' '}
+              <b className="text-foreground">مجاني</b> للطلبات من 50 د.ك · الدفع عند الاستلام
+            </p>
           </div>
 
           {/* Description */}
@@ -342,7 +387,7 @@ export function ProductView() {
           )}
 
           {/* Quantity + Add to cart */}
-          <div className="flex items-center gap-3 pt-4">
+          <div id="main-atc-block" className="flex items-center gap-3 pt-4">
             <div className="flex items-center border rounded-md">
               <Button
                 variant="ghost"
@@ -405,6 +450,11 @@ export function ProductView() {
         <BoughtTogether productId={product.id} />
       </div>
 
+      {/* Customer reviews */}
+      <div className="mt-10">
+        <ReviewsSection slug={product.slug} />
+      </div>
+
       {/* Related Products */}
       {related.length > 0 && (
         <section className="mt-12">
@@ -416,6 +466,72 @@ export function ProductView() {
           </div>
         </section>
       )}
+
+      {/* Sticky mobile add-to-cart bar — appears once the main button scrolls
+          out of view. Global best practice: thumb-zone, always-reachable CTA. */}
+      {product.quantity > 0 && <StickyAtcBar
+        price={product.salePrice * qty}
+        qty={qty}
+        onAdd={handleAddToCart}
+      />}
+    </div>
+  );
+}
+
+function StickyAtcBar({
+  price,
+  qty,
+  onAdd,
+}: {
+  price: number;
+  qty: number;
+  onAdd: () => void;
+}) {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    // observe the quantity+CTA block rendered in the product info column
+    const cta = document.getElementById('main-atc-block');
+    if (!cta || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        setShow(!entries[0]?.isIntersecting);
+      },
+      { rootMargin: '-56px 0px 0px 0px' }
+    );
+    io.observe(cta);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (show) document.body.setAttribute('data-sticky-atc', '1');
+    else document.body.removeAttribute('data-sticky-atc');
+    return () => document.body.removeAttribute('data-sticky-atc');
+  }, [show]);
+
+  if (!show) return null;
+
+  return (
+    <div className="fixed bottom-0 inset-x-0 z-40 md:hidden border-t bg-card/95 backdrop-blur shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+      <div className="container px-4 py-2.5 flex items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] text-muted-foreground truncate">
+            الإجمالي ({qty} قطعة)
+          </p>
+          <p className="text-lg font-extrabold text-primary leading-tight">
+            {formatKwd(price)}
+          </p>
+        </div>
+        <Button
+          size="lg"
+          onClick={onAdd}
+          className="flex-1 max-w-[60%] h-12 text-base gap-2"
+        >
+          <ShoppingCart className="h-5 w-5" />
+          أضف للسلة
+        </Button>
+      </div>
     </div>
   );
 }

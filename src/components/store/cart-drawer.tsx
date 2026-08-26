@@ -8,6 +8,7 @@ import { formatKwd } from '@/lib/utils/format';
 import { Trash2, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
 import { UpsellWidget } from '@/components/store/upsell-widget';
+import { FreeShippingBar } from '@/components/store/free-shipping-bar';
 import { trackEvent } from '@/lib/behavior-tracker';
 import { useEffect } from 'react';
 
@@ -135,12 +136,15 @@ export function CartDrawer() {
             </div>
 
             <div className="border-t p-4 space-y-3">
+              <FreeShippingBar subtotal={subtotal} />
               <div className="flex justify-between font-bold">
                 <span>المجموع:</span>
                 <span className="text-primary">{formatKwd(subtotal)}</span>
               </div>
               <p className="text-xs text-muted-foreground">
-                * الشحن يُحسب عند الدفع
+                {subtotal >= 50
+                  ? '* شحنك مجاني على هذا الطلب'
+                  : '* الشحن 1 د.ك — مجاني للطلبات من 50 د.ك'}
               </p>
               <Button
                 className="w-full"

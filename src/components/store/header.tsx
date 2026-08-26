@@ -1,15 +1,13 @@
 'use client';
 
-import { Search, ShoppingCart, Menu, X, Store, User, Heart, MessageCircle } from 'lucide-react';
+import { ShoppingCart, Menu, X, Store, User, Heart, MessageCircle } from 'lucide-react';
 import { useAppStore } from '@/lib/stores/app-store';
 import { useCartStore } from '@/lib/stores/cart-store';
 import { useWishlistStore } from '@/lib/stores/wishlist-store';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useState, useEffect, useSyncExternalStore } from 'react';
-import { trackFB } from '@/lib/facebook-pixel';
-import { trackGA4 } from '@/lib/ga4';
+import { SearchBox } from '@/components/store/search-box';
 
 interface Brand {
   siteName: string;
@@ -56,13 +54,11 @@ export function waHref(whatsapp: string, text?: string) {
 
 export function Header() {
   const setView = useAppStore((s) => s.setView);
-  const setSearch = useAppStore((s) => s.setSearch);
   const customer = useAppStore((s) => s.customer);
   const brand = useBrand();
   const toggleCart = useCartStore((s) => s.toggleCart);
   const totalItems = useCartStore((s) => s.getTotalItems());
   const wishCount = useWishlistStore((s) => s.items.length);
-  const [q, setQ] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   // Cart badge depends on persisted localStorage — render it only after hydration
   const mounted = useSyncExternalStore(
@@ -73,16 +69,6 @@ export function Header() {
 
   const [nameFirst, ...rest] = brand.siteName.split(' ');
   const nameRest = rest.join(' ');
-
-  function submitSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (q.trim()) {
-      setSearch(q.trim());
-      setMobileMenuOpen(false);
-      trackFB('Search', { search_string: q.trim() });
-      trackGA4('search', { search_term: q.trim() });
-    }
-  }
 
   return (
     <header className="sticky top-0 z-40 w-full">
@@ -123,25 +109,10 @@ export function Header() {
               )}
             </button>
 
-          {/* Desktop search */}
-          <form onSubmit={submitSearch} className="hidden md:flex flex-1 max-w-xl">
-            <div className="relative w-full">
-              <Input
-                type="search"
-                placeholder="دوّر على منتج... (ساعة، لعبة، عطر)"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                className="w-full pl-10 bg-white text-foreground border-input"
-              />
-              <button
-                type="submit"
-                className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-accent cursor-pointer"
-                aria-label="بحث"
-              >
-                <Search className="h-4 w-4" />
-              </button>
-            </div>
-          </form>
+          {/* Desktop search — live autocomplete */}
+          <div className="hidden md:flex flex-1 max-w-xl">
+            <SearchBox />
+          </div>
 
           {/* Actions */}
           <div className="flex items-center gap-1">
@@ -225,24 +196,7 @@ export function Header() {
         {/* Mobile menu */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t py-4 space-y-3">
-            <form onSubmit={submitSearch}>
-              <div className="relative">
-                <Input
-                  type="search"
-                  placeholder="دوّر على منتج..."
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  className="w-full pl-10 bg-white text-foreground"
-                />
-                <button
-                  type="submit"
-                  className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground"
-                  aria-label="بحث"
-                >
-                  <Search className="h-4 w-4" />
-                </button>
-              </div>
-            </form>
+            <SearchBox autoFocusOnMount onNavigate={() => setMobileMenuOpen(false)} />
             <div className="grid grid-cols-2 gap-2">
               {[
                 { label: 'كل المنتجات', action: () => setView('shop') },

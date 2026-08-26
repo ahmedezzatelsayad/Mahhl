@@ -248,6 +248,18 @@
   background: #ffffff;
 }
 
+/* ===== Sticky mobile ATC bar coordination =====
+   When the product page shows its bottom add-to-cart bar, lift the floating
+   widgets (AI chat + WhatsApp) above it so nothing overlaps. */
+body[data-sticky-atc='1'] .float-stack {
+  transform: translateY(-4.75rem);
+}
+@media (min-width: 768px) {
+  body[data-sticky-atc='1'] .float-stack {
+    transform: none; /* bar is mobile-only */
+  }
+}
+
 /* Chat widget small clear text (kept ≥16px on phones to stop iOS zoom-on-focus) */
 .chat-text-sm {
   font-size: 12.5px;

@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://developers.google.com/search/docs/appearance/structured-data/product",
+    "name": "Intro to Product Structured Data on Google",
+    "snippet": "Get an overview of how adding product structured data to your web pages can attract potential buyers while they are searching for items to purchase on ...",
+    "host_name": "developers.google.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.outerboxdesign.com/articles/seo/rich-snippets-importance-for-an-ecommerce-website",
+    "name": "Rich Snippets & Structured Data for eCommerce: A 2026",
+    "snippet": "Jul 17, 2026 — Rich snippets are the visual upgrades a product page can earn in Google – star ratings, price, availability, shipping windows, return policies, ...",
+    "host_name": "www.outerboxdesign.com",
+    "rank": 1,
+    "date": "Jul 17, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://1seo.com/blog/schema-markup-tips-for-better-ecommerce-visibility-in-2025",
+    "name": "Schema Markup Tips for Better Ecommerce Visibility in 2025",
+    "snippet": "Aug 4, 2025 — Boost your ecommerce site's search engine visibility with expert schema markup tips for better SEO, rich snippets, and customer engagement.",
+    "host_name": "1seo.com",
+    "rank": 2,
+    "date": "Aug 4, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.seo-day.de/wiki/e-commerce-seo/structured-data?lang=en",
+    "name": "Structured Data for E-Commerce",
+    "snippet": "Oct 21, 2025 — Best Practices for E-Commerce Structured Data. 1. Ensure consistency. All product pages should use the same schema format ; Ensure uniform data ... Read more",
+    "host_name": "www.seo-day.de",
+    "rank": 3,
+    "date": "Oct 21, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.seoclarity.net/blog/product-schema-seo",
+    "name": "Product Schema for Ecommerce SEO: A Complete Guide",
+    "snippet": "Jan 12, 2025 — Learn how to leverage product schema for e-commerce SEO to enhance visibility, increase CTR, and provide vital information like reviews and ...",
+    "host_name": "www.seoclarity.net",
+    "rank": 4,
+    "date": "Jan 12, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.yotpo.com/blog/review-structured-data-guide",
+    "name": "Review Structured Data Guide: 7 Tips To Boost SEO",
+    "snippet": "Jan 15, 2026 — Learn the 7 best practices for modern eCommerce SEO and. Best practice is to nest both inside the Product schema. Product Snippets rely on on- ...",
+    "host_name": "www.yotpo.com",
+    "rank": 5,
+    "date": "Jan 15, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://opace.agency/blog/structured-data-schema-for-seo",
+    "name": "Schema Markup for SEO: Rich Results & AI Search 2026",
+    "snippet": "May 9, 2026 — This guide walks you through the 12 most important types of schema markup for SEO — with copy-paste JSON-LD examples, implementation advice ... Read more",
+    "host_name": "opace.agency",
+    "rank": 6,
+    "date": "May 9, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.syntheum.ai/blog/schema-markup-is-essential-for-ecommerce",
+    "name": "Why Schema Markup Is Essential for Ecommerce in 2025",
+    "snippet": "See why schema markup drives visibility in AI shopping results, and how ecommerce teams can structure data to outperform in 2025's zero-click search ...",
+    "host_name": "www.syntheum.ai",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

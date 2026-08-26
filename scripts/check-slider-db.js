@@ -1,4 +1,5 @@
 /** Direct DB check of the hero_slider setting (uses the same resolve logic as the app). */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { PrismaClient } = require('@prisma/client');
 
 // mirror src/lib/db.ts: NEON first
