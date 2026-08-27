@@ -241,3 +241,20 @@ Stage Summary:
 - ROOT CAUSE: founder was testing locked/broken URLs (protected team project + old-host domain). The store is LIVE and PUBLIC at https://mahhl-qzjn.vercel.app with ALL fixes verified end-to-end.
 - mahhl.com still points to SiteGround — to use it: add domain in Vercel project mahhl-qzjn → Settings → Domains, then at SiteGround set A @ → 76.76.21.21 and CNAME www → cname.vercel-dns.com. Custom domains bypass Deployment Protection.
 - garfix team project is a duplicate deploy target, protection-locked — recommend deleting it or disabling protection to stop confusion.
+
+---
+Task ID: 11
+Agent: Super Z (main)
+Task: "راجع المشروع وشوف ايه اللي لازم يتحل — خصوصاً الريفريش بيرجع للرئيسية والأخطاء الكثيرة"
+
+Work Log:
+- Full project review: production build ✓ (0 errors), ESLint ✓ (0 errors, 39 cosmetic warnings), all 13 API endpoints ✓ 200, live site console ✓ zero errors, cart/wishlist persistence ✓, storefront refresh on ?p=/ ?cat=/ ?q= deep links ✓ (verified on mahhl-qzjn.vercel.app).
+- ROOT CAUSE of refresh→home: admin panel had ZERO URL state. setView() pushed URLs for storefront views only; resolveSeoPage knew ?view=admin* but page.tsx never mapped kind:'admin' to initial.view. Result: F5 in ANY admin page → server resolves initial view='home' → founder kicked to storefront homepage mid-work.
+- FIX (3 files): (1) app-store.ts setView() pushes /?view=<name> for admin-* views + logoutAdmin cleans URL to /; (2) page.tsx maps kind:'admin' via 17-entry ADMIN_VIEWS whitelist (arbitrary ?view= values rejected — verified ?view=evil-hack falls back home); (3) store-app.tsx InitialUrlState.view widened to full View union + popstate handler restores admin views on back/forward.
+- Dev-server pitfalls fixed along the way: running `next build` pollutes .next while dev runs → stale modules served to browser (same class of bug as the earlier stale CSS). Rule: restart dev with rm -rf .next after any build.
+- VERIFIED in real browser: click المخزون in sidebar → URL becomes ?view=admin-inventory; F5 → STAYS on إدارة المخزون (was: kicked to homepage); back button → dashboard renders; logged-out visitor on ?view=admin-orders → redirected to ?view=admin-login, zero admin data leaked; logged-in session (localStorage) survives F5; login page refresh auto-advances to dashboard. Storefront regression checks all pass (product deep-link, reviews section, add-to-cart, homepage 45 imgs). Screenshot: download/admin-refresh-fixed.png
+
+Stage Summary:
+- The single confirmed refresh bug is FIXED and verified end-to-end; pushed to GitHub main → auto-deploys to mahhl-qzjn.vercel.app.
+- "الأخطاء الكثيرة" audit result: no build/lint/console/API errors remain. Earlier founder-visible breakage traced to testing locked garfix URLs + stale dev artifacts — both resolved.
+- Suggested founder follow-ups: bind mahhl.com to Vercel (A → 76.76.21.21, CNAME www → cname.vercel-dns.com), rotate the GitHub PAT, delete the duplicate protection-locked garfix project.
