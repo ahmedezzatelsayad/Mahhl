@@ -26,6 +26,7 @@ export type View =
   | 'admin-login'
   | 'admin-dashboard'
   | 'admin-products'
+  | 'admin-top100'
   | 'admin-inventory'
   | 'admin-orders'
   | 'admin-categories'
@@ -76,6 +77,8 @@ interface AppState {
   categoryMap: Record<string, string>;
   /** edit-product target id (admin) */
   editProductId: string | null;
+  /** prefill for the guest tracking form (order + phone from AI agent receipts) */
+  trackPrefill: { orderNumber: string; phone: string } | null;
 
   setView: (v: View) => void;
   openInfo: (page: InfoPage) => void;
@@ -93,6 +96,7 @@ interface AppState {
   setLastOrder: (id: string) => void;
   setCategoryMap: (cats: { id: string; slug: string }[]) => void;
   setEditProduct: (id: string | null) => void;
+  setTrackPrefill: (v: { orderNumber: string; phone: string } | null) => void;
   /** apply a state patch coming from URL parsing — no history push */
   applyUrlState: (patch: Partial<Pick<AppState, 'view' | 'infoPage' | 'selectedProductSlug' | 'selectedCategoryId' | 'selectedCategorySlug' | 'searchQuery' | 'selectedLandingSlug'>>) => void;
 }
@@ -125,6 +129,7 @@ export const useAppStore = create<AppState>()(
       selectedLandingSlug: null,
       categoryMap: {},
       editProductId: null,
+      trackPrefill: null,
 
       setView: (v) => {
         set({ view: v });
@@ -195,6 +200,7 @@ export const useAppStore = create<AppState>()(
           return { categoryMap: map };
         }),
       setEditProduct: (id) => set({ editProductId: id }),
+      setTrackPrefill: (v) => set({ trackPrefill: v }),
       applyUrlState: (patch) => set(patch),
     }),
     {

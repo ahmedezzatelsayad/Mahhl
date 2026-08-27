@@ -42,7 +42,8 @@ export async function saveDeepSeekSettings(
   const next: DeepSeekSettings = {
     enabled: partial.enabled ?? current.enabled,
     apiKey: (partial.apiKey ?? current.apiKey).trim(),
-    model: partial.model === 'deepseek-reasoner' ? 'deepseek-reasoner' : 'deepseek-chat',
+    // presets kept, but custom model ids (e.g. future "deepseek-v4") allowed
+    model: (partial.model ?? current.model).trim() || 'deepseek-chat',
   };
   if (!next.apiKey) next.enabled = false;
   await db.siteSetting.upsert({
@@ -70,12 +71,25 @@ export interface DeepSeekResult {
  */
 export async function deepSeekChat(
   messages: DeepSeekMessage[],
-  opts: { temperature?: number; maxTokens?: number; jsonMode?: boolean; timeoutMs?: number } = {}
+  opts: {
+    temperature?: number;
+    maxTokens?: number;
+    jsonMode?: boolean;
+    timeoutMs?: number;
+    model?: string;
+    /** DeepSeek V4 thinking control: 'low'|'medium'|'high' — 'low' keeps
+     *  reasoning brief (seconds + few tokens) instead of burning the whole
+     *  max_tokens budget on chain-of-thought before writing the answer. */
+    reasoningEffort?: 'low' | 'medium' | 'high';
+  } = {}
 ): Promise<DeepSeekResult> {
   const settings = await getDeepSeekSettings();
   if (!settings.enabled || !settings.apiKey) {
     return { ok: false, content: '', error: 'not-configured' };
   }
+  // per-call model override (e.g. the Top-100 page forces the THINKING model)
+  const model = opts.model || settings.model;
+  const isThinking = /reasoner|thinking|v4/i.test(model);
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), opts.timeoutMs ?? DEFAULT_TIMEOUT_MS);
@@ -87,11 +101,15 @@ export async function deepSeekChat(
         Authorization: `Bearer ${settings.apiKey}`,
       },
       body: JSON.stringify({
-        model: settings.model,
+        model,
         messages,
-        temperature: opts.temperature ?? 0.7,
+        // reasoning models ignore temperature (API constraint) — omit it
+        ...(isThinking ? {} : { temperature: opts.temperature ?? 0.7 }),
         max_tokens: opts.maxTokens ?? 2000,
         ...(opts.jsonMode ? { response_format: { type: 'json_object' } } : {}),
+        // thinking budget control (DeepSeek V4) — default LOW so the model
+        // answers in seconds instead of reasoning for a minute
+        ...(isThinking ? { reasoning_effort: opts.reasoningEffort ?? 'low' } : {}),
       }),
       signal: controller.signal,
     });

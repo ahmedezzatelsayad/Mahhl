@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,10 +15,39 @@ import { useBrand, waHref } from '@/components/store/header';
 export function TrackOrderView() {
   const { t, lang } = useT();
   const setView = useAppStore((s) => s.setView);
+  const trackPrefill = useAppStore((s) => s.trackPrefill);
+  const setTrackPrefill = useAppStore((s) => s.setTrackPrefill);
   const brand = useBrand();
   const [form, setForm] = useState({ orderNumber: '', phone: '' });
   const [busy, setBusy] = useState(false);
   const [order, setOrder] = useState<TrackOrder | null>(null);
+  const [autoTracked, setAutoTracked] = useState(false);
+
+  // Prefill coming from the AI agent receipt card (order + phone)
+  useEffect(() => {
+    if (trackPrefill && !autoTracked) {
+      setForm({ orderNumber: trackPrefill.orderNumber, phone: trackPrefill.phone });
+      setAutoTracked(true);
+      // auto-submit once so the customer lands directly on their order
+      (async () => {
+        setBusy(true);
+        try {
+          const res = await fetch('/api/orders/track', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderNumber: trackPrefill.orderNumber, phone: trackPrefill.phone }),
+          });
+          const data = await res.json();
+          if (res.ok) setOrder(data.order);
+        } catch {
+          /* customer can retry manually */
+        } finally {
+          setBusy(false);
+          setTrackPrefill(null);
+        }
+      })();
+    }
+  }, [trackPrefill, autoTracked, setTrackPrefill]);
 
   async function handleTrack(e: React.FormEvent) {
     e.preventDefault();

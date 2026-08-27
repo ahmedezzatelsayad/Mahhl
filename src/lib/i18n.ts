@@ -203,6 +203,14 @@ export const DICT: Dict = {
   'ch.sug2': { ar: 'ساعات', en: 'Watches' },
   'ch.sug3': { ar: 'لعبة أطفال', en: "Kids' toys" },
   'ch.sug4': { ar: 'إكسسوارات موبايل', en: 'Mobile accessories' },
+  'ch.sugOrder': { ar: 'أبي أسجل طلب 🛒', en: 'I want to place an order 🛒' },
+  'ch.agentTitle': { ar: 'مندوب محل شوب الذكي', en: 'Mahal Shop AI Rep' },
+  'ch.agentSub': { ar: 'يلقى لك اللي تبيه ويسجّل طلبك — دفع عند الاستلام', en: 'Finds it & places your order — cash on delivery' },
+  'ch.agentWelcome': {
+    ar: 'هلا والله! 👋 أنا مندوب محل شوب — أعرف المتجر كاملاً وأقدر أسجّل طلبك من هنا مباشرة.\nقل لي شنو تدور عليه (عطر، ساعة، خلاط..) وألقاه لك، وبعدها أجمع بيانات التوصيل وأأكّد الطلب ✅\nالدفع عند الاستلام · توصيل ١-٣ أيام لكل الكويت 🚚',
+    en: "Hey there! 👋 I'm your Mahal Shop rep — I know the whole store and can place your order right here in the chat.\nTell me what you're looking for (perfume, watch, blender..), then I'll take your delivery details and confirm the order ✅\nCash on delivery · 1-3 days to all Kuwait 🚚",
+  },
+  'ch.agentPlaceholder': { ar: 'شنو تدور عليه؟ أو كمّل بيانات طلبك...', en: 'What are you looking for? Or finish your order...' },
 
   /* ===== footer ===== */
   'f.about': { ar: 'عن محل شوب', en: 'About Mahal Shop' },

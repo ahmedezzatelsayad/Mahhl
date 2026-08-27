@@ -301,10 +301,18 @@ export function AdminInsightsView() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="deepseek-chat">deepseek-chat</SelectItem>
-                  <SelectItem value="deepseek-reasoner">deepseek-reasoner</SelectItem>
+                  <SelectItem value="deepseek-reasoner">deepseek-reasoner — DeepSeek v4 Thinking 🧠</SelectItem>
+                  <SelectItem value="deepseek-chat">deepseek-chat — سريع</SelectItem>
                 </SelectContent>
               </Select>
+              <Input
+                dir="ltr"
+                className="text-xs mt-1"
+                placeholder="أو اكتب موديل مخصص (مثل deepseek-v4)"
+                value={!['deepseek-chat', 'deepseek-reasoner'].includes(dsSettings.model) ? dsSettings.model : ''}
+                onChange={(e) => setDsSettings((s) => ({ ...s, model: e.target.value || 'deepseek-chat' }))}
+                disabled={dsLoading}
+              />
             </div>
           </div>
 

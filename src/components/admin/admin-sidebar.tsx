@@ -18,6 +18,7 @@ import {
   Search,
   Images,
   Star,
+  Trophy,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -35,6 +36,7 @@ const navItems: NavItem[] = [
   { view: 'admin-reviews', label: 'التقييمات', icon: Star },
   { view: 'admin-seo', label: 'SEO والبحث', icon: Search },
   { view: 'admin-products', label: 'المنتجات', icon: Package },
+  { view: 'admin-top100', label: 'الأكثر طلباً Top 100', icon: Trophy },
   { view: 'admin-inventory', label: 'المخزون', icon: Boxes },
   { view: 'admin-orders', label: 'الطلبات', icon: ShoppingCart },
   { view: 'admin-categories', label: 'الفئات', icon: Tags },

@@ -3,9 +3,9 @@
 /**
  * Shared icons — lucide re-exports + custom brand SVGs (WhatsApp).
  */
-import { MessageCircle, X, Send, Store } from 'lucide-react';
+import { MessageCircle, X, Send, Store, Trash2, PackageSearch } from 'lucide-react';
 
-export { MessageCircle, X, Send, Store };
+export { MessageCircle, X, Send, Store, Trash2, PackageSearch };
 
 export function WhatsAppIcon({ className }: { className?: string }) {
   return (

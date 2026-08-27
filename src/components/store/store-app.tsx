@@ -28,6 +28,7 @@ import { AdminLoginView } from '@/components/admin/admin-login-view';
 import { AdminSidebar, AdminMobileNav } from '@/components/admin/admin-sidebar';
 import { AdminDashboardView } from '@/components/admin/admin-dashboard-view';
 import { AdminProductsView, AdminAddProductView, AdminEditProductView } from '@/components/admin/admin-products-view';
+import { AdminTop100View } from '@/components/admin/admin-top100-view';
 import { AdminInventoryView } from '@/components/admin/admin-inventory-view';
 import { AdminOrdersView } from '@/components/admin/admin-orders-view';
 import { AdminCategoriesView } from '@/components/admin/admin-categories-view';
@@ -41,6 +42,7 @@ import { AdminSeoView } from '@/components/admin/admin-seo-view';
 import { AdminSettingsView } from '@/components/admin/admin-settings-view';
 import { FacebookPixel } from '@/components/store/facebook-pixel';
 import { LandingView } from '@/components/store/landing-view';
+import { ViewErrorBoundary } from '@/components/store/view-error-boundary';
 
 export interface InitialUrlState {
   view: Extract<
@@ -229,6 +231,7 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
   else if (view === 'admin-login') content = <AdminLoginView />;
   else if (view === 'admin-dashboard' && isAdmin) content = <AdminDashboardView />;
   else if (view === 'admin-products' && isAdmin) content = <AdminProductsView />;
+  else if (view === 'admin-top100' && isAdmin) content = <AdminTop100View />;
   else if (view === 'admin-add-product' && isAdmin) content = <AdminAddProductView />;
   else if (view === 'admin-edit-product' && isAdmin) content = <AdminEditProductView />;
   else if (view === 'admin-inventory' && isAdmin) content = <AdminInventoryView />;
@@ -263,9 +266,12 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
       <FacebookPixel />
       <Header />
       <main className="flex-1">
-        {content}
-        {/* recently-viewed rail on every storefront view (not admin/product detail) */}
-        {view !== 'product' && <RecentlyViewed />}
+        {/* one crashing view never kills the whole storefront */}
+        <ViewErrorBoundary>
+          {content}
+          {/* recently-viewed rail on every storefront view (not admin/product detail) */}
+          {view !== 'product' && <RecentlyViewed />}
+        </ViewErrorBoundary>
       </main>
       <Footer />
       <CartDrawer />
