@@ -48,6 +48,12 @@ export const DICT: Dict = {
   'home.features.support': { ar: 'دعم يومي', en: 'Daily Support' },
   'home.features.supportD': { ar: 'واتساب 9ص–11م', en: 'WhatsApp 9AM–11PM' },
   'home.categories': { ar: 'تسوق حسب القسم', en: 'Shop by Category' },
+  'home.loadErrTitle': { ar: 'تعذر تحميل المنتجات', en: "Couldn't load the products" },
+  'home.loadErrBody': {
+    ar: 'صار خطأ مؤقت في الاتصال. جرّب إعادة المحاولة — إذا استمرت المشكلة كلمنا على الواتساب.',
+    en: 'A temporary connection error occurred. Please try again — if it persists, reach us on WhatsApp.',
+  },
+  'home.retry': { ar: 'إعادة المحاولة', en: 'Try again' },
   'home.viewAll': { ar: 'عرض الكل', en: 'View All' },
   'home.allProducts': { ar: 'كل المنتجات', en: 'All Products' },
   'home.bestsellers': { ar: 'الأكثر مبيعاً', en: 'Best Sellers' },

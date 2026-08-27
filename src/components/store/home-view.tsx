@@ -77,6 +77,8 @@ export function HomeView() {
   const [landingPromos, setLandingPromos] = useState<LandingPromo[]>([]);
   const [shipping, setShipping] = useState<{ price: number; freeThreshold: number } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
 
   // ===== Founder-managed hero slides (real photos + AI copy, dashboard-controlled) =====
   const [heroSlides, setHeroSlides] = useState<SliderSlide[]>([]);
@@ -122,6 +124,7 @@ export function HomeView() {
   useEffect(() => {
     (async () => {
       try {
+        setLoadFailed(false);
         const lp = lang === 'en' ? '&lang=en' : '';
         const [featRes, bsRes, catRes, landingRes, shipRes, sliderRes, topRes] = await Promise.all([
           fetch(`/api/products?limit=12&sort=newest${lp}`),
@@ -159,11 +162,38 @@ export function HomeView() {
         }
       } catch (e) {
         console.error('Failed to load home data', e);
+        setLoadFailed(true);
       } finally {
         setLoading(false);
       }
     })();
-  }, [setCategoryMap]);
+  }, [setCategoryMap, retryKey]);
+
+  // every catalog fetch failed (network / API down) — never show silent empty sections
+  const catalogDown =
+    !loading && loadFailed && featured.length === 0 && bestSellers.length === 0 && categories.length === 0;
+
+  if (catalogDown) {
+    return (
+      <div className="container mx-auto px-4 py-20">
+        <div className="flex flex-col items-center justify-center gap-4 text-center max-w-md mx-auto">
+          <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
+            <svg className="h-8 w-8 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold">{t('home.loadErrTitle')}</h2>
+          <p className="text-muted-foreground leading-relaxed">{t('home.loadErrBody')}</p>
+          <Button size="lg" onClick={() => setRetryKey((k) => k + 1)}>
+            <svg className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992V4.356m0 4.992l-3.181-3.183a8.25 8.25 0 00-13.803 3.7M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7" />
+            </svg>
+            {t('home.retry')}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

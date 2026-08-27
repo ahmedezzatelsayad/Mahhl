@@ -278,6 +278,22 @@ body[data-sticky-atc='1'] .float-stack {
   }
 }
 
+/* ===== STICKY-HEADER OVERLAP FIX (checkout typing) =====
+   The header is sticky (mobile ≈109px: promo bar + main bar with the language
+   switcher, My Account, cart). When the browser focuses a form field it scrolls
+   it to the very top of the viewport — UNDER the sticky header — so shoppers
+   can't see the field they're typing in. scroll-padding on <html> pushes every
+   focus-scroll / scrollIntoView below the header; scroll-margin on the fields
+   doubles the guarantee across browsers. */
+html {
+  scroll-padding-top: 7.75rem; /* 124px — mobile header + breathing room */
+}
+input,
+textarea,
+select {
+  scroll-margin-top: 7.75rem;
+}
+
 /* ===== HeroSlider tones ===== */
 .tone-dark {
   background:
