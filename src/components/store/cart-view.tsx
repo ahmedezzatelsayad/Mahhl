@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useCartStore } from '@/lib/stores/cart-store';
 import { useAppStore } from '@/lib/stores/app-store';
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,20 @@ export function CartView() {
   const { items, removeItem, updateQuantity } = useCartStore();
   const subtotal = useCartStore((s) => s.getSubtotal());
   const setView = useAppStore((s) => s.setView);
-  const shipping = subtotal > 50 ? 0 : 2;
+  // live admin-configured shipping (was hardcoded 2/50 — QA fix to match checkout + settings)
+  const [shippingCfg, setShippingCfg] = useState({ price: 1, freeThreshold: 30, note: '' });
+  useEffect(() => {
+    fetch('/api/settings/shipping')
+      .then((r) => r.json())
+      .then((s) => {
+        if (s && typeof s.price === 'number') {
+          setShippingCfg({ price: s.price, freeThreshold: s.freeThreshold, note: s.note || '' });
+        }
+      })
+      .catch(() => {});
+  }, []);
+  const shipping =
+    shippingCfg.freeThreshold > 0 && subtotal >= shippingCfg.freeThreshold ? 0 : shippingCfg.price;
   const total = subtotal + shipping;
 
   if (items.length === 0) {
@@ -72,9 +86,11 @@ export function CartView() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8"
-                      onClick={() =>
-                        updateQuantity(item.productId, item.quantity - 1, item.variations)
-                      }
+                      onClick={() => {
+                        const next = item.quantity - 1;
+                        updateQuantity(item.productId, next, item.variations);
+                        if (next > 0) toast(t('cd.qtyUpdated'), { id: 'cart-qty', duration: 1400 });
+                      }}
                     >
                       <Minus className="h-3 w-3" />
                     </Button>
@@ -85,9 +101,10 @@ export function CartView() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8"
-                      onClick={() =>
-                        updateQuantity(item.productId, item.quantity + 1, item.variations)
-                      }
+                      onClick={() => {
+                        updateQuantity(item.productId, item.quantity + 1, item.variations);
+                        toast(t('cd.qtyUpdated'), { id: 'cart-qty', duration: 1400 });
+                      }}
                     >
                       <Plus className="h-3 w-3" />
                     </Button>
@@ -145,9 +162,9 @@ export function CartView() {
                   <span className="font-medium">{formatKwd(shipping)}</span>
                 )}
               </div>
-              {shipping > 0 && (
+              {shipping > 0 && shippingCfg.freeThreshold > 0 && (
                 <p className="text-xs text-muted-foreground bg-accent/50 p-2 rounded">
-                  💡 {t('ck.addForFree', { v: formatKwd(50 - subtotal) })}
+                  💡 {t('ck.addForFree', { v: formatKwd(Math.max(0, shippingCfg.freeThreshold - subtotal)) })}
                 </p>
               )}
               <div className="border-t pt-3 flex justify-between font-bold text-base">

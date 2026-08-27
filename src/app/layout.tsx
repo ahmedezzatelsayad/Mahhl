@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans_Arabic, Tajawal } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 import { getSeoSettings, getSiteUrl, DEFAULT_SITE_URL } from "@/lib/seo";
 import { getSiteIdentity } from "@/lib/site-identity";
 

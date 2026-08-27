@@ -89,9 +89,11 @@ export function CartDrawer() {
                           variant="ghost"
                           size="icon"
                           className="h-7 w-7"
-                          onClick={() =>
-                            updateQuantity(item.productId, item.quantity - 1, item.variations)
-                          }
+                          onClick={() => {
+                            const next = item.quantity - 1;
+                            updateQuantity(item.productId, next, item.variations);
+                            if (next > 0) toast(t('cd.qtyUpdated'), { id: 'cart-qty', duration: 1400 });
+                          }}
                         >
                           <Minus className="h-3 w-3" />
                         </Button>
@@ -102,9 +104,10 @@ export function CartDrawer() {
                           variant="ghost"
                           size="icon"
                           className="h-7 w-7"
-                          onClick={() =>
-                            updateQuantity(item.productId, item.quantity + 1, item.variations)
-                          }
+                          onClick={() => {
+                            updateQuantity(item.productId, item.quantity + 1, item.variations);
+                            toast(t('cd.qtyUpdated'), { id: 'cart-qty', duration: 1400 });
+                          }}
                         >
                           <Plus className="h-3 w-3" />
                         </Button>

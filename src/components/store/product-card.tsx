@@ -36,6 +36,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const { t } = useT();
   const openProduct = useAppStore((s) => s.openProduct);
   const addItem = useCartStore((s) => s.addItem);
+  const openCart = useCartStore((s) => s.openCart);
   const toggleWish = useWishlistStore((s) => s.toggle);
   const wished = useWishlistStore((s) => s.items.some((i) => i.productId === product.id));
   const [imgError, setImgError] = useState(false);
@@ -64,7 +65,12 @@ export function ProductCard({ product }: ProductCardProps) {
       price: product.salePrice,
       image: imgUrl,
     });
-    toast.success(t('pc.added', { name: product.name }));
+    toast.success(t('pc.added', { name: product.name }), {
+      action: {
+        label: t('cd.openCart'),
+        onClick: () => openCart(),
+      },
+    });
   }
 
   function toggleWishlist(e: React.MouseEvent) {

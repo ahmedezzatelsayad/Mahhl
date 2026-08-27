@@ -448,6 +448,8 @@ export const DICT: Dict = {
   'cd.browse': { ar: 'تصفح المنتجات', en: 'Browse products' },
   'cd.removed': { ar: 'تم حذف المنتج من السلة', en: 'Removed from cart' },
   'cd.viewCart': { ar: 'عرض السلة كاملة', en: 'View full cart' },
+  'cd.qtyUpdated': { ar: 'تم تحديث الكمية', en: 'Quantity updated' },
+  'cd.openCart': { ar: 'عرض السلة', en: 'View cart' },
 
   /* ===== cart view ===== */
   'cv.empty': { ar: 'سلة التسوق فارغة', en: 'Your shopping cart is empty' },

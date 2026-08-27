@@ -53,6 +53,8 @@ export function CheckoutView() {
     paymentMethod: 'cod',
   });
   const [prefilled, setPrefilled] = useState(false);
+  const [attempted, setAttempted] = useState(false); // highlight missing fields after a failed submit
+  const missing = (v: string) => (attempted && !v.trim() ? 'border-destructive focus-visible:ring-destructive' : '');
 
   // Prefill from the logged-in customer's account (حسابي)
   useEffect(() => {
@@ -138,11 +140,13 @@ export function CheckoutView() {
       return;
     }
     if (!form.customerName.trim() || !form.phone.trim() || !form.address.trim()) {
+      setAttempted(true);
       toast.error(t('ck.fillErr'));
       return;
     }
     const normalizedPhone = normalizeKwPhone(form.phone);
     if (!isValidKwPhone(normalizedPhone)) {
+      setAttempted(true);
       toast.error(t('ck.phoneErr'));
       return;
     }
@@ -278,6 +282,8 @@ export function CheckoutView() {
                     onChange={(e) => update('customerName', e.target.value)}
                     required
                     placeholder={t('ck.namePh')}
+                    className={missing(form.customerName)}
+                    aria-invalid={attempted && !form.customerName.trim()}
                   />
                 </div>
                 <div>
@@ -291,6 +297,8 @@ export function CheckoutView() {
                     required
                     placeholder="5xxxxxxxx"
                     dir="ltr"
+                    className={missing(form.phone)}
+                    aria-invalid={attempted && (!form.phone.trim() || !isValidKwPhone(normalizeKwPhone(form.phone)))}
                   />
                 </div>
                 <div>
@@ -342,6 +350,8 @@ export function CheckoutView() {
                   required
                   placeholder={t('ck.addrPh')}
                   rows={3}
+                  className={missing(form.address)}
+                  aria-invalid={attempted && !form.address.trim()}
                 />
               </div>
               <div>
