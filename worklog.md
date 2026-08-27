@@ -220,3 +220,24 @@ Stage Summary:
 - Both founder-reported issues VERIFIED FIXED on fresh build: (1) homepage renders 45 product imgs + 12 categories; (2) sticky header (109px) can no longer cover checkout/typing fields (124px scroll padding+margin active).
 - All fixes live on GitHub main → Vercel will auto-deploy. Reminder pending: Vercel Deployment Protection still redirects public visitors to login (must be disabled by founder in Vercel settings).
 - SECURITY: founder PAT was pasted in chat — recommend rotation after confirming deploy works.
+
+---
+Task ID: 10
+Agent: Super Z (main)
+Task: "حل المشكلة من جذرها مفيش اي حاجه بتظهر" — founder saw nothing on every URL
+
+Work Log:
+- Diagnosed ALL public URLs from scratch:
+  * mahhl-garfix.vercel.app (project "mahhl", team garfix) → HTTP 200 but body = "Login – Vercel" page (Deployment Protection ON)
+  * mahhl-kwx4god5d-garfix.vercel.app (preview) → 302 to vercel.com/sso-api (same protection)
+  * mahhl.com → HTTP 202 SiteGround captcha page; DNS A→34.175.103.122, NS→ns1/ns2.siteground.net (domain still on old host, never pointed to Vercel)
+- GitHub API (deployments endpoint): discovered TWO Vercel projects hooked to the repo — envs "Production – mahhl" AND "Production – mahhl-qzjn", both deployed commit 86ec262 with status SUCCESS.
+- Tested mahhl-qzjn.vercel.app → HTTP 200, title "محل شوب", PUBLIC, no login!
+- Initially mis-read first CSS chunk (14KB, no fix) — second CSS chunk b52381cd2a1c9919.css (171KB) contains BOTH fixes: scroll-padding-top:7.75rem AND font-size:16px zoom fix → serving LATEST code.
+- Full live verification (agent-browser, mobile 390x844, on mahhl-qzjn.vercel.app): scrollPadding=124px, productImgs=45, categories=12, headerH=109, zero error cards, zero console errors; product deep-link ?p=kit-0010 renders with add-to-cart.
+- Proof screenshots: download/LIVE-store-working.png, download/LIVE-product-page.png
+
+Stage Summary:
+- ROOT CAUSE: founder was testing locked/broken URLs (protected team project + old-host domain). The store is LIVE and PUBLIC at https://mahhl-qzjn.vercel.app with ALL fixes verified end-to-end.
+- mahhl.com still points to SiteGround — to use it: add domain in Vercel project mahhl-qzjn → Settings → Domains, then at SiteGround set A @ → 76.76.21.21 and CNAME www → cname.vercel-dns.com. Custom domains bypass Deployment Protection.
+- garfix team project is a duplicate deploy target, protection-locked — recommend deleting it or disabling protection to stop confusion.
