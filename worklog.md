@@ -165,3 +165,24 @@ Work Log:
 
 Stage Summary:
 - All 5 tasks complete and live in production.
+
+---
+Task ID: 7
+Agent: Super Z (main)
+Task: QA review team + developer sweep — restore app-wide notification system, fix "dead" buttons + order-confirm button, comprehensive pre-production review
+
+Work Log:
+- ROOT CAUSE of user report (no notifications + dead buttons + order-confirm not working): 24 components call toast from 'sonner' but layout mounted the RADIX Toaster (use-toast system nobody uses) → sonner Toaster was NEVER rendered → every toast app-wide silently did nothing. Validation errors on checkout were invisible → button appeared dead.
+- FIX: enhanced src/components/ui/sonner.tsx (lang-aware dir AR rtl/EN ltr via lang-store, top-center clear of mobile sticky ATC + floating WhatsApp/AI buttons, richColors, closeButton, 3 visible, 3.2s) and swapped the mount in layout.tsx.
+- Cart quantity +/- now toasts "تم تحديث الكمية" (dedupe id 'cart-qty', 1.4s) in cart drawer AND cart page.
+- Product-card add-to-cart toast now carries a "عرض السلة" action button that opens the cart drawer.
+- Checkout: failed submit now highlights the 3 required fields (red border + aria-invalid) in addition to the error toast; phone field also flags invalid format.
+- QA BUG #2: cart-view hardcoded shipping 2 KWD / free≥50 (stale pre-30-KWD values) → now fetches /api/settings/shipping live like checkout (1 KWD / free≥30 correct everywhere).
+- .env had been reset by sandbox AGAIN (SQLite) → restored NEON_DATABASE_URL + founder creds.
+- E2E VERIFIED (browser, AR + EN): add-to-cart toast AR + EN + action button; cart drawer qty toast; checkout empty-submit → "يرجى تعبئة البيانات المطلوبة" + 3 red fields; REAL order ORD-MTBL4A0W placed (201) → success page + order number + track button works; wishlist heart toast; search autocomplete (7 results عطر); AI agent chat welcome + chip reply; admin login + save identity toast; zero browser console errors.
+- Cleaned ALL QA test data from production Neon: order ORD-MTBL4A0W + legacy test ORD-MTACT3DL (stock restored), test customer, temp scripts deleted.
+- lint 0 errors (46 pre-existing warnings); tsc src/ clean; rebased on remote README docs (a20af4b, b4819fd); pushed 130359e with founder's newest PAT.
+
+Stage Summary:
+- The entire feedback layer (store + admin) is alive again from ONE root fix; checkout button "failure" was invisible validation — now toast + field highlighting.
+- Deploy: GitHub main = 130359e. Vercel auto-deploys.
