@@ -186,3 +186,19 @@ Work Log:
 Stage Summary:
 - The entire feedback layer (store + admin) is alive again from ONE root fix; checkout button "failure" was invisible validation — now toast + field highlighting.
 - Deploy: GitHub main = 130359e. Vercel auto-deploys.
+
+---
+Task ID: 8
+Agent: Super Z (main)
+Task: User report: no products/sections on homepage + header (language selector/My Account) covering checkout page obstructing typing
+
+Work Log:
+- Issue 1 (no products): production mahhl-qzjn.vercel.app verified HEALTHY — /api/products, /api/categories all return data, homepage renders 40 cards + 8 sections in browser. ROOT CAUSE: sandbox dev server had DIED and .env was reset AGAIN (3rd time) → preview link served empty page. Fixed: restored env, restarted server, AND created .env.local (gitignored, sandbox doesn't reset it) carrying NEON_DATABASE_URL so DB connection survives future .env resets.
+- Issue 2 (header covers checkout): CONFIRMED with geometry — sticky header (109px mobile: promo bar + main bar with language switcher/My Account/cart) covers focused form fields: browser scrolls field to top:0, field lands UNDER header (109px overlap, completely invisible while typing). FIX: html{scroll-padding-top:7.75rem} + input/textarea/select{scroll-margin-top:7.75rem} in globals.css → verified field now stops 139-151px BELOW header on mobile (iPhone 14 emulation), all fields (name/phone/address) visible. Desktop unaffected (97px header, fields already clear).
+- Resilience: homepage showed SILENT EMPTY sections on API failure — added friendly error card (icon + title + explanation + retry button, AR/EN i18n keys home.loadErrTitle/loadErrBody/retry) shown only when ALL catalog fetches fail; E2E verified by aborting /api/products+/api/best-sellers+/api/categories via network routes → card appears → unblock → retry click → full homepage recovers (12 sections, 19 images).
+- QA note: Turbopack dev serves same-URL chunks after edits → stale browser cache; fresh browser session required to test UI changes (production builds use content-hashed URLs, not affected).
+- lint 0 errors; tsc src clean; committed 6cab1a4.
+
+Stage Summary:
+- Both user-reported issues fixed at root: preview stability (env resilience) + checkout typing visibility (scroll fix) + graceful catalog failure UX.
+- PUSH BLOCKED: founder's PAT (github_pat_11BWQJ43Y0emm...) expired ~1h after issuance (worked for 130359e push, now "Invalid username or token"); previous session PAT also invalid. Commit 6cab1a4 is safe locally awaiting a fresh PAT.
