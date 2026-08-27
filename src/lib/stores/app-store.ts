@@ -141,7 +141,8 @@ export const useAppStore = create<AppState>()(
         else if (v === 'cart') pushUrl('/?cart=1');
         else if (v === 'checkout') pushUrl('/?checkout=1');
         else if (v === 'order-success') pushUrl('/?order=1');
-        // info/admin push their own URLs via openInfo/admin navigation
+        else if (v.startsWith('admin-')) pushUrl(`/?view=${v}`);
+        // info pushes its own URL via openInfo
       },
       openInfo: (page) => {
         set({ view: 'info', infoPage: page });
@@ -179,7 +180,10 @@ export const useAppStore = create<AppState>()(
       toggleBestSellerFilter: () =>
         set((s) => ({ filterBestSeller: !s.filterBestSeller })),
       loginAdmin: (token) => set({ isAdmin: true, adminToken: token }),
-      logoutAdmin: () => set({ isAdmin: false, adminToken: null, view: 'home' }),
+      logoutAdmin: () => {
+        set({ isAdmin: false, adminToken: null, view: 'home' });
+        pushUrl('/');
+      },
       loginCustomer: (customer, token) =>
         set({ customer, customerToken: token }),
       logoutCustomer: () => set({ customer: null, customerToken: null }),

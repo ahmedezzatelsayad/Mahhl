@@ -167,6 +167,33 @@ export default async function Page({ searchParams }: PageProps) {
     const v = sp[k];
     return Array.isArray(v) ? v[0] : v;
   };
+  // Whitelist of admin views allowed via ?view= (rendered only for
+  // authenticated admins — the guard in StoreApp redirects others to login)
+  const ADMIN_VIEWS = [
+    'admin-login',
+    'admin-dashboard',
+    'admin-products',
+    'admin-top100',
+    'admin-inventory',
+    'admin-orders',
+    'admin-categories',
+    'admin-insights',
+    'admin-facebook',
+    'admin-reports',
+    'admin-landing',
+    'admin-slider',
+    'admin-reviews',
+    'admin-seo',
+    'admin-settings',
+    'admin-add-product',
+    'admin-edit-product',
+  ] as const;
+  if (page.kind === 'admin') {
+    const v = String(one('view') || '');
+    if ((ADMIN_VIEWS as readonly string[]).includes(v)) {
+      initial.view = v as InitialUrlState['view'];
+    }
+  }
   if (page.kind === 'product') {
     initial.view = 'product';
     initial.productSlug = page.product.slug;

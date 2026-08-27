@@ -45,20 +45,8 @@ import { LandingView } from '@/components/store/landing-view';
 import { ViewErrorBoundary } from '@/components/store/view-error-boundary';
 
 export interface InitialUrlState {
-  view: Extract<
-    View,
-    | 'home'
-    | 'shop'
-    | 'product'
-    | 'cart'
-    | 'checkout'
-    | 'order-success'
-    | 'landing'
-    | 'account'
-    | 'track-order'
-    | 'wishlist'
-    | 'info'
-  >;
+  /** any view incl. admin-* — admin views render only for authenticated admins */
+  view: View;
   infoPage?: string | null;
   productSlug?: string | null;
   categoryId?: string | null;
@@ -111,6 +99,7 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
       const cart = sp.get('cart');
       const checkout = sp.get('checkout');
       const order = sp.get('order');
+      const viewParam = sp.get('view');
 
       if (p) {
         applyUrlState({ view: 'product', selectedProductSlug: p });
@@ -172,6 +161,11 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
       }
       if (order) {
         applyUrlState({ view: 'order-success' });
+        return;
+      }
+      // admin views survive back/forward too (guard effect enforces auth)
+      if (viewParam && viewParam.startsWith('admin-')) {
+        applyUrlState({ view: viewParam as View });
         return;
       }
       if (info && INFO_PAGES.includes(info as InfoPage)) {
