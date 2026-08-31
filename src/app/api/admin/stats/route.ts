@@ -1,7 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { requirePermission } from '@/lib/auth';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  return requirePermission(req, 'dashboard', 'view', async () => {
   const [
     totalProducts,
     totalOrders,
@@ -41,5 +43,6 @@ export async function GET() {
     bestSellersCount,
     totalRevenue: revenue._sum.total || 0,
     recentOrders,
+  });
   });
 }

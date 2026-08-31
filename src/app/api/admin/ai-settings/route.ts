@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 import {
   getDeepSeekSettings,
   saveDeepSeekSettings,
@@ -10,7 +10,7 @@ import {
  * GET /api/admin/ai-settings — DeepSeek settings (admin-guarded)
  */
 export async function GET(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'settings', 'view', async () => {
     const s = await getDeepSeekSettings();
     return NextResponse.json(s);
   });
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
  * Body: { enabled?, apiKey?, model? }
  */
 export async function PUT(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'settings', 'manage', async () => {
     const body = await req.json().catch(() => ({}));
     const next = await saveDeepSeekSettings({
       enabled: typeof body.enabled === 'boolean' ? body.enabled : undefined,
@@ -36,7 +36,7 @@ export async function PUT(req: NextRequest) {
  * POST /api/admin/ai-settings — test the key with a tiny completion
  */
 export async function POST(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'settings', 'manage', async () => {
     const res = await deepSeekChat(
       [{ role: 'user', content: 'قل: تم' }],
       { maxTokens: 8, temperature: 0 }

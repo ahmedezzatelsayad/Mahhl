@@ -185,6 +185,7 @@ export default async function Page({ searchParams }: PageProps) {
     'admin-reviews',
     'admin-seo',
     'admin-settings',
+    'admin-staff',
     'admin-add-product',
     'admin-edit-product',
   ] as const;

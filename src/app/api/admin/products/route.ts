@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'products', 'view', async () => {
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
@@ -61,7 +61,7 @@ async function uniqueSlug(name: string): Promise<string> {
 
 /** POST — create a product (admin) */
 export async function POST(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'products', 'manage', async () => {
     try {
       const body = await req.json();
 

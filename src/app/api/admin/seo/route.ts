@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 import { getSeoSettings, saveSeoSettings } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'seo', 'view', async () => {
     return NextResponse.json(await getSeoSettings());
   });
 }
 
 export async function PUT(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'seo', 'manage', async () => {
     const body = await req.json().catch(() => ({}));
     const next = await saveSeoSettings({
       siteTitle: typeof body.siteTitle === 'string' ? body.siteTitle : undefined,

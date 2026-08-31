@@ -1,6 +1,7 @@
 'use client';
 
 import { useAppStore, View } from '@/lib/stores/app-store';
+import { canAccessView, ROLE_LABELS_AR, normalizeRole } from '@/lib/permissions';
 import {
   LayoutDashboard,
   Package,
@@ -19,6 +20,7 @@ import {
   Images,
   Star,
   Trophy,
+  Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -43,12 +45,16 @@ const navItems: NavItem[] = [
   { view: 'admin-insights', label: 'محرك الذكاء', icon: Brain },
   { view: 'admin-facebook', label: 'التتبع والتحليلات', icon: Facebook },
   { view: 'admin-settings', label: 'الإعدادات', icon: Settings },
+  { view: 'admin-staff', label: 'المستخدمون والصلاحيات', icon: Users },
 ];
 
 export function AdminSidebar() {
   const view = useAppStore((s) => s.view);
   const setView = useAppStore((s) => s.setView);
   const logoutAdmin = useAppStore((s) => s.logoutAdmin);
+  const adminUser = useAppStore((s) => s.adminUser);
+
+  const items = navItems.filter((i) => canAccessView(adminUser?.role, i.view));
 
   return (
     <aside className="hidden md:flex w-60 flex-shrink-0 border-l bg-card flex-col">
@@ -60,9 +66,18 @@ export function AdminSidebar() {
           <Store className="h-6 w-6" />
           لوحة التحكم
         </button>
+        {adminUser && (
+          <div className="mt-2 text-xs text-muted-foreground">
+            {adminUser.name || adminUser.email}
+            <span className="mx-1">·</span>
+            <span className="font-medium text-primary">
+              {ROLE_LABELS_AR[normalizeRole(adminUser.role)]}
+            </span>
+          </div>
+        )}
       </div>
       <nav className="flex-1 p-2 space-y-1">
-        {navItems.map((item) => {
+        {items.map((item) => {
           const Icon = item.icon;
           const active = view === item.view;
           return (
@@ -108,10 +123,13 @@ export function AdminSidebar() {
 export function AdminMobileNav() {
   const view = useAppStore((s) => s.view);
   const setView = useAppStore((s) => s.setView);
+  const adminUser = useAppStore((s) => s.adminUser);
+
+  const items = navItems.filter((i) => canAccessView(adminUser?.role, i.view));
 
   return (
     <nav className="md:hidden flex overflow-x-auto border-b bg-card">
-      {navItems.map((item) => {
+      {items.map((item) => {
         const Icon = item.icon;
         const active = view === item.view;
         return (

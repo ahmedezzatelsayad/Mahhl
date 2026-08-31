@@ -38,6 +38,7 @@ export type View =
   | 'admin-slider'
   | 'admin-reviews'
   | 'admin-settings'
+  | 'admin-staff'
   | 'admin-add-product'
   | 'admin-edit-product';
 
@@ -65,6 +66,8 @@ interface AppState {
   searchQuery: string;
   isAdmin: boolean;
   adminToken: string | null;
+  /** logged-in staff identity (role drives all permission gating) */
+  adminUser: { id: string; email: string; name: string | null; role: string } | null;
   /** persistent customer session (حسابي) */
   customer: CustomerSession | null;
   customerToken: string | null;
@@ -88,8 +91,10 @@ interface AppState {
   setSearch: (q: string) => void;
   setPriceFilter: (min: number | null, max: number | null) => void;
   toggleBestSellerFilter: () => void;
-  loginAdmin: (token: string) => void;
+  loginAdmin: (token: string, user: { id: string; email: string; name: string | null; role: string }) => void;
   logoutAdmin: () => void;
+  /** re-sync admin identity from server (role changes / deactivation / expiry) */
+  refreshAdmin: () => Promise<void>;
   loginCustomer: (customer: CustomerSession, token: string) => void;
   logoutCustomer: () => void;
   resetFilters: () => void;
@@ -111,7 +116,7 @@ function pushUrl(url: string) {
 
 export const useAppStore = create<AppState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       view: 'home',
       infoPage: 'about',
       selectedProductSlug: null,
@@ -120,6 +125,7 @@ export const useAppStore = create<AppState>()(
       searchQuery: '',
       isAdmin: false,
       adminToken: null,
+      adminUser: null,
       customer: null,
       customerToken: null,
       priceMin: null,
@@ -179,10 +185,29 @@ export const useAppStore = create<AppState>()(
       setPriceFilter: (min, max) => set({ priceMin: min, priceMax: max }),
       toggleBestSellerFilter: () =>
         set((s) => ({ filterBestSeller: !s.filterBestSeller })),
-      loginAdmin: (token) => set({ isAdmin: true, adminToken: token }),
+      loginAdmin: (token, user) =>
+        set({ isAdmin: true, adminToken: token, adminUser: user }),
       logoutAdmin: () => {
-        set({ isAdmin: false, adminToken: null, view: 'home' });
+        set({ isAdmin: false, adminToken: null, adminUser: null, view: 'home' });
         pushUrl('/');
+      },
+      refreshAdmin: async () => {
+        const { adminToken } = get();
+        if (!adminToken) return;
+        try {
+          const res = await fetch('/api/admin/login', {
+            headers: { Authorization: `Bearer ${adminToken}` },
+          });
+          if (!res.ok) {
+            // token expired / revoked / account deactivated
+            set({ isAdmin: false, adminToken: null, adminUser: null });
+            return;
+          }
+          const data = await res.json();
+          if (data?.user) set({ isAdmin: true, adminUser: data.user });
+        } catch {
+          /* offline — keep current state */
+        }
       },
       loginCustomer: (customer, token) =>
         set({ customer, customerToken: token }),
@@ -212,6 +237,7 @@ export const useAppStore = create<AppState>()(
       partialize: (s) => ({
         isAdmin: s.isAdmin,
         adminToken: s.adminToken,
+        adminUser: s.adminUser,
         customer: s.customer,
         customerToken: s.customerToken,
       }),

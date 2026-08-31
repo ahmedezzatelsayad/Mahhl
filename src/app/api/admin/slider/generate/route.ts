@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { deepSeekChat, extractJson } from '@/lib/deepseek';
 import ZAI from 'z-ai-web-dev-sdk';
@@ -34,7 +34,7 @@ interface SlideCopy {
 }
 
 export async function POST(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'slider', 'manage', async () => {
     const body = await req.json().catch(() => ({}));
     const { productId, topic } = body;
 

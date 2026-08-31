@@ -241,48 +241,84 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
   // ---- 7. UTM attribution (ads readiness) ----------------------
   const utm = input.utm || {};
 
-  // ---- 8. Create the order (atomic with items) -----------------
+  // ---- 8. Atomic stock guard + order create (pool-safe) --------
+  // Race-safe under concurrency (e.g. many buyers hitting the last unit in
+  // the same second) WITHOUT an interactive transaction: interactive BEGIN
+  // is unreliable on Neon's PgBouncer (-pooler) endpoint under bursts
+  // ("Unable to start a transaction in the given time"), so instead:
+  //   1. atomic conditional decrement (single UPDATE ... WHERE qty >= n)
+  //      -> only ONE concurrent buyer of the last unit can win (no oversell)
+  //   2. order insert
+  //   3. if the insert fails, compensate by giving the stock back
   const orderNumber = `ORD-${Date.now().toString(36).toUpperCase()}`;
-  const order = await db.order.create({
-    data: {
-      orderNumber,
-      customerId: customer.id,
-      subtotal,
-      shipping,
-      total,
-      status: 'pending',
-      paymentMethod,
-      notes: notes || (input.source === 'ai-agent' ? 'طلب عبر مساعد الذكاء الاصطناعي' : null),
-      governorate,
-      area,
-      address,
-      phone,
-      customerName,
-      arrivalNote: AUTO_SHIP_ARRIVAL_NOTE,
-      utmSource: cleanText(utm.utmSource, 120) || null,
-      utmMedium: cleanText(utm.utmMedium, 120) || null,
-      utmCampaign: cleanText(utm.utmCampaign, 150) || null,
-      utmTerm: cleanText(utm.utmTerm, 120) || null,
-      utmContent: cleanText(utm.utmContent, 120) || null,
-      landingPath: cleanText(utm.landingPath, 300) || null,
-      items: { create: orderItemsData },
-    },
-    include: { items: true, customer: true },
-  });
-
-  // ---- 9. Stock decrement (tracked products only) --------------
-  for (const i of orderItemsData) {
-    try {
+  class StockOutError extends Error {}
+  let decremented: { id: string; qty: number }[] = [];
+  let order: any;
+  try {
+    for (const i of orderItemsData) {
       const p = byId.get(i.productId)!;
-      if (p.trackStock) {
-        await db.product.update({
-          where: { id: i.productId },
-          data: { quantity: Math.max(0, p.quantity - i.quantity) },
-        });
+      if (!p.trackStock) continue;
+      const res = await db.product.updateMany({
+        where: { id: i.productId, quantity: { gte: i.quantity } },
+        data: { quantity: { decrement: i.quantity } },
+      });
+      if (res.count > 0) {
+        decremented.push({ id: i.productId, qty: i.quantity });
+      } else if (p.disableOOS) {
+        // Sold out between validation and now — roll back what we took,
+        // then reject the whole order.
+        for (const d of decremented) {
+          await db.product.updateMany({
+            where: { id: d.id },
+            data: { quantity: { increment: d.qty } },
+          });
+        }
+        throw new StockOutError(`نفذت الكمية المتاحة من «${p.name}» — حدّث سلتك`);
       }
-    } catch {
-      /* non-fatal */
     }
+
+    order = await db.order.create({
+      data: {
+        orderNumber,
+        customerId: customer.id,
+        subtotal,
+        shipping,
+        total,
+        status: 'pending',
+        paymentMethod,
+        notes: notes || (input.source === 'ai-agent' ? 'طلب عبر مساعد الذكاء الاصطناعي' : null),
+        governorate,
+        area,
+        address,
+        phone,
+        customerName,
+        arrivalNote: AUTO_SHIP_ARRIVAL_NOTE,
+        utmSource: cleanText(utm.utmSource, 120) || null,
+        utmMedium: cleanText(utm.utmMedium, 120) || null,
+        utmCampaign: cleanText(utm.utmCampaign, 150) || null,
+        utmTerm: cleanText(utm.utmTerm, 120) || null,
+        utmContent: cleanText(utm.utmContent, 120) || null,
+        landingPath: cleanText(utm.landingPath, 300) || null,
+        items: { create: orderItemsData },
+      },
+      include: { items: true, customer: true },
+    });
+  } catch (e) {
+    // Compensating rollback: the insert failed, give reserved stock back.
+    for (const d of decremented) {
+      try {
+        await db.product.updateMany({
+          where: { id: d.id },
+          data: { quantity: { increment: d.qty } },
+        });
+      } catch {
+        /* non-fatal */
+      }
+    }
+    if (e instanceof StockOutError) {
+      return { ok: false, error: e.message };
+    }
+    throw e;
   }
 
   return {

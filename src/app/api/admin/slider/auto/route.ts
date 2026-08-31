@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { deepSeekChat, extractJson } from '@/lib/deepseek';
 import ZAI from 'z-ai-web-dev-sdk';
@@ -48,7 +48,7 @@ function firstImage(p: { thumb: string | null; images: string | null }): string 
 }
 
 export async function POST(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'slider', 'manage', async () => {
     const body = await req.json().catch(() => ({}));
     const count = Math.min(MAX_SET, Math.max(3, Number(body.count) || 4));
     const strategy: 'bestsellers' | 'discounted' | 'newest' | 'mixed' =

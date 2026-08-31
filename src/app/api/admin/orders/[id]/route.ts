@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 
 const ALLOWED = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 
@@ -8,7 +8,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'orders', 'manage', async () => {
     const { id } = await params;
     const body = await req.json();
     if (!ALLOWED.includes(body.status)) {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 import {
   getSiteIdentity,
   saveSiteIdentity,
@@ -8,14 +8,14 @@ import {
 } from '@/lib/site-identity';
 
 export async function GET(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'settings', 'view', async () => {
     const identity = await getSiteIdentity();
     return NextResponse.json(identity);
   });
 }
 
 export async function PUT(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'settings', 'manage', async () => {
     const body = (await req.json()) as Partial<SiteIdentity>;
     // sanity limits for base64 images (logo 1.5MB, favicon 512KB)
     if (body.logo && body.logo.length > 2_000_000)

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 import { getFacebookSettings, saveFacebookSettings } from '@/lib/settings';
 
 /**
  * GET /api/admin/facebook — full settings (admin-guarded, includes token)
  */
 export async function GET(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'facebook', 'view', async () => {
     const s = await getFacebookSettings();
     return NextResponse.json(s);
   });
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
  * Body: { enabled?, pixelId?, accessToken?, testEventCode? }
  */
 export async function PUT(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'facebook', 'manage', async () => {
     const body = await req.json().catch(() => ({}));
     const next = await saveFacebookSettings({
       enabled: typeof body.enabled === 'boolean' ? body.enabled : undefined,

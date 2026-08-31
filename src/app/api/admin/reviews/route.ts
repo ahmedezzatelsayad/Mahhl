@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 import { db } from '@/lib/db';
 
 /**
@@ -10,7 +10,7 @@ import { db } from '@/lib/db';
  */
 
 export async function GET(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'reviews', 'view', async () => {
     const status = req.nextUrl.searchParams.get('status') || 'pending';
     const search = req.nextUrl.searchParams.get('search')?.trim() || '';
 
@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'reviews', 'manage', async () => {
     const body = await req.json().catch(() => ({}));
     const id = String(body.id || '');
     const action = String(body.action || '');
@@ -82,7 +82,7 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'reviews', 'manage', async () => {
     const id = req.nextUrl.searchParams.get('id') || '';
     if (!id) return NextResponse.json({ error: 'id مطلوب' }, { status: 400 });
     await db.review.delete({ where: { id } });

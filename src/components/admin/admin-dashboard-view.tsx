@@ -32,16 +32,19 @@ interface Stats {
 
 export function AdminDashboardView() {
   const setView = useAppStore((s) => s.setView);
+  const adminToken = useAppStore((s) => s.adminToken);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/admin/stats')
+    fetch('/api/admin/stats', {
+      headers: { Authorization: `Bearer ${adminToken}` },
+    })
       .then((r) => r.json())
       .then((data) => setStats(data))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [adminToken]);
 
   if (loading) {
     return (

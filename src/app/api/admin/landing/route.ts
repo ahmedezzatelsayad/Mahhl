@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 import { db } from '@/lib/db';
 
 /**
  * GET /api/admin/landing — list all landing pages (admin)
  */
 export async function GET(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'landing', 'view', async () => {
     const pages = await db.landingPage.findMany({
       orderBy: { createdAt: 'desc' },
       select: {
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
  * Body: { id? (update), slug?, title, subtitle, content, productIds?, isFeatured? }
  */
 export async function POST(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'landing', 'manage', async () => {
     const body = await req.json();
     const { id, slug, title, subtitle, content, productIds, heroImage, isFeatured } = body;
     if (!title || !subtitle || !content) {
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
  * Body: { id, action: 'toggle-active' | 'toggle-featured' | 'delete' }
  */
 export async function PUT(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'landing', 'manage', async () => {
     const body = await req.json();
     const { id, action } = body;
     if (!id || !action) return NextResponse.json({ error: 'id + action required' }, { status: 400 });

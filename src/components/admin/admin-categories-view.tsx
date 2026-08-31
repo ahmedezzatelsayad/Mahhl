@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, Tag, Folder } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAdminAuth } from '@/components/admin/admin-products-view';
 
 interface Category {
   id: string;
@@ -21,13 +22,14 @@ interface Category {
 }
 
 export function AdminCategoriesView() {
+  const auth = useAdminAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState('');
   const [parentId, setParentId] = useState('');
 
   useEffect(() => {
-    fetch('/api/admin/categories')
+    fetch('/api/admin/categories', { headers: auth })
       .then((r) => r.json())
       .then((data) => setCategories(Array.isArray(data) ? data : []))
       .finally(() => setLoading(false));
@@ -39,7 +41,7 @@ export function AdminCategoriesView() {
     try {
       const res = await fetch('/api/admin/categories', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...auth, 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newName, parentId: parentId || null }),
       });
       const data = await res.json();

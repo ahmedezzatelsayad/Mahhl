@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 import { verifyCustomer } from '@/lib/customer-auth';
 import { createOrder, cleanText } from '@/lib/create-order';
 
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
 
 /** Admin-only list (customers use /api/customer/orders or /api/orders/track) */
 export async function GET(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'orders', 'view', async () => {
     const orders = await db.order.findMany({
       include: { items: true, customer: true },
       orderBy: { createdAt: 'desc' },

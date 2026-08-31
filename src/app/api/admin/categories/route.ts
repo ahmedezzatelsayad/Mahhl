@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { requirePermission } from '@/lib/auth';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  return requirePermission(req, 'categories', 'view', async () => {
   const categories = await db.category.findMany({
     include: {
       _count: { select: { products: true } },
@@ -10,9 +12,11 @@ export async function GET() {
     orderBy: { name: 'asc' },
   });
   return NextResponse.json(categories);
+  });
 }
 
 export async function POST(req: NextRequest) {
+  return requirePermission(req, 'categories', 'manage', async () => {
   const body = await req.json();
   const { name, parentId } = body;
   if (!name) {
@@ -35,4 +39,5 @@ export async function POST(req: NextRequest) {
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 400 });
   }
+  });
 }

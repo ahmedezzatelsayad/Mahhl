@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 
 /** GET — load one product for the edit form */
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'products', 'view', async () => {
     const { id } = await params;
     const product = await db.product.findUnique({
       where: { id },
@@ -24,7 +24,7 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'products', 'manage', async () => {
     const { id } = await params;
     const body = await req.json();
     try {
@@ -65,7 +65,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'products', 'manage', async () => {
     const { id } = await params;
     try {
       await db.product.delete({ where: { id } });

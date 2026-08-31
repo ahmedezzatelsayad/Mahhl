@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 import { deepSeekChat, extractJson, getDeepSeekSettings } from '@/lib/deepseek';
 
 export const maxDuration = 120;
@@ -35,7 +35,7 @@ interface TopProduct {
 }
 
 export async function GET(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'top100', 'view', async () => {
     const rows = await db.product.findMany({
       where: { demandRank: { not: null } },
       orderBy: { demandRank: 'asc' },
@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'top100', 'manage', async () => {
     const body = await req.json().catch(() => ({}));
     const productId = String(body.productId || '');
     /** allow the founder to pick which DeepSeek model thinks — default THINKING */

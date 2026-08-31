@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 import {
   getSliderSettings,
   saveSliderSettings,
@@ -10,7 +10,7 @@ import {
 
 /** GET — full managed set (active + inactive) for the dashboard */
 export async function GET(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'slider', 'view', async () => {
     const settings = await getSliderSettings();
     return NextResponse.json(settings);
   });
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
 
 /** PUT — save the whole set (slides + autoplay + landing-promo toggle) */
 export async function PUT(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'slider', 'manage', async () => {
     const body = await req.json().catch(() => ({}));
     try {
       const saved = await saveSliderSettings(body);
@@ -35,7 +35,7 @@ export async function PUT(req: NextRequest) {
 
 /** DELETE — reset to the curated defaults (real photos included) */
 export async function DELETE(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'slider', 'manage', async () => {
     const defaults = await resetSliderSettings();
     clearSliderCache();
     return NextResponse.json({ ...defaults, reset: true, max: MAX_SLIDES });

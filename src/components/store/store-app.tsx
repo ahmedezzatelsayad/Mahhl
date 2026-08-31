@@ -40,6 +40,8 @@ import { AdminSliderView } from '@/components/admin/admin-slider-view';
 import { AdminReviewsView } from '@/components/admin/admin-reviews-view';
 import { AdminSeoView } from '@/components/admin/admin-seo-view';
 import { AdminSettingsView } from '@/components/admin/admin-settings-view';
+import { AdminStaffView } from '@/components/admin/admin-staff-view';
+import { canAccessView, firstPermittedAdminView } from '@/lib/permissions';
 import { FacebookPixel } from '@/components/store/facebook-pixel';
 import { LandingView } from '@/components/store/landing-view';
 import { ViewErrorBoundary } from '@/components/store/view-error-boundary';
@@ -62,6 +64,8 @@ const INFO_PAGES: InfoPage[] = ['about', 'contact', 'faq', 'shipping', 'returns'
 export function StoreApp({ initial }: { initial: InitialUrlState }) {
   const view = useAppStore((s) => s.view);
   const isAdmin = useAppStore((s) => s.isAdmin);
+  const adminUser = useAppStore((s) => s.adminUser);
+  const refreshAdmin = useAppStore((s) => s.refreshAdmin);
   const setView = useAppStore((s) => s.setView);
   const applyUrlState = useAppStore((s) => s.applyUrlState);
 
@@ -186,12 +190,35 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
     }
   }, [view, isAdmin, setView]);
 
-  // A logged-in admin landing on the login view goes straight to the dashboard
+  // Re-sync admin identity with the server on load: picks up role changes,
+  // deactivation, and expired (7-day) tokens — then the guards above/below
+  // redirect accordingly.
+  useEffect(() => {
+    refreshAdmin();
+  }, [refreshAdmin]);
+
+  // Role guard: a logged-in staff member who lacks permission for the current
+  // view (deep link, stale tab after role change) is sent to their first
+  // permitted section instead.
+  useEffect(() => {
+    if (
+      view.startsWith('admin-') &&
+      view !== 'admin-login' &&
+      isAdmin &&
+      adminUser &&
+      !canAccessView(adminUser.role, view)
+    ) {
+      setView(firstPermittedAdminView(adminUser.role) as View);
+    }
+  }, [view, isAdmin, adminUser, setView]);
+
+  // A logged-in admin landing on the login view goes straight to their
+  // permitted home view (dashboard for most roles)
   useEffect(() => {
     if (view === 'admin-login' && isAdmin) {
-      setView('admin-dashboard');
+      setView((adminUser ? firstPermittedAdminView(adminUser.role) : 'admin-dashboard') as View);
     }
-  }, [view, isAdmin, setView]);
+  }, [view, isAdmin, adminUser, setView]);
 
   // Scroll to top on view change
   useEffect(() => {
@@ -239,6 +266,7 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
   else if (view === 'admin-reviews' && isAdmin) content = <AdminReviewsView />;
   else if (view === 'admin-seo' && isAdmin) content = <AdminSeoView />;
   else if (view === 'admin-settings' && isAdmin) content = <AdminSettingsView />;
+  else if (view === 'admin-staff' && isAdmin) content = <AdminStaffView />;
   else content = <HomeView />;
 
   if (isAdminView) {

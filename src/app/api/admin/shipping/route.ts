@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 import { getShippingSettings, saveShippingSettings } from '@/lib/settings';
 
 export async function GET(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'settings', 'view', async () => {
     return NextResponse.json(await getShippingSettings());
   });
 }
 
 export async function PUT(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'settings', 'manage', async () => {
     const body = await req.json().catch(() => ({}));
     const next = await saveShippingSettings({
       price: typeof body.price === 'number' ? body.price : undefined,

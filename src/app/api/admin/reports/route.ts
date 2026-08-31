@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 import { db } from '@/lib/db';
 
 /**
@@ -13,7 +13,7 @@ import { db } from '@/lib/db';
  *  - upsellFunnel: shown/clicked/added
  */
 export async function GET(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'reports', 'view', async () => {
     const days = Math.min(90, Math.max(1, parseInt(req.nextUrl.searchParams.get('days') || '14')));
     const since = new Date();
     since.setHours(0, 0, 0, 0);

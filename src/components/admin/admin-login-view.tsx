@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Lock, Mail, Store, User } from 'lucide-react';
 import { toast } from 'sonner';
+import { firstPermittedAdminView, ROLE_LABELS_AR, normalizeRole } from '@/lib/permissions';
 
 /** Admin (founder) login — email is NEVER prefilled for visitors */
 export function AdminLoginView() {
@@ -27,9 +28,13 @@ export function AdminLoginView() {
       });
       const data = await res.json();
       if (res.ok) {
-        loginAdmin(data.token);
-        setView('admin-dashboard');
-        toast.success(`مرحباً بك في لوحة الإدارة 👑`);
+        loginAdmin(data.token, data.user);
+        setView(firstPermittedAdminView(data.user?.role) as never);
+        toast.success(
+          data.user?.role
+            ? `مرحباً ${data.user.name || data.user.email} — ${ROLE_LABELS_AR[normalizeRole(data.user.role)]}`
+            : 'مرحباً بك في لوحة الإدارة'
+        );
       } else {
         toast.error(data.error || 'فشل الدخول');
       }

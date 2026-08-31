@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminOnly } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 import { getGa4Settings, saveGa4Settings } from '@/lib/settings';
 
 /** GET /api/admin/ga4 — full settings (admin-guarded) */
 export async function GET(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'facebook', 'view', async () => {
     const s = await getGa4Settings();
     return NextResponse.json(s);
   });
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
 /** PUT /api/admin/ga4 — save { enabled?, measurementId? } */
 export async function PUT(req: NextRequest) {
-  return adminOnly(req, async () => {
+  return requirePermission(req, 'facebook', 'manage', async () => {
     const body = await req.json().catch(() => ({}));
     try {
       const next = await saveGa4Settings({
