@@ -308,3 +308,24 @@ Stage Summary:
 - ALL pending work now on GitHub main: admin-refresh fix, price-cut script + full backup + rollback tooling, worklogs 10-12b.
 - Production verified stable end-to-end after push.
 - Remaining founder actions: connect Mahhal.shop DNS (A @ 76.76.21.21 + CNAME www cname.vercel-dns.com), rotate PAT again after domain work done.
+
+---
+Task ID: 14
+Agent: Super Z (main)
+Task: Founder directives: (1) build a complete staff permission system for store management, (2) answer what happens if 100 people order in the same minute
+
+Work Log:
+- PERMISSIONS SYSTEM (server-enforced, not cosmetic): 5 roles (owner/admin/manager/support/viewer) x 15 modules x view/manage levels via new src/lib/permissions.ts (pure shared module). Every admin API route now calls requirePermission(req, module, level) — 19 routes migrated by scripts/migrate-admin-routes.py, plus 3 previously UNPROTECTED routes closed (admin/categories, admin/stats, ai/insights). Arabic 403 message on denial.
+- AdminUser schema extended (isActive/lastLoginAt/updatedAt) via scripts/migrate-admin-user-columns.mjs (raw-SQL column pre-add because prisma db push refused non-default required column on existing row) + db push sync. Legacy role values normalized (staff->viewer).
+- Token hardening: 7-day TTL (tokens previously NEVER expired), isActive check on every request (deactivation kicks the user out instantly), password change invalidates all sessions (sig bound to passwordHash).
+- New owner-only /api/admin/staff + /[id]: list/create/role-change/deactivate/reset-password/delete with self-lockout and last-active-owner guards (cannot demote/deactivate/delete the final owner or yourself).
+- Client: adminUser persisted in store, sidebar filtered by role, deep-link guards redirect forbidden views (?view=admin-settings as manager -> dashboard), refreshAdmin() re-syncs identity+role+expiry on load, new AdminStaffView UI with add-user form, role selects, activate/deactivate, password reset dialog, and full permission-matrix table.
+- E2E VERIFIED in browser (dev + production): owner login -> staff view CRUD API; manager login -> 10/15 sidebar sections (SEO/landing/facebook/settings/staff correctly hidden); ?view=admin-staff + ?view=admin-settings as manager -> auto-redirect; storefront + product deep-links regression-clean; owner staff view works on live mahhl-qzjn.vercel.app.
+- CONCURRENCY (question 2, empirical): burst test of parallel order POSTs exposed TWO real problems. (a) Interactive $transaction on Neon's PgBouncer pooled endpoint fails under bursts ("Unable to start a transaction in the given time" — 4/5 orders failed). Fixed by removing the transaction: atomic conditional decrement (UPDATE ... WHERE quantity >= n) + compensating rollback if the insert fails. Re-test: 6/6 concurrent orders succeed + 7th correctly blocked by the 6-orders/15-min rate limiter. (b) Original stock code had a stale-read race (read-then-clamp Math.max(0, q-qty)) enabling overselling of the last unit — now impossible by construction. Note: trackStock is currently OFF for all 2,638 products, so the race was dormant; fix is preventive.
+- DEPLOY ISSUE FOUND+FIXED: first deploy served a stale Prisma client (build script had no prisma generate) -> staff API 500 on unknown columns. Build script now: prisma generate && next build && ... Redeploy verified: staff API 200 on live.
+- Cleanups: 11 test orders + 12 test customers + sara-test staff account deleted from production; all scripts persisted in scripts/.
+
+Stage Summary:
+- LIVE & VERIFIED: full role-based permission system on mahhl-qzjn.vercel.app (commits 6f8034f + a9a9a7f). Owner can invite staff from لوحة التحكم -> المستخدمون والصلاحيات.
+- Concurrency answer (short): 100 orders/min (~1.7/s) is comfortably safe on Vercel+Neon pooled; real risks were the PgBouncer transaction failure and stock race — both now fixed; remaining watch items: Neon autosuspend cold-starts, bcrypt CPU on new-customer creation, in-memory rate limiter is per-instance.
+- Founder follow-ups: rotate PAT (exposed in chat), connect Mahhal.shop DNS, give staff minimum-needed roles.
