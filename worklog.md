@@ -329,3 +329,23 @@ Stage Summary:
 - LIVE & VERIFIED: full role-based permission system on mahhl-qzjn.vercel.app (commits 6f8034f + a9a9a7f). Owner can invite staff from لوحة التحكم -> المستخدمون والصلاحيات.
 - Concurrency answer (short): 100 orders/min (~1.7/s) is comfortably safe on Vercel+Neon pooled; real risks were the PgBouncer transaction failure and stock race — both now fixed; remaining watch items: Neon autosuspend cold-starts, bcrypt CPU on new-customer creation, in-memory rate limiter is per-instance.
 - Founder follow-ups: rotate PAT (exposed in chat), connect Mahhal.shop DNS, give staff minimum-needed roles.
+
+---
+Task ID: 15
+Agent: Super Z (main)
+Task: "تصفح الموقع فعليا وشوف ايه محتاج يتصلح ويتظبط عشان يكون الموقع كويتي يحبونه الكويتين" — full browsing audit as a Kuwaiti visitor + Kuwaiti-ness fixes
+
+Work Log:
+- Restored env (4th sandbox reset) from scripts/test-neon.ts; daemonized dev server on :3000 against production Neon.
+- Browsed as a real visitor (agent-browser + DOM text extraction + VLM screenshot review, hallucinations filtered against real DOM): home, product, cart drawer, checkout, shop, info pages, footer, hero slider, AI chat fallback. VERIFIED GOOD: Kuwaiti dialect across UI (تدور على شنو؟/هلا والله/اطلبها الحين/يوصلك لين باب البيت), all 6 governorates in checkout, COD K-Cash, WhatsApp +965, free-shipping 30 KWD progress, about page copy, live viewers, review counts.
+- FOUND + FIXED (3 real Kuwaiti-ness gaps):
+  1) PRICES: 2 decimals → 3 decimals (fils — the Kuwaiti price signature used by Talabat/Carrefour/Xcite/Ubuy). formatKwd/formatKwdPlain (utils/format.ts) + a SECOND formatKwd discovered in lib/seo.ts (was rendering "8 د.ك"/"9.5" in meta/sr-only/FAQ) + order-tracking, info-view, search-box, free-shipping-bar, admin-top100 + slider AI prompts (auto+generate) now feed fils-formatted prices. Verified: 104 fils prices on homepage, checkout "8.990 د.ك", product "2.990/7.000 د.ك", meta description fils, JSON-LD stays raw number (correct for schema.org).
+  2) CONTENT GARBAGE: 562 products with literal ** markdown, 494 with "وصف المنتج :" prefix, 615 with crammed "1. X 2. Y" lists, mojibake (¡ô), AliExpress boilerplate lines. Deterministic cleanup (scripts/clean-descriptions.mjs, digit-boundary-safe regexes protect "304."/"10.5" measurements, bullets deduped) → 1,805 products updated. Backup: download/description-backup-2026-08-31.json with --restore flag. whitespace-pre-wrap renders the new "• " bullets beautifully.
+  3) KUWAITI TONE: AI rewrite of the 125 highest-traffic products (top-100 demandRank + bestsellers = ~80% of traffic): warm intro + 3-5 honest bullets, medical claims softened to "يساعد/يدعم", facts verified against source (8500W/2.5L preserved). scripts/rewrite-kuwaiti.cjs (ZAI, concurrency 2, batch 10, resumable progress file). Backup: download/rewrite-kuwaiti-backup.json. 30 verbose AliExpress names shortened (scripts/shorten-names.cjs, 2 AI typos fixed manually: نزینه/والع → corrected). slug/sku untouched so links/search keep working.
+- E2E verified in browser: fils sitewide, bullets render with newlines, shortened names on cards/widgets, zero console errors, lint 0 errors, tsc src clean, next build ✓.
+- Pushed 378ac52 + b107f1f to GitHub main — Vercel auto-deploys to mahhl-qzjn.vercel.app (DB changes live instantly since Vercel reads Neon per request).
+
+Stage Summary:
+- The store now speaks Kuwaiti in the 3 layers that matter: price format (fils, 3 decimals everywhere incl. SEO strings), readable catalog (1,805 cleaned + 125 top products rewritten in Kuwaiti salesperson tone), clean short names.
+- Rollback tooling: 3 backups in download/ (descriptions, rewrites, names) each with --restore.
+- Founder notes: (1) hero slider copy still says "بـ 8 د.ك" — regenerate from لوحة التحكم → السلايدر (generator now writes fils prices); (2) Vercel Deployment Protection must stay Public; (3) remaining ~2,500 descriptions are clean but still machine-translation tone — rerun scripts/rewrite-kuwaiti.cjs with a wider target list later if wanted.
