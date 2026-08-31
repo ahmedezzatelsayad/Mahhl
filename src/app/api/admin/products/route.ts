@@ -97,6 +97,8 @@ export async function POST(req: NextRequest) {
           sku,
           description: body.description || '',
           metaDescription: body.metaDescription || null,
+          metaTitle: body.metaTitle || null,
+          keywords: body.keywords || null,
           price,
           salePrice,
           quantity: parseInt(body.quantity ?? '20') || 20,

@@ -37,6 +37,8 @@ export async function GET(req: NextRequest) {
             { nameEn: { contains: q, mode: 'insensitive' } },
             { description: { contains: q, mode: 'insensitive' } },
             { descriptionEn: { contains: q, mode: 'insensitive' } },
+            // curated SEO keywords (e.g. "سعر مكواة الكويت") match too
+            { keywords: { contains: q, mode: 'insensitive' } },
           ],
         },
         orderBy: [{ isBestSeller: 'desc' }, { soldCount: 'desc' }],

@@ -32,6 +32,11 @@ model Product {
   sku             String        @unique
   description     String        @default("")
   metaDescription String?
+  // per-product SEO pack (AI/backfilled, admin-editable)
+  metaTitle       String?
+  keywords        String?
+  // previous slug kept when slug is upgraded → 301 redirect old links
+  legacySlug      String?
   price           Float
   salePrice       Float
   quantity        Int           @default(20)

@@ -329,6 +329,9 @@ function ProductForm({ mode }: { mode: 'add' | 'edit' }) {
     quantity: '20',
     categoryId: '',
     description: '',
+    metaTitle: '',
+    metaDescription: '',
+    keywords: '',
     isBestSeller: false,
     trackStock: false,
   });
@@ -357,6 +360,9 @@ function ProductForm({ mode }: { mode: 'add' | 'edit' }) {
             quantity: String(p.quantity ?? 20),
             categoryId: p.categoryId || '',
             description: p.description || '',
+            metaTitle: p.metaTitle || '',
+            metaDescription: p.metaDescription || '',
+            keywords: p.keywords || '',
             isBestSeller: !!p.isBestSeller,
             trackStock: !!p.trackStock,
           });
@@ -425,6 +431,9 @@ function ProductForm({ mode }: { mode: 'add' | 'edit' }) {
         quantity: parseInt(form.quantity) || 0,
         categoryId: form.categoryId || null,
         description: form.description,
+        metaTitle: form.metaTitle.trim() || null,
+        metaDescription: form.metaDescription.trim() || null,
+        keywords: form.keywords.trim() || null,
         isBestSeller: form.isBestSeller,
         trackStock: form.trackStock,
         thumb: images[0] || null,
@@ -528,6 +537,50 @@ function ProductForm({ mode }: { mode: 'add' | 'edit' }) {
               rows={4}
               className="bg-white"
             />
+          </div>
+          <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+            <h3 className="font-bold text-sm flex items-center gap-2">
+              SEO للمنتج
+              <span className="text-xs font-normal text-muted-foreground">(يظهر في جوجل ونتائج البحث)</span>
+            </h3>
+            <div>
+              <Label className="mb-1 block text-xs">
+                عنوان SEO{' '}
+                <span className={form.metaTitle.length > 60 ? 'text-destructive font-bold' : 'text-muted-foreground'}>
+                  ({form.metaTitle.length}/60 حرف)
+                </span>
+              </Label>
+              <Input
+                value={form.metaTitle}
+                onChange={(e) => setForm({ ...form, metaTitle: e.target.value })}
+                placeholder="مثال: مكواة بخار محمولة — أفضل سعر في الكويت"
+                className="bg-white"
+              />
+            </div>
+            <div>
+              <Label className="mb-1 block text-xs">
+                وصف SEO{' '}
+                <span className={form.metaDescription.length > 155 ? 'text-destructive font-bold' : 'text-muted-foreground'}>
+                  ({form.metaDescription.length}/155 حرف)
+                </span>
+              </Label>
+              <Textarea
+                value={form.metaDescription}
+                onChange={(e) => setForm({ ...form, metaDescription: e.target.value })}
+                placeholder="وصف قصير جذاب يظهر تحت العنوان في نتائج جوجل..."
+                rows={2}
+                className="bg-white"
+              />
+            </div>
+            <div>
+              <Label className="mb-1 block text-xs">الكلمات المفتاحية (افصل بفاصلة)</Label>
+              <Input
+                value={form.keywords}
+                onChange={(e) => setForm({ ...form, keywords: e.target.value })}
+                placeholder="مكواة بخار, مكواة محمولة, سعر مكواة الكويت"
+                className="bg-white"
+              />
+            </div>
           </div>
         </Card>
 

@@ -37,6 +37,8 @@ export async function PUT(
       if (body.name !== undefined) data.name = String(body.name).trim();
       if (body.description !== undefined) data.description = body.description;
       if (body.metaDescription !== undefined) data.metaDescription = body.metaDescription || null;
+      if (body.metaTitle !== undefined) data.metaTitle = body.metaTitle || null;
+      if (body.keywords !== undefined) data.keywords = body.keywords || null;
       if (body.categoryId !== undefined) data.categoryId = body.categoryId || null;
       if (body.isBestSeller !== undefined) data.isBestSeller = !!body.isBestSeller;
       if (body.thumb !== undefined) data.thumb = body.thumb || null;

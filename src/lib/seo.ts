@@ -113,6 +113,8 @@ export interface ProductLike {
   name: string;
   description?: string | null;
   metaDescription?: string | null;
+  metaTitle?: string | null;
+  keywords?: string | null;
   price: number;
   salePrice: number;
   thumb?: string | null;
@@ -126,23 +128,64 @@ export function formatKwd(n: number): string {
   return Number(n).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
 }
 
+/** Append store brand to a title (Next.js never applies the root-layout
+ *  template to the root page — same segment — so we do it here). */
+export function withBrand(title: string): string {
+  const t = title.trim();
+  if (!t || t.includes('محل شوب')) return t;
+  const branded = `${t} | محل شوب`;
+  return branded.length > 68 ? t : branded;
+}
+
 export function productTitle(p: ProductLike): string {
-  const cat = p.category?.name;
-  const base = `${p.name}${cat ? ` - ${cat}` : ''}`;
-  return base.length > 62 ? `${base.slice(0, 61)}…` : base;
+  // per-product curated SEO title wins (50-60 chars target)
+  const raw =
+    (p.metaTitle && p.metaTitle.trim()) ||
+    `${p.name}${p.category?.name ? ` - ${p.category.name}` : ''}`;
+  const base = raw.length > 62 ? `${raw.slice(0, 61)}…` : raw;
+  return withBrand(base);
+}
+
+/** Per-product keyword list: curated keywords first, then sensible fallbacks. */
+export function productKeywords(
+  p: ProductLike & { sku?: string }
+): string[] {
+  const fromField = (p.keywords || '')
+    .split(/[,،]/)
+    .map((k) => k.trim())
+    .filter((k) => k.length > 1)
+    .slice(0, 8);
+  if (fromField.length >= 3) return fromField;
+  const fallback = [p.name, p.category?.name || '', 'شراء أونلاين الكويت', 'محل شوب'];
+  if (p.sku) fallback.push(p.sku);
+  const seen = new Set<string>();
+  const merged: string[] = [];
+  for (const k of [...fromField, ...fallback]) {
+    const key = k.toLowerCase();
+    if (k && !seen.has(key)) {
+      seen.add(key);
+      merged.push(k);
+    }
+    if (merged.length >= 10) break;
+  }
+  return merged;
 }
 
 export function productDescription(p: ProductLike): string {
-  const raw =
-    (p.metaDescription && p.metaDescription.trim()) ||
-    (p.description && p.description.trim()) ||
-    '';
+  // curated per-product metaDescription (SEO pack pipeline / admin) wins as-is —
+  // it already carries its own COD+delivery close, don't double-append
+  const md = (p.metaDescription || '').trim();
+  if (md.length >= 80) {
+    return md.replace(/\s+/g, ' ').slice(0, 178);
+  }
+  const raw = (p.description && p.description.trim()) || '';
   const clean = raw.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
   const core =
     clean.length >= 50
       ? clean.slice(0, 155).trim() + (clean.length > 155 ? '…' : '')
       : `اشترِ ${p.name} من محل شوب بسعر ${formatKwd(p.salePrice)} د.ك`;
-  const suffix = ` توصيل سريع لجميع محافظات الكويت ودفع عند الاستلام.`;
+  const hasClose = /دفع عند الاستلام|توصيل سريع/.test(core);
+  const suffix = hasClose ? '' : ` توصيل سريع لجميع محافظات الكويت ودفع عند الاستلام.`;
   return (core + suffix).slice(0, 200);
 }
 
@@ -379,11 +422,27 @@ export const loadProduct = cache(async (slug: string) => {
       select: {
         id: true, slug: true, name: true, sku: true,
         description: true, metaDescription: true,
+        metaTitle: true, keywords: true, legacySlug: true,
         price: true, salePrice: true, quantity: true,
         thumb: true, images: true, isBestSeller: true,
         updatedAt: true,
         category: { select: { name: true, slug: true } },
       },
+    });
+  } catch {
+    return null;
+  }
+});
+
+/**
+ * Resolve an old (legacy) product slug — used for 301 redirects after
+ * slug upgrades so indexed/shared links keep working.
+ */
+export const findProductByLegacySlug = cache(async (slug: string) => {
+  try {
+    return await db.product.findFirst({
+      where: { legacySlug: slug },
+      select: { slug: true },
     });
   } catch {
     return null;

@@ -42,6 +42,7 @@ interface ProductDetail {
   name: string;
   description: string;
   metaDescription: string | null;
+  metaTitle?: string | null;
   price: number;
   salePrice: number;
   quantity: number;
@@ -86,8 +87,12 @@ export function ProductView() {
         if (data.product) {
           setProduct(data.product);
           setRelated(data.related || []);
-          // Keep the browser tab title in sync with the product (UX + sharing)
-          document.title = `${data.product.name} | ${lang === 'en' ? 'Mahal Shop' : 'محل شوب'}`;
+          // Keep the browser tab title in sync with the product (UX + sharing).
+          // Arabic: prefer the curated SEO title so the tab matches the SERP
+          // title; English falls back to the translated product name.
+          document.title = `${
+            lang === 'en' ? data.product.name : (data.product.metaTitle || data.product.name)
+          } | ${lang === 'en' ? 'Mahal Shop' : 'محل شوب'}`;
           // record in recently-viewed rail
           pushRecentlyViewed({
             slug: data.product.slug,

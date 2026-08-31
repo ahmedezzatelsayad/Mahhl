@@ -1,11 +1,15 @@
 import type { Metadata } from 'next';
+import { permanentRedirect } from 'next/navigation';
 import {
   getSeoSettings,
   getSiteUrl,
   productTitle,
   productDescription,
+  productKeywords,
   firstImage,
   resolveSeoPage,
+  findProductByLegacySlug,
+  withBrand,
 } from '@/lib/seo';
 import { StoreApp, InitialUrlState } from '@/components/store/store-app';
 import { SeoHtml } from '@/components/store/seo-html';
@@ -45,28 +49,23 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
       const p = page.product;
       const canonical = `${siteUrl}/?p=${encodeURIComponent(p.slug)}`;
       const image = firstImage(p);
+      const ogTitle = productTitle(p);
       return {
-        title: productTitle(p),
+        title: ogTitle,
         description: productDescription(p),
-        keywords: [
-          p.name,
-          p.category?.name || '',
-          'شراء أونلاين الكويت',
-          'محل شوب',
-          `${p.sku}`,
-        ].filter(Boolean),
+        keywords: productKeywords(p),
         alternates: { canonical },
         robots: INDEX_FOLLOW,
         openGraph: {
           ...ogBase,
-          title: `${p.name} | محل شوب`,
+          title: ogTitle,
           description: productDescription(p),
           url: canonical,
           images: image ? [{ url: image, width: 800, height: 800, alt: p.name }] : undefined,
         },
         twitter: {
           card: 'summary_large_image',
-          title: `${p.name} — ${p.salePrice} د.ك | محل شوب`,
+          title: ogTitle,
           description: productDescription(p),
           images: image ? [image] : undefined,
         },
@@ -76,7 +75,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
       const c = page.category;
       const canonical = `${siteUrl}/?cat=${encodeURIComponent(c.slug)}`;
       return {
-        title: `${c.name} — تسوق أونلاين بأفضل الأسعار في الكويت`,
+        title: withBrand(`${c.name} — تسوق أونلاين بأفضل الأسعار في الكويت`),
         description: `تصفح منتجات ${c.name} في محل شوب بأسعار بالدينار الكويتي. دفع عند الاستلام وتوصيل سريع لجميع محافظات الكويت.`,
         keywords: [c.name, `${c.name} الكويت`, 'تسوق أونلاين', 'محل شوب', 'أسعار الكويت'],
         alternates: { canonical },
@@ -167,6 +166,16 @@ export default async function Page({ searchParams }: PageProps) {
     const v = sp[k];
     return Array.isArray(v) ? v[0] : v;
   };
+
+  // Legacy product slug → 301 to the current SEO slug so old indexed /
+  // shared links (/?p=<old-sku-slug>) keep working and pass rank.
+  const pParam = one('p');
+  if (pParam && page.kind !== 'product') {
+    const legacy = await findProductByLegacySlug(pParam);
+    if (legacy?.slug) {
+      permanentRedirect(`/?p=${encodeURIComponent(legacy.slug)}`);
+    }
+  }
   // Whitelist of admin views allowed via ?view= (rendered only for
   // authenticated admins — the guard in StoreApp redirects others to login)
   const ADMIN_VIEWS = [
