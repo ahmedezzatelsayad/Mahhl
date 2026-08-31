@@ -297,7 +297,7 @@ export function AdminTop100View() {
                     <div className="flex flex-wrap gap-1.5 mt-1">
                       <span className="text-[10px] bg-muted rounded-full px-2 py-0.5">{p.categoryName}</span>
                       <span className="text-[10px] bg-primary/10 text-primary rounded-full px-2 py-0.5 font-bold">
-                        {(p.salePrice > 0 && p.salePrice < p.price ? p.salePrice : p.price).toFixed(2)} د.ك
+                        {(p.salePrice > 0 && p.salePrice < p.price ? p.salePrice : p.price).toFixed(3)} د.ك
                       </span>
                       <span className="text-[10px] bg-muted rounded-full px-2 py-0.5">مبيع: {p.soldCount}</span>
                       {p.quantity <= 0 ? (

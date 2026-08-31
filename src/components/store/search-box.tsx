@@ -63,7 +63,7 @@ function saveRecent(q: string) {
 }
 
 function fmtPrice(n: number, lang: 'ar' | 'en') {
-  return `${n.toFixed(n % 1 === 0 ? 0 : 3)} ${lang === 'en' ? 'KWD' : 'د.ك'}`;
+  return `${n.toFixed(3)} ${lang === 'en' ? 'KWD' : 'د.ك'}`;
 }
 
 // popular starting points when the box is focused but empty

@@ -118,7 +118,7 @@ export function OrderCard({ order }: { order: TrackOrder }) {
           </p>
         </div>
         <div className="text-left">
-          <p className="font-extrabold text-gold-deep">{order.total.toFixed(2)} {t('m.kwd')}</p>
+          <p className="font-extrabold text-gold-deep">{order.total.toFixed(3)} {t('m.kwd')}</p>
           <p className="text-[11px] text-muted-foreground">{t('tr.cod')}</p>
         </div>
       </div>
@@ -154,7 +154,7 @@ export function OrderCard({ order }: { order: TrackOrder }) {
                 <div className="flex-1 min-w-0">
                   <p className="text-[13px] font-medium line-clamp-1">{it.name}</p>
                   <p className="text-[11px] text-muted-foreground">
-                    {it.quantity} × {it.price.toFixed(2)} {t('m.kwd')}
+                    {it.quantity} × {it.price.toFixed(3)} {t('m.kwd')}
                   </p>
                 </div>
               </div>

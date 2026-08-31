@@ -43,7 +43,7 @@ async function loadShipping(): Promise<ShippingInfo> {
 }
 
 function fmt(n: number) {
-  return n.toFixed(n % 1 === 0 ? 0 : 3);
+  return n.toFixed(3);
 }
 
 export function FreeShippingBar({ subtotal }: { subtotal: number }) {

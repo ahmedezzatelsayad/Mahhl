@@ -3,6 +3,7 @@ import { requirePermission } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { deepSeekChat, extractJson } from '@/lib/deepseek';
 import ZAI from 'z-ai-web-dev-sdk';
+import { formatKwdPlain } from '@/lib/utils/format';
 
 /**
  * POST /api/admin/slider/generate — AI writes ONE slide's copy (AR + EN).
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
       subject = p.name;
       context =
         `\nالمنتج:\n- الاسم: ${p.name}\n` +
-        `- السعر الحالي: ${p.salePrice} د.ك${p.price > p.salePrice ? ` (كان ${p.price} د.ك — خصم ${discount}%)` : ''}\n` +
+        `- السعر الحالي: ${formatKwdPlain(p.salePrice)} د.ك${p.price > p.salePrice ? ` (كان ${formatKwdPlain(p.price)} د.ك — خصم ${discount}%)` : ''}\n` +
         `- القسم: ${p.category?.name || 'عام'}\n` +
         `- الأكثر مبيعاً: ${p.isBestSeller ? 'نعم' : 'لا'}\n` +
         `- التوفر: ${inStock ? 'متوفر' : 'نفدت الكمية'}\n` +

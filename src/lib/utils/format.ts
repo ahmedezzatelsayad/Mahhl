@@ -1,9 +1,10 @@
 /**
- * Currency formatter for KWD
+ * Currency formatter for KWD — Kuwaiti convention: 3 decimal places (fils)
+ * Every major Kuwaiti store (Talabat, Carrefour KW, Xcite, Ubuy) shows 3 decimals.
  */
 export function formatKwd(amount: number): string {
   return `${amount.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 3,
     maximumFractionDigits: 3,
   })} د.ك`;
 }
@@ -11,7 +12,7 @@ export function formatKwd(amount: number): string {
 /** plain number only (server-side strings, no JSX) */
 export function formatKwdPlain(amount: number): string {
   return amount.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 3,
     maximumFractionDigits: 3,
   });
 }

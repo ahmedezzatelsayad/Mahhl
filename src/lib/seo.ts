@@ -122,7 +122,8 @@ export interface ProductLike {
 }
 
 export function formatKwd(n: number): string {
-  return Number(n) % 1 === 0 ? String(Math.round(n)) : String(n);
+  // Kuwaiti fils convention — 3 decimals, consistent with src/lib/utils/format.ts
+  return Number(n).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
 }
 
 export function productTitle(p: ProductLike): string {

@@ -3,6 +3,7 @@ import { requirePermission } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { deepSeekChat, extractJson } from '@/lib/deepseek';
 import ZAI from 'z-ai-web-dev-sdk';
+import { formatKwdPlain } from '@/lib/utils/format';
 
 /**
  * POST /api/admin/slider/auto — build a DYNAMIC product slider with AI.
@@ -126,8 +127,8 @@ export async function POST(req: NextRequest) {
       .map((p, i) => {
         const discount =
           p.price > p.salePrice && p.price > 0
-            ? ` (خصم ${Math.round(((p.price - p.salePrice) / p.price) * 100)}% — الآن ${p.salePrice} د.ك بدل ${p.price} د.ك)`
-            : ` (سعره ${p.salePrice} د.ك)`;
+            ? ` (خصم ${Math.round(((p.price - p.salePrice) / p.price) * 100)}% — الآن ${formatKwdPlain(p.salePrice)} د.ك بدل ${formatKwdPlain(p.price)} د.ك)`
+            : ` (سعره ${formatKwdPlain(p.salePrice)} د.ك)`;
         return `${i + 1}) ${p.name} — قسم: ${p.category?.name || 'عام'}${discount}${p.isBestSeller ? ' — الأكثر مبيعاً' : ''}`;
       })
       .join('\n');

@@ -51,7 +51,7 @@ export function InfoView() {
 
   const wa = (text: string) => waHref(brand.whatsapp, text);
   const waMsg = (ar: string, en: string) => waHref(brand.whatsapp, lang === 'en' ? en : ar);
-  const kwd = (v: number) => v.toFixed(2);
+  const kwd = (v: number) => v.toFixed(3);
 
   return (
     <div className="container mx-auto px-4 py-10 max-w-3xl">
@@ -286,13 +286,13 @@ export function InfoView() {
                   'The product in its original condition with all accessories and packaging.',
                   'Include your order invoice or order number when contacting us.',
                   'Returns apply to unused products only (for hygiene reasons, perfumes and personal-care items cannot be exchanged once opened).',
-                  `Original delivery fees (${shipping ? kwd(shipping.price) : '1.00'} KWD) are non-refundable on full-order returns.`,
+                  `Original delivery fees (${shipping ? kwd(shipping.price) : '1.000'} KWD) are non-refundable on full-order returns.`,
                 ]
               : [
                   'المنتج بحالته الأصلية وكامل ملحقاته وتغليفه.',
                   'إرفاق فاتورة الطلب أو رقم الطلب عند التواصل.',
                   'الاسترجاع متاح للمنتجات غير المستخدمة فقط (لأسباب صحية لا تُستبدل العطور والمنتجات الشخصية بعد الفتح).',
-                  `رسوم التوصيل الأصلية (${shipping ? kwd(shipping.price) : '1.00'} د.ك) غير مسترجعة عند الاسترجاع الكامل للطلب.`,
+                  `رسوم التوصيل الأصلية (${shipping ? kwd(shipping.price) : '1.000'} د.ك) غير مسترجعة عند الاسترجاع الكامل للطلب.`,
                 ]
             ).map((li, i) => (
               <li key={i} className="flex items-start gap-2">
