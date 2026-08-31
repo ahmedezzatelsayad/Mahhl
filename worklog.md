@@ -258,3 +258,21 @@ Stage Summary:
 - The single confirmed refresh bug is FIXED and verified end-to-end; pushed to GitHub main → auto-deploys to mahhl-qzjn.vercel.app.
 - "الأخطاء الكثيرة" audit result: no build/lint/console/API errors remain. Earlier founder-visible breakage traced to testing locked garfix URLs + stale dev artifacts — both resolved.
 - Suggested founder follow-ups: bind mahhl.com to Vercel (A → 76.76.21.21, CNAME www → cname.vercel-dns.com), rotate the GitHub PAT, delete the duplicate protection-locked garfix project.
+
+---
+Task ID: 12
+Agent: Super Z (main)
+Task: Founder directives: (1) cut ALL product prices by 3 KWD immediately, (2) new GitHub PAT provided, (3) domain Mahhal.shop purchased on GoDaddy — connection guide
+
+Work Log:
+- New PAT verified (200) — old PAT confirmed revoked (401). All future pushes use the new token.
+- .env/.env.local were AGAIN wiped by sandbox reset (SQLite placeholder only). Recovered the Neon production connection string from scripts/test-neon.ts, restored both .env + .env.local with NEON URL + founder creds. Verified: production Neon reachable, 2,638 products.
+- Price analysis BEFORE cut: all 2,638 products salePrice > 3 (min 4.99, max 38, zero anomalies, zero salePrice>price) → clean -3 with no floor cases.
+- Executed scripts/price-cut-3kwd.js: full backup → download/price-backup-2026-08-31.json (352KB, all id/name/price/salePrice); atomic updateMany decrement 3; verification pass: 0 wrong deltas, 0 negatives, newMin 1.99, newMax 35. Rollback command built into the script (--restore flag).
+- LIVE verification minutes after: mahhl-qzjn.vercel.app APIs already serve new prices (معجون 6→3, خلاط 14→11, فشار 11→8) — instant because Vercel reads Neon per request, no deploy needed. Server-side order pricing uses the same DB values (create-order lib) so checkouts charge the new prices automatically.
+- GoDaddy domain Mahhal.shop: founder must connect via Vercel dashboard (add domain) + GoDaddy DNS (A @ → 76.76.21.21, CNAME www → cname.vercel-dns.com). Custom domains bypass Deployment Protection. After connect, founder should update canonical site URL (admin SEO settings siteUrl — getSiteUrl(): env NEXT_PUBLIC_SITE_URL > admin SiteSetting > localhost default).
+
+Stage Summary:
+- PRICE CUT LIVE IN PRODUCTION: every product exactly -3.000 KWD, verified end-to-end (DB + live API), backup + one-command rollback saved.
+- Sandbox env resilience re-restored; new PAT in use.
+- Next founder action: connect Mahhal.shop DNS per the guide sent in chat.
