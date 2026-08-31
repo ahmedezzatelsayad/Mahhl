@@ -349,3 +349,25 @@ Stage Summary:
 - The store now speaks Kuwaiti in the 3 layers that matter: price format (fils, 3 decimals everywhere incl. SEO strings), readable catalog (1,805 cleaned + 125 top products rewritten in Kuwaiti salesperson tone), clean short names.
 - Rollback tooling: 3 backups in download/ (descriptions, rewrites, names) each with --restore.
 - Founder notes: (1) hero slider copy still says "بـ 8 د.ك" — regenerate from لوحة التحكم → السلايدر (generator now writes fils prices); (2) Vercel Deployment Protection must stay Public; (3) remaining ~2,500 descriptions are clean but still machine-translation tone — rerun scripts/rewrite-kuwaiti.cjs with a wider target list later if wanted.
+
+---
+Task ID: 16
+Agent: Super Z (main)
+Task: "عاوزك تبحث وتنظم وصف كل منتج وال seo لكل منتج واللينكات" — per-product description + SEO + links for the whole catalog
+
+Work Log:
+- Audited the catalog state first (scripts/audit-seo-state.mjs): 2638 products, 100% metaDescription set but ALL were mid-sentence truncations of machine-translated descriptions ("الميزات:تصميم..."), only 125 Kuwaiti-rewritten (Task 15), ~1900 wall-of-text; slugs were 100% SKU-style (per-0170) or junk (f3e/rc/xs) — zero keywords in URLs.
+- Researched (web-search, saved in scripts/research-seo/): title 50-60 chars / meta 150-155 chars / keyword-rich hyphenated slugs; Kuwaiti query patterns (سعر X، شراء X اونلاين، افضل X، X الكويت).
+- Schema: Product += metaTitle, keywords, legacySlug (prisma db push to Neon; DIRECT_URL added to .env).
+- Full-catalog pipeline (scripts/seo-pack.cjs, ZAI chat, 3 workers × batch 10, 429-backoff, resumable): per product → Kuwaiti description (kept 547 already-good ones), metaTitle 30-55 chars, metaDescription 120-155 with COD close, 4-6 Kuwaiti keywords, English keyword slug. 2418 AI + 220 deterministic fallback = 2638/2638 (100% coverage verified).
+- LINKS: 2274/2638 (86%) upgraded to keyword slugs (solar-powered-side-light, air-fryer-silvercrest-10l...); 2316 products got legacySlug → /?p=<old> 308-redirects to the new URL (page.tsx permanentRedirect + findProductByLegacySlug). Old indexed/WhatsApp links keep working and pass rank.
+- Crash saga: first daemon died mid-batch → 7 products double-processed with "-2" slugs and lost original legacy chain. Root-caused (progress was batch-level), fixed script to per-product saves, repaired the 7 via seo-fix-pass.cjs using slug==sku-toLowerCase invariant (verified on untouched rows).
+- Quality pass (scripts/seo-fix-pass.cjs): fixed 30 typos (سينema→سينما، إضارة→إضاءة...), rebuilt 120 garbage metaDescriptions, filled 10 empty/short descriptions; seo-stragglers.cjs closed the last 9 gaps → 2638/2638 titles+meta+keywords.
+- Code: productDescription() now uses curated metaDescription as-is (was double-appending the COD suffix); withBrand() appends "| محل شوب" (discovered Next.js never applies the root-layout title template to the root page segment — pre-existing site-wide bug); product-view tab title follows metaTitle; search-suggest matches keywords field; admin product form got an SEO section (metaTitle/metaDescription/keywords with live char counters) + admin APIs accept the new fields; sitemap/llms.txt auto-pick new slugs.
+- Verified E2E (curl + agent-browser): SSR title/desc/keywords/canonical/JSON-LD all correct, 308 redirect chains work (dev-0078 → solar-powered-side-light), home links point to new slugs, keyword search ("سعر كشاف") matches, tsc 0 errors, eslint 0 errors, next build ✓.
+- Pushed bf70bc9 to GitHub main (Vercel auto-deploy; DB is live on Neon already).
+
+Stage Summary:
+- Every product now has a complete SEO pack: organized Kuwaiti description + curated title + selling meta description + real Kuwaiti search keywords + keyword-rich URL, with old links 308-redirected.
+- Coverage: 2638/2638 (100%) titles/meta/keywords; 2274 keyword slugs; 2316 legacy redirects; rollback via download/seo-pack-backup-2026-08-31.json (--restore flag on seo-pack.cjs).
+- Founder follow-ups: (1) submit the updated sitemap.xml in Google Search Console after the deploy; (2) Vercel Deployment Protection must stay Public; (3) rerun scripts/seo-pack.cjs whenever new products are imported (it skips done ones) or extend to regenerate on demand.
