@@ -276,3 +276,18 @@ Stage Summary:
 - PRICE CUT LIVE IN PRODUCTION: every product exactly -3.000 KWD, verified end-to-end (DB + live API), backup + one-command rollback saved.
 - Sandbox env resilience re-restored; new PAT in use.
 - Next founder action: connect Mahhal.shop DNS per the guide sent in chat.
+
+---
+Task ID: 12b (follow-up)
+Agent: Super Z (main)
+Task: env restoration root-cause + PAT failure diagnosis
+
+Work Log:
+- New PAT became 401 mid-session (worked at first check, revoked ~15 min later — likely founder rotation or GitHub auto-revoke). Push blocked; commits (price-cut script + backup + worklog) stay local until a fresh PAT arrives. Founder guidance sent: fine-grained PAT → Repository access: Mahhl → Contents: Read and write.
+- ROOT-CAUSE of dev-server 503 after env restore: src/lib/db.ts documents that the sandbox PRE-SETS DATABASE_URL (SQLite) as a process env var which beats .env files; the app deliberately reads NEON_DATABASE_URL FIRST. My restore had set only DATABASE_URL/DIRECT_URL → server fell back to schema env (SQLite) → provider mismatch. Fixed: NEON_DATABASE_URL now leads .env + .env.local. Server 200, local API serves the cut prices.
+- Local dev + production both verified serving -3 prices (معجون 6→3، مظلة 6→3، خلاط 14→11، نظارة 8→5).
+
+Stage Summary:
+- Price directive 100% DONE in production regardless of push state (DB-level change, no deploy needed).
+- Pending: git push of local commits once founder provides working PAT.
+- Pending founder action: GoDaddy DNS for Mahhal.shop (guide delivered in chat).
