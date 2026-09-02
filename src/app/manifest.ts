@@ -2,10 +2,10 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'محل شوب — متجر إلكتروني في الكويت',
+    name: 'محل شوب — منصة دروب شيبنج في الكويت',
     short_name: 'محل شوب',
     description:
-      'أكثر من 2600 منتج بأسعار بالدينار الكويتي، دفع عند الاستلام، وتوصيل سريع لجميع محافظات الكويت.',
+      'منصة دروب شيبنج في الكويت: سوّق أكثر من 2600 منتج واربح عمولة 1–2 د.ك على كل طلب، وتسوق بتوصيل سريع ودفع عند الاستلام.',
     start_url: '/',
     display: 'standalone',
     dir: 'rtl',

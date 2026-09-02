@@ -236,7 +236,7 @@ async function enrichWithAI(
         ? `المنتج الحالي: ${ctx.triggerName}`
         : 'تصفح عام';
 
-  const prompt = `أنت مسوّق محترف لمتجر إلكتروني عربي.
+  const prompt = `أنت مسوّق محترف لمنصة دروب شيبنج كويتية (محل شوب).
 معلومات العميل:
 - النوع: ${ctx.persona}
 - درجة النية للشراء: ${ctx.intentScore}/1

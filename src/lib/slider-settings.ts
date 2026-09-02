@@ -45,22 +45,22 @@ export const DEFAULT_SLIDER: SliderSettings = {
   slides: [
     {
       id: 'brand',
-      eyebrow: '✨ أكثر من 2,600 منتج — دفع عند الاستلام',
-      title: 'تسوّق بذكاء،',
-      highlight: 'وفّر أكثر مع محل شوب',
+      eyebrow: '🇰🇼 منصة دروب شيبنج رقم 1 في الكويت',
+      title: 'سوّق واربح،',
+      highlight: 'عمولة 1–2 د.ك على كل طلب',
       subtitle:
-        'منتجات مختارة بعناية من الألعاب والإلكترونيات والأدوات المنزلية. توصيل سريع لكل محافظات الكويت، وذكاء اصطناعي يقترح لك الأفضل لسلتك.',
-      eyebrowEn: '✨ 2,600+ products — Cash on Delivery',
-      titleEn: 'Shop smart,',
-      highlightEn: 'save more with Mahal Shop',
+        'سجّل مجاناً كمُسوّق، شارك أكثر من 2,600 منتج برابطك الخاص، وإحنا نتكفل بالتخزين والشحن والتحصيل — عمولتك تتحسب تلقائياً على كل طلب يوصَل. ولتسوق: دفع عند الاستلام وتوصيل سريع لكل المحافظات.',
+      eyebrowEn: '🇰🇼 Kuwait’s #1 Dropshipping Platform',
+      titleEn: 'Market & Earn —',
+      highlightEn: '1–2 KWD commission per order',
       subtitleEn:
-        'Carefully picked toys, electronics and home essentials. Fast delivery to every Kuwait governorate, with an AI assistant that suggests the best picks for your cart.',
+        'Register free as a marketer, share 2,600+ products with your own link, and we handle storage, shipping and collection — your commission is calculated automatically on every delivered order. Shopping: cash on delivery and fast delivery everywhere in Kuwait.',
       image: IMG_SHOPPING,
       tone: 'dark',
-      chips: ['+2,600 منتج', '6 محافظات', 'شحن مجاني من 30 د.ك', 'COD'],
-      chipsEn: ['2,600+ items', '6 governorates', 'Free shipping over 30 KWD', 'COD'],
-      cta: { label: 'تسوق الآن', action: 'shop', labelEn: 'Shop Now' },
-      ctaSecondary: { label: 'الأكثر مبيعاً', action: 'shop', labelEn: 'Best Sellers' },
+      chips: ['عمولة 1–2 د.ك', 'تسجيل مجاني', 'بدون رأس مال', 'COD'],
+      chipsEn: ['1–2 KWD commission', 'Free registration', 'Zero capital', 'COD'],
+      cta: { label: 'سوّق معنا واربح', action: 'affiliate-login', labelEn: 'Sell With Us & Earn' },
+      ctaSecondary: { label: 'تسوق المنتجات', action: 'shop', labelEn: 'Shop Products' },
       active: true,
     },
     {
@@ -107,7 +107,7 @@ export const DEFAULT_SLIDER: SliderSettings = {
 };
 
 const TONES = new Set(['dark', 'gold', 'green', 'blue']);
-const ACTIONS = new Set(['shop', 'category', 'landing', 'track', 'product']);
+const ACTIONS = new Set(['shop', 'category', 'landing', 'track', 'product', 'affiliate-login']);
 
 function cleanCta(raw: unknown): SliderCta | null {
   if (!raw || typeof raw !== 'object') return null;

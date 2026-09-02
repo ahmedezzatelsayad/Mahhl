@@ -12,8 +12,8 @@ type Dict = Record<string, { ar: string; en: string }>;
 export const DICT: Dict = {
   /* ===== header ===== */
   'hdr.announcement': {
-    ar: 'توصيل لجميع محافظات الكويت — دفع عند الاستلام',
-    en: 'Delivery across all Kuwait — Cash on Delivery',
+    ar: 'منصة دروب شيبنج رقم 1 في الكويت 🇰🇼 — عمولة 1–2 د.ك على كل طلب · دفع عند الاستلام · شحن مجاني فوق 30 د.ك',
+    en: 'Kuwait’s #1 Dropshipping Platform 🇰🇼 — 1–2 KWD commission per order · Cash on Delivery · FREE shipping over 30 KWD',
   },
   'hdr.track': { ar: 'تتبع طلبك', en: 'Track Order' },
   'hdr.account': { ar: 'حسابي', en: 'My Account' },
@@ -23,8 +23,9 @@ export const DICT: Dict = {
   'hdr.searchPh': { ar: 'تدور على شنو؟ اكتبه هنا…', en: 'What are you looking for? Type it here…' },
   'hdr.allProducts': { ar: 'كل المنتجات', en: 'All Products' },
   'hdr.accountLogin': { ar: 'حسابي / تسجيل', en: 'My Account / Sign in' },
-  'hdr.whatsapp': { ar: 'واتساب المتجر', en: 'WhatsApp Us' },
+  'hdr.whatsapp': { ar: 'واتساب محل شوب', en: 'WhatsApp Us' },
   'hdr.home': { ar: 'الرئيسية', en: 'Home' },
+  'hdr.tagline': { ar: 'منصة دروب شيبنج — الكويت', en: 'Kuwait’s Dropshipping Platform' },
   'hdr.langSwitch': { ar: 'EN', en: 'عربي' },
   'hdr.langSwitchTitle': { ar: 'Switch to English', en: 'التبديل إلى العربية' },
 
@@ -213,8 +214,8 @@ export const DICT: Dict = {
   'ch.agentTitle': { ar: 'مندوب محل شوب الذكي', en: 'Mahal Shop AI Rep' },
   'ch.agentSub': { ar: 'يلقى لك اللي تبيه ويسجّل طلبك — دفع عند الاستلام', en: 'Finds it & places your order — cash on delivery' },
   'ch.agentWelcome': {
-    ar: 'هلا والله! 👋 أنا مندوب محل شوب — أعرف المتجر كاملاً وأقدر أسجّل طلبك من هنا مباشرة.\nقل لي شنو تدور عليه (عطر، ساعة، خلاط..) وألقاه لك، وبعدها أجمع بيانات التوصيل وأأكّد الطلب ✅\nالدفع عند الاستلام · توصيل ١-٣ أيام لكل الكويت 🚚',
-    en: "Hey there! 👋 I'm your Mahal Shop rep — I know the whole store and can place your order right here in the chat.\nTell me what you're looking for (perfume, watch, blender..), then I'll take your delivery details and confirm the order ✅\nCash on delivery · 1-3 days to all Kuwait 🚚",
+    ar: 'هلا والله! 👋 أنا مندوب محل شوب — أول منصة دروب شيبنج في الكويت، وأعرف المنتجات كلها وأقدر أسجّل طلبك من هنا مباشرة.\nقل لي شنو تدور عليه (عطر، ساعة، خلاط..) وألقاه لك، وبعدها أجمع بيانات التوصيل وأأكّد الطلب ✅\nواللي يبي يربح: سجّل من زر «سوّق معنا» واربح عمولة 1–2 د.ك على كل طلب 💰\nالدفع عند الاستلام · توصيل ١-٣ أيام لكل الكويت 🚚',
+    en: "Hey there! 👋 I'm your Mahal Shop rep — Kuwait's dropshipping platform. I know every product and can place your order right here in the chat.\nTell me what you're looking for (perfume, watch, blender..), then I'll take your delivery details and confirm the order ✅\nWant to earn? Register from “Sell With Us” and get 1–2 KWD commission per order 💰\nCash on delivery · 1-3 days to all Kuwait 🚚",
   },
   'ch.agentPlaceholder': { ar: 'شنو تدور عليه؟ أو كمّل بيانات طلبك...', en: 'What are you looking for? Or finish your order...' },
 
@@ -385,6 +386,22 @@ export const DICT: Dict = {
   'faq.a4': {
     ar: 'اختر المنتج المطلوب، اضغط "أضف للسلة"، ثم أكمل الطلب بكتابة اسمك ورقم هاتفك والمحافظة والمنطقة والعنوان — سنتصل بك لتأكيد الطلب قبل التوصيل.',
     en: 'Pick a product, tap "Add to Cart", then complete the order with your name, phone, governorate, area and address — we call you to confirm before delivery.',
+  },
+  'faq.q5': {
+    ar: 'شلون أربح من محل شوب كم مسوّق؟',
+    en: 'How do I earn as a marketer on Mahal Shop?',
+  },
+  'faq.a5': {
+    ar: 'سجّل مجاناً من زر «سوّق معنا» — بياصلك كود ورابط خاص فيك. شارك أي منتج من أكثر من 2,600 منتج، وكل طلب يوصَل عبر رابطك يتحسبلك عمولة من 1 إلى 2 د.ك حسب تنافسية المنتج — بدون رأس مال وبدون هم الشحن أو التحصيل.',
+    en: 'Register for free from the “Sell With Us” button — you get your own code and link. Share any of our 2,600+ products, and every delivered order from your link earns you a commission of 1–2 KWD depending on the product — no capital, no shipping or collection hassle.',
+  },
+  'faq.q6': {
+    ar: 'متى وكيف أستلم عمولتي كم مسوّق؟',
+    en: 'When and how do I receive my commission?',
+  },
+  'faq.a6': {
+    ar: 'عمولتك تتحسب تلقائياً في محفظتك عند تسليم كل طلب، وتطلب سحبها من لوحة المسوق متى ما تبى — والمحاسبة كاملة وشفافة: تشوف كل طلباتك وحالتها وعمولاتها لحظة بلحظة.',
+    en: 'Your commission is added to your wallet automatically when each order is delivered, and you can request a withdrawal from your dashboard anytime — with fully transparent accounting: you see every order, its status and commission in real time.',
   },
 
   /* ===== tracking ===== */

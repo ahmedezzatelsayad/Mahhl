@@ -146,7 +146,7 @@ export function AffiliateAddOrderView() {
           <PlusCircle className="h-10 w-10 mx-auto text-muted-foreground" />
           <h1 className="font-bold">حسابك قيد المراجعة</h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            تقدر تتصفح المنتجات والعمولات، وتقدر تضيف الطلبات بعد موافقة إدارة المتجر على حسابك.
+            تقدر تتصفح المنتجات والعمولات، وتقدر تضيف الطلبات بعد موافقة إدارة المنصة على حسابك.
           </p>
         </Card>
       </div>
@@ -157,7 +157,7 @@ export function AffiliateAddOrderView() {
     <div className="p-4 space-y-4 max-w-4xl">
       <h1 className="text-xl font-bold">اضف طلب لعميلك</h1>
       <p className="text-xs text-muted-foreground">
-        الطلب يدخل نفس نظام المتجر — تتابع حالته من «طلباتي» وتُحسب عمولتك تلقائياً عند التسليم.
+        الطلب يدخل نفس نظام المنصة — تتابع حالته من «طلباتي» وتُحسب عمولتك تلقائياً عند التسليم.
       </p>
 
       {success && (

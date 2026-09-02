@@ -69,17 +69,20 @@ export function InfoView() {
           <p>
             {lang === 'en' ? (
               <>
-                <b>{brand.siteName}</b> is a Kuwaiti online store built around one goal: a fast,
-                effortless shopping experience — over <b>2,600 products</b> across toys,
-                electronics, watches, perfumes, household tools and more, with clear prices in
-                Kuwaiti Dinar and zero hidden fees.
+                <b>{brand.siteName}</b> is <b>Kuwait’s dropshipping platform</b>, built around two
+                missions: helping marketers earn a real income without capital — <b>1–2 KWD
+                commission on every delivered order</b> from 2,600+ ready-to-sell products we
+                store, pack, ship and collect payment for — and giving shoppers a fast,
+                effortless buying experience with clear prices in Kuwaiti Dinar and zero hidden
+                fees.
               </>
             ) : (
               <>
-                <b>{brand.siteName}</b> متجر إلكتروني كويتي، هدفنا نوفر لك تجربة تسوق سهلة
-                وسريعة — أكثر من <b>2,600 منتج</b> في الألعاب والإلكترونيات والساعات
-                والعطور والأدوات المنزلية وغيرها، بأسعار واضحة بالدينار الكويتي وبدون
-                أي رسوم خفية.
+                <b>{brand.siteName}</b> هي <b>منصة دروب شيبنج كويتية</b>، نبنيها على مهمتين: نعّن
+                المسوّقين يربحون دخل حقيقي بدون رأس مال — <b>عمولة من 1 إلى 2 د.ك على كل طلب
+                يوصَل</b> من أكثر من 2,600 منتج جاهز للبيع، وإحنا نتكفّل بالتخزين والتغليف
+                والشحن وتحصيل الفلوس — ونعطي المتسوق تجربة شراء سريعة بأسعار واضحة
+                بالدينار الكويتي وبدون أي رسوم خفية.
               </>
             )}
           </p>
@@ -89,14 +92,16 @@ export function InfoView() {
                 We know your time is valuable, so everything stays simple: pick a product, enter
                 your name, phone and address, and pay <b>on delivery</b> — no card, no
                 complications. We deliver to every Kuwait governorate: Capital, Hawalli,
-                Farwaniya, Jahra, Ahmadi and Mubarak Al-Kabeer.
+                Farwaniya, Jahra, Ahmadi and Mubarak Al-Kabeer. Want to earn instead of shop?
+                Register as a marketer from “Sell With Us” and start collecting commissions.
               </>
             ) : (
               <>
                 إحنا نعرف إن وقتك ثمين، عشان كذا خلينا كل شيء بسيط: تختار المنتج، تكتب
                 اسمك ورقمك وعنوانك، وتدفع <b>عند الاستلام</b> — بدون بطاقة وبدون تعقيد.
                 ونوصّل لكل محافظات الكويت: العاصمة، حولي، الفروانية، الجهراء، الأحمدي،
-                ومبارك الكبير.
+                ومبارك الكبير. ولو تبى تربح بدل ما تسوق — سجّل مسوّق من زر «سوّق معنا»
+                وابدأ تجمع عمولاتك.
               </>
             )}
           </p>
@@ -110,7 +115,7 @@ export function InfoView() {
             ) : (
               <>
                 اللي يفرّقنا عن غيرنا إن عندنا <b>مساعد ذكي</b> يفهم ذوقك: من زيارك
-                للمتجر يقترح لك منتجات تناسبك وتساعدك تلاقي اللي تدور عليه بأسرع وقت —
+                للمنصة يقترح لك منتجات تناسبك وتساعدك تلاقي اللي تدور عليه بأسرع وقت —
                 جربه من زر «تحدث مع المحل» بأي وقت.
               </>
             )}
@@ -118,14 +123,14 @@ export function InfoView() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
             {(lang === 'en'
               ? [
-                  ['2,600+', 'products available'],
+                  ['2,600+', 'products ready to market'],
+                  ['1–2 KWD', 'commission per delivered order'],
                   ['All Kuwait', 'delivery to 6 governorates'],
-                  ['Cash on delivery', 'safe & easy'],
                 ]
               : [
-                  ['+2,600', 'منتج متوفر'],
+                  ['+2,600', 'منتج جاهز للتسويق'],
+                  ['1–2 د.ك', 'عمولة على كل طلب يوصَل'],
                   ['كل الكويت', 'توصيل للمحافظات الست'],
-                  ['دفع عند الاستلام', 'آمن ومريح'],
                 ]
             ).map(([v, l]) => (
               <div key={l} className="rounded-xl border bg-card p-4 text-center">
@@ -163,7 +168,7 @@ export function InfoView() {
               className="rounded-xl border bg-card p-5 hover:border-accent/50 transition-colors"
             >
               <Phone className="h-7 w-7 text-gold-deep mb-2" />
-              <p className="font-bold mb-1">{L(lang, 'هاتف المتجر', 'Store phone')}</p>
+              <p className="font-bold mb-1">{L(lang, 'هاتف المنصة', 'Platform phone')}</p>
               <p className="text-sm text-muted-foreground" dir="ltr">+965 {brand.whatsapp}</p>
               <p className="text-xs text-muted-foreground/70 mt-1">
                 {L(lang, 'اتصال مباشر خلال أوقات العمل', 'Direct call during working hours')}
@@ -359,6 +364,14 @@ export function InfoView() {
                   q: 'Where do I track my order?',
                   a: 'From the “Track Order” page in the footer — enter your order number and phone to see the status step by step, or sign in from “My Account” to see all your orders.',
                 },
+                {
+                  q: 'How do I earn as a marketer (dropshipping)?',
+                  a: 'Register for free from “Sell With Us” — you get your own code and referral link. Share any product, and every delivered order from your link earns you 1–2 KWD commission depending on the product. No capital, no shipping — we handle everything.',
+                },
+                {
+                  q: 'When do I receive my commission?',
+                  a: 'The commission lands in your wallet automatically when the order is delivered, and you can request a withdrawal from your marketer dashboard anytime — with transparent accounting for every order.',
+                },
               ]
             : [
                 {
@@ -390,6 +403,14 @@ export function InfoView() {
                 {
                   q: 'وين أتابع طلبي؟',
                   a: 'من صفحة «تتبع طلبك» في الفوتر — اكتب رقم الطلب ورقم هاتفك وشوف حالة الطلب خطوة بخطوة، أو سجل دخولك من «حسابي» وشوف كل طلباتك.',
+                },
+                {
+                  q: 'شلون أربح من محل شوب كم مسوّق (دروب شيبنج)؟',
+                  a: 'سجّل مجاناً من زر «سوّق معنا» — بياصلك كود ورابط خاص فيك. شارك أي منتج مع عملائك، وكل طلب يوصَل عبر رابطك يتحسبلك عمولة من 1 إلى 2 د.ك حسب تنافسية المنتج — بدون رأس مال، وإحنا نتكفل بالشحن والتحصيل.',
+                },
+                {
+                  q: 'متى أستلم عمولتي؟',
+                  a: 'العمولة تتحسب في محفظتك تلقائياً عند تسليم كل طلب، وتطلب سحبها من لوحة المسوق متى ما تبى — بمحاسبة شفافة تشوف فيها كل طلب وحالته وعمولته.',
                 },
               ]
           ).map((f, i) => (
@@ -476,14 +497,16 @@ export function InfoView() {
                   'Cash on Delivery is collected by the courier only after handing over the order — we never request prepayment.',
                   'Product photos are illustrative; the actual item may differ slightly (color/packaging) without affecting the specifications.',
                   'The store may decline any order containing incorrect data or signs of abuse.',
+                  'Marketer commissions (1–2 KWD per delivered order) are calculated automatically in the marketer’s wallet and can be withdrawn from the marketers’ dashboard.',
                 ]
               : [
                   'الأسعار المعروضة بالدينار الكويتي وتشمل المنتج فقط، والتوصيل يُضاف عند الدفع حسب سياسة الشحن المعروضة.',
-                  'يحق للمتجر تعديل الأسعار أو إلغاء الطلب إذا كان فيه خطأ واضح في السعر، مع إشعارك فوراً.',
+                  'يحق للمنصة تعديل الأسعار أو إلغاء الطلب إذا كان فيه خطأ واضح في السعر، مع إشعارك فوراً.',
                   'الطلب يصبح مؤكداً بعد اتصال خدمة العملاء بك لتأكيد العنوان وميعاد التوصيل.',
                   'الدفع عند الاستلام يُطلب من المندوب فقط بعد تسليم الطلب — لا نطلب أي دفع مسبق.',
                   'صور المنتجات توضيحية، وقد يختلف المنتج الفعلي بشكل بسيط عن الصورة (اللون/التغليف) دون تأثير على المواصفات.',
-                  'يحق للمتجر رفض أي طلب فيه بيانات غير صحيحة أو إساءة استخدام.',
+                  'يحق للمنصة رفض أي طلب فيه بيانات غير صحيحة أو إساءة استخدام.',
+                  'عمولات المسوّقين (1–2 د.ك على كل طلب مسلّم) تُحسب تلقائياً في محفظة المسوّق ويمكن سحبها من لوحة المسوقين.',
                 ]
             ).map((li, i) => (
               <li key={i} className="flex items-start gap-2">

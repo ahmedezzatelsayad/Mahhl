@@ -422,6 +422,22 @@ export function HomeView() {
               {t('faq.a4')}
             </AccordionContent>
           </AccordionItem>
+          <AccordionItem value="faq-5">
+            <AccordionTrigger className="text-start">
+              {t('faq.q5')}
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground leading-relaxed">
+              {t('faq.a5')}
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="faq-6">
+            <AccordionTrigger className="text-start">
+              {t('faq.q6')}
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground leading-relaxed">
+              {t('faq.a6')}
+            </AccordionContent>
+          </AccordionItem>
         </Accordion>
       </section>
     </div>

@@ -140,6 +140,7 @@ export function HeroSlider({
     } else if (a.action === 'landing' && a.payload) openLanding(a.payload);
     else if (a.action === 'product' && a.payload) openProduct(a.payload);
     else if (a.action === 'track') setView('track-order');
+    else if (a.action === 'affiliate-login') setView('affiliate-login');
   };
 
   const current = slides[index];

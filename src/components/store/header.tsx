@@ -21,7 +21,7 @@ interface Brand {
 
 const DEFAULT_BRAND: Brand = {
   siteName: 'محل شوب',
-  announcement: 'توصيل لجميع محافظات الكويت — دفع عند الاستلام',
+  announcement: 'منصة دروب شيبنج رقم 1 في الكويت 🇰🇼 — سوّق واربح عمولة 1–2 د.ك على كل طلب',
   logo: '',
   whatsapp: '66046358',
   categoryImages: {},
@@ -80,7 +80,7 @@ export function Header() {
       {/* Announcement bar — premium gold on dark */}
       <div className="bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 py-1.5 text-center text-xs sm:text-sm font-medium">
-          ✨ {lang === 'en' ? 'FREE shipping over 30 KWD · Cash on Delivery across Kuwait' : 'شحن مجاني فوق 30 د.ك — توصيل لجميع محافظات الكويت · دفع عند الاستلام'} ✨
+          ✨ {t('hdr.announcement')} ✨
         </div>
       </div>
 
@@ -106,9 +106,14 @@ export function Header() {
                   <span className="flex h-9 w-9 items-center justify-center rounded-xl btn-gold">
                     <Store className="h-5 w-5" />
                   </span>
-                  <span className="hidden sm:inline">
-                    {nameFirst}{' '}
-                    {nameRest && <span className="text-gold-deep">{nameRest}</span>}
+                  <span className="hidden sm:flex flex-col items-start leading-tight">
+                    <span>
+                      {nameFirst}{' '}
+                      {nameRest && <span className="text-gold-deep">{nameRest}</span>}
+                    </span>
+                    <span className="text-[9px] font-medium text-muted-foreground">
+                      {t('hdr.tagline')}
+                    </span>
                   </span>
                 </>
               )}

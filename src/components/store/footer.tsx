@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAppStore } from '@/lib/stores/app-store';
-import { Store, MapPin, MessageCircle, Truck, ShieldCheck } from 'lucide-react';
+import { Store, MapPin, MessageCircle, Truck, ShieldCheck, Handshake } from 'lucide-react';
 import { useBrand, waHref } from '@/components/store/header';
 import { useT } from '@/lib/i18n';
 import { readLang } from '@/lib/stores/lang-store';
@@ -75,18 +75,27 @@ export function Footer() {
             </button>
             <p className="text-sm text-primary-foreground/70 leading-relaxed max-w-sm">
               {lang === 'en'
-                ? 'Your smart Kuwaiti store — 2,600+ products at competitive prices in KWD, fast delivery to every governorate, and cash on delivery. Message us on WhatsApp anytime and our team will get back to you fast.'
-                : 'متجرك الكويتي الذكي — تدور على شي حلو؟ عندنا أكثر من 2,600 منتج مختارين بعناية بأسعار تنافسية. اطلب اليوم وادفع عند الاستلام، والتوصيل يوصلك لين باب البيت في كل محافظات الكويت.'}
+                ? 'Kuwait’s #1 dropshipping platform — market 2,600+ products and earn a 1–2 KWD commission on every delivered order, with zero capital and zero shipping hassle. For shoppers: competitive prices in KWD, fast delivery to every governorate, and cash on delivery.'
+                : 'منصة دروب شيبنج رقم 1 في الكويت — سوّق أكثر من 2,600 منتج واربح عمولة من 1 إلى 2 د.ك على كل طلب يوصَل، بدون رأس مال وبدون هم الشحن. ولتسوق: أسعار تنافسية بالدينار الكويتي وتوصيل سريع لكل المحافظات ودفع عند الاستلام.'}
             </p>
-            <a
-              href={waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I have a question 🙏' : 'هلا محل شوب، عندي استفسار 🙏')}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-green-600 hover:bg-green-500 text-white px-4 py-2 text-sm font-bold transition-colors"
-            >
-              <MessageCircle className="h-4 w-4" />
-              {lang === 'en' ? 'WhatsApp:' : 'واتساب:'} <span dir="ltr">+965 {brand.whatsapp}</span>
-            </a>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <a
+                href={waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I have a question 🙏' : 'هلا محل شوب، عندي استفسار 🙏')}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg bg-green-600 hover:bg-green-500 text-white px-4 py-2 text-sm font-bold transition-colors"
+              >
+                <MessageCircle className="h-4 w-4" />
+                {lang === 'en' ? 'WhatsApp:' : 'واتساب:'} <span dir="ltr">+965 {brand.whatsapp}</span>
+              </a>
+              <button
+                onClick={() => setView('affiliate-login')}
+                className="inline-flex items-center gap-2 rounded-lg btn-gold px-4 py-2 text-sm font-bold transition-transform hover:scale-[1.02]"
+              >
+                <Handshake className="h-4 w-4" />
+                {lang === 'en' ? 'Sell With Us & Earn' : 'سوّق معنا واربح'}
+              </button>
+            </div>
           </div>
 
           {/* Quick links */}
@@ -124,6 +133,14 @@ export function Footer() {
                   className="text-primary-foreground/70 hover:text-primary-foreground cursor-pointer"
                 >
                   {t('home.bestsellers')}
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setView('affiliate-login')}
+                  className="font-bold text-accent hover:text-accent/80 cursor-pointer"
+                >
+                  {lang === 'en' ? 'Sell With Us (Dropshipping) 💰' : 'سوّق معنا — دروب شيبنج 💰'}
                 </button>
               </li>
             </ul>
@@ -199,8 +216,8 @@ export function Footer() {
           <p>
             © {new Date().getFullYear()} {brand.siteName} — {t('f.rights')}.{' '}
             {lang === 'en'
-              ? 'Prices in KWD, cash on delivery, delivery to all Kuwait governorates.'
-              : 'الأسعار بالدينار الكويتي، الدفع عند الاستلام، توصيل لكل محافظات الكويت.'}
+              ? 'Kuwait’s dropshipping platform. Prices in KWD, cash on delivery, delivery to all Kuwait governorates, marketer commissions 1–2 KWD per delivered order.'
+              : 'منصة دروب شيبنج في الكويت. الأسعار بالدينار الكويتي، الدفع عند الاستلام، توصيل لكل المحافظات، وعمولات المسوقين 1–2 د.ك على كل طلب مسلّم.'}
           </p>
           <p className="text-primary-foreground/25 flex items-center justify-center gap-2 flex-wrap">
             <MapPin className="h-3 w-3 inline" /> {lang === 'en' ? 'Kuwait' : 'الكويت'}

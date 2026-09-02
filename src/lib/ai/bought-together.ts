@@ -238,7 +238,7 @@ export async function getBoughtTogether(
       for (const row of rows) {
         if (results.length >= limit) break;
         if (already.has(row.id)) continue;
-        results.push(toScored(row, 0.25, 'category', 'من الأكثر مبيعاً في المتجر'));
+        results.push(toScored(row, 0.25, 'category', 'من الأكثر مبيعاً في المنصة'));
       }
     } catch {
       /* ignore */

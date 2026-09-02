@@ -22,8 +22,8 @@ export interface SiteIdentity {
 
 export const DEFAULT_IDENTITY: SiteIdentity = {
   siteName: 'محل شوب',
-  tagline: 'متجرك الكويتي الذكي',
-  announcement: 'توصيل لجميع محافظات الكويت — دفع عند الاستلام',
+  tagline: 'منصة دروب شيبنج رقم 1 في الكويت',
+  announcement: 'منصة دروب شيبنج رقم 1 في الكويت 🇰🇼 — سوّق واربح عمولة 1–2 د.ك على كل طلب',
   whatsapp: '66046358',
   logo: '',
   favicon: '',
@@ -37,7 +37,13 @@ export async function getSiteIdentity(): Promise<SiteIdentity> {
     const row = await db.siteSetting.findUnique({ where: { key: KEY } });
     if (!row) return DEFAULT_IDENTITY;
     const v = row.value as Partial<SiteIdentity>;
-    return { ...DEFAULT_IDENTITY, ...v };
+    const merged = { ...DEFAULT_IDENTITY, ...v };
+    // ترقية الهوية: الصفوف المحفوظة بالقيم الافتراضية القديمة تتحدّث تلقائياً
+    // لهوية «منصة دروب شيبنج» بدون فقدان أي تخصيص آخر من الإدارة
+    if (merged.tagline === 'متجرك الكويتي الذكي') merged.tagline = DEFAULT_IDENTITY.tagline;
+    if (merged.announcement === 'توصيل لجميع محافظات الكويت — دفع عند الاستلام')
+      merged.announcement = DEFAULT_IDENTITY.announcement;
+    return merged;
   } catch {
     return DEFAULT_IDENTITY;
   }

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   }
   if (aff.status === 'suspended') {
     return NextResponse.json(
-      { error: 'حسابك موقوف — راجع إدارة المتجر' },
+      { error: 'حسابك موقوف — راجع إدارة المنصة' },
       { status: 403 }
     );
   }

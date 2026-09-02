@@ -7,7 +7,7 @@
  * the Arabic value is shown as a fallback — `localizedSlide()` resolves it.
  */
 
-export type SlideAction = 'shop' | 'category' | 'landing' | 'track' | 'product';
+export type SlideAction = 'shop' | 'category' | 'landing' | 'track' | 'product' | 'affiliate-login';
 
 export interface SliderCta {
   label: string;
