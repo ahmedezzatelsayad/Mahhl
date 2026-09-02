@@ -117,10 +117,10 @@ export function AffiliatePortal() {
               className="flex items-center gap-2 font-bold text-primary"
             >
               <Handshake className="h-6 w-6" />
-              بوابة المسوقين
+              منصة دروب شيبنج
             </button>
             <div className="mt-2 text-xs text-muted-foreground">
-              {affiliateUser.name}
+              بوابة المسوقين — {affiliateUser.name}
               <span className="mx-1">·</span>
               <span className="font-mono font-medium text-primary">{affiliateUser.code}</span>
             </div>
@@ -195,7 +195,7 @@ export function AffiliatePortal() {
           <footer className="border-t bg-card px-4 py-3 text-xs text-muted-foreground flex items-center justify-between">
             <span className="flex items-center gap-1">
               <Receipt className="h-3.5 w-3.5" />
-              نظام عمولات محل شوب — عمولتك محسوبة تلقائياً على كل طلب مسلّم
+              نظام عمولات منصة دروب شيبنج — عمولتك محسوبة تلقائياً على كل طلب مسلّم (1–2 د.ك)
             </span>
             <button
               className="underline hover:text-foreground md:hidden"

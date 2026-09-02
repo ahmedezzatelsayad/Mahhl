@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     const buckets = await affiliateBuckets(aff.id);
 
     const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const [recentOrders, topItems, statusRaw] = await Promise.all([
+    const [recentOrders, topItems, statusRaw, trendRaw] = await Promise.all([
       db.order.findMany({
         where: { affiliateId: aff.id, createdAt: { gte: since } },
         select: {
@@ -33,6 +33,15 @@ export async function GET(req: NextRequest) {
         `SELECT status, COUNT(*)::int AS c, date_trunc('day', "createdAt") AS day
          FROM "Order" WHERE "affiliateId" = $1 AND "createdAt" >= $2
          GROUP BY status, date_trunc('day', "createdAt")`,
+        aff.id, since
+      ),
+      // 30-day daily trend: orders placed + commission value per day
+      db.$queryRawUnsafe<{ day: Date; orders: number; commission: number }[]>(
+        `SELECT date_trunc('day', "createdAt") AS day,
+                COUNT(*)::int AS orders,
+                COALESCE(SUM("commissionTotal"), 0)::float AS commission
+         FROM "Order" WHERE "affiliateId" = $1 AND "createdAt" >= $2
+         GROUP BY 1 ORDER BY 1`,
         aff.id, since
       ),
     ]);
@@ -59,6 +68,11 @@ export async function GET(req: NextRequest) {
       recentOrders,
       topProducts,
       statusDaily: statusRaw,
+      trend: trendRaw.map((t) => ({
+        day: t.day,
+        orders: t.orders,
+        commission: t.commission,
+      })),
       pipelineStatuses: PIPELINE_STATUSES,
     });
   });

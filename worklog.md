@@ -394,3 +394,22 @@ Stage Summary:
 - Founder workflow: set عمولة المسوق per product in the product form → affiliates register (pending) → activate them in المسوقون → they place orders → mark delivered in الطلبات (commission auto-earned) → affiliate requests withdrawal → pay it in طلبات السحب with transfer ref.
 - Improvements over ecomerg: server-computed withdrawal amounts (no free amounts), double-booking guards, atomic payout side-effects, auto reversal on returns, marketer-code attribution at checkout, delivery-rate + wallet cards, honest ledger as single source of truth.
 - Follow-ups for founder: (1) add real affiliates from لوحة التحكم → المسوقون; (2) set commissions on top products; (3) consider an announcement post for existing customers; (4) Vercel auto-deploys — DB changes already live on Neon.
+
+---
+Task ID: 6
+Agent: Super Z (main)
+Task: تحويل المنصة لهوية دروب شيبنج + عمولات 1–2 د.ك لكل منتج حسب التنافسية + تطوير داشبورد المسوقين
+
+Work Log:
+- محرك تخصيص العمولات (scripts/commission/assign.mjs): تقييم تنافسية كل منتج (0-100) من إشارات حقيقية (isBestSeller/demandRank/soldCount/تقييمات معتمدة/عمق الخصم/توفر/نطاق سعر شرائي) → شرائح percentile 30/40/30: 791 منتج × 1.000 د.ك (HOT) + 1,135 × 1.500 (WARM) + 712 × 2.000 (NICHE)، مع حماية هامش (منتج < 3 د.ك لا يأخذ 2 د.ك). تقرير: scripts/commission/report.json. متوسط العمولة 1.485 د.ك. idempotent وقابل لإعادة التشغيل.
+- روابط إحالة ?ref=CODE: src/lib/ref.ts (localStorage 30 يوم، تحقق من صيغة الكود) + captureRef في store-app mount + تعبئة تلقائية لكود المسوق في الـ checkout مع إشارة «تم تعبئة الكود تلقائياً» وقابلية المسح.
+- داشبورد المسوقين: رسم أعمدة SVG لأرباح آخر 30 يوم (trend جديد في /api/affiliate/stats) + صندوق رابط الإحالة (نسخ/واتساب) + شرح شرائح العمولات (1/1.5/2).
+- كتالوج المنتجات للمسوقين: chips فلترة بالشرائح مع أعداد حية (tierCounts groupBy في API) + ترتيب (الأكثر مبيعاً/أعلى عمولة/الأرخص/الأغلى) + badge عمولة ملون لكل منتج + زر «رابطك» (نسخ ?p=slug&ref=code) + زر مشاركة واتساب باسم المنتج والسعر.
+- هوية منصة دروب شيبنج: قسم رئيسي جديد (DropshipSection) بعد شريط الميزات — «منصة دروب شيبنج رقم 1 في الكويت 🇰🇼» + 3 خطوات + آلة حاسبة أرباح تفاعلية (slider طلبات/شهر × عمولة 1/1.5/2) + CTA. تجديد بوابة الدخول (إحصائيات 1–2 د.ك/+2600 منتج/0 رسوم) وبراندينغ السايدبار «منصة دروب شيبنج».
+- E2E بالمتصفح: القسم الرئيسي + الحاسبة (200×2=400 د.ك) ✓، دخول مسوق → داشبورد (رابط إحالة صحيح) ✓، فلترة 712 منتج @ 2.000 ✓، دورة ?ref كاملة: رابط → localStorage → منتج → سلة → checkout معبأ تلقائياً MH-E2E99 ✓، طلب API بعمولة 2×1.5=3.000 د.ك مرتبط بالمسوق ✓ ثم تنظيف كل بيانات الاختبار (الطلب + المسوق) من إنتاج Neon.
+- lint نظيف (0 errors على الملفات المتغيرة)، tsc نظيف لـ src/، next build ✓. رُفع على GitHub main — Vercel ينشر تلقائياً.
+
+Stage Summary:
+- المنصة الآن بموقع «منصة دروب شيبنج» كاملة: كل منتج من 2,638 عليه عمولة 1–2 د.ك معروضة للمسوقين، روابط مشاركة تُنسب تلقائياً لصاحبها 30 يوم، وداشبورد مسوق بمستوى ecomerg (رسم أرباح + محفظة + شرائح + مشاركة).
+- لإعادة تخصيص العمولات مستقبلاً: set -a; source .env; set +a; node scripts/commission/assign.mjs
+- الإدارة تعدل عمولة أي منتج يدوياً من تبويب المنتجات (حقل العمولة موجود).

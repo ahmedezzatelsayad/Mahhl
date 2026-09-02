@@ -15,8 +15,22 @@ export async function GET(req: NextRequest) {
     const sp = req.nextUrl.searchParams;
     const q = (sp.get('q') || '').trim().slice(0, 80);
     const cat = sp.get('cat') || '';
+    // commission tier filter: 1 / 1.5 / 2 (شرائح العمولات)
+    const tier = sp.get('tier') || '';
+    // sort: best (الأكثر مبيعاً) | commission (أعلى عمولة) | price_asc (الأرخص) | price_desc (الأغلى)
+    const sort = sp.get('sort') || 'best';
     const page = Math.max(1, Number(sp.get('page')) || 1);
     const perPage = Math.min(60, Math.max(12, Number(sp.get('perPage')) || 24));
+
+    const tierValue = tier === '1' ? 1 : tier === '1.5' ? 1.5 : tier === '2' ? 2 : null;
+    const orderBy: any[] =
+      sort === 'commission'
+        ? [{ commission: 'desc' }, { soldCount: 'desc' }]
+        : sort === 'price_asc'
+          ? [{ salePrice: 'asc' }]
+          : sort === 'price_desc'
+            ? [{ salePrice: 'desc' }]
+            : [{ isBestSeller: 'desc' }, { soldCount: 'desc' }];
 
     const where: any = {
       AND: [
@@ -31,6 +45,7 @@ export async function GET(req: NextRequest) {
             }
           : {},
         cat ? { categoryId: cat } : {},
+        tierValue != null ? { commission: tierValue } : {},
       ],
     };
 
@@ -41,18 +56,26 @@ export async function GET(req: NextRequest) {
         select: {
           id: true, slug: true, name: true, sku: true, thumb: true,
           price: true, salePrice: true, quantity: true, trackStock: true,
-          commission: true, isBestSeller: true,
+          commission: true, isBestSeller: true, soldCount: true,
         },
-        orderBy: [{ isBestSeller: 'desc' }, { soldCount: 'desc' }],
+        orderBy,
         skip: (page - 1) * perPage,
         take: perPage,
       }),
     ]);
 
+    // توزيع الشرائح في الكتالوج (للـ filter chips)
+    const tierCounts = await db.product.groupBy({
+      by: ['commission'],
+      where: { disableOOS: false },
+      _count: { _all: true },
+    });
+
     return NextResponse.json({
       total,
       page,
       perPage,
+      tierCounts: tierCounts.map((t) => ({ commission: t.commission, count: t._count._all })),
       products: products.map((p) => ({
         ...p,
         sellPrice: effectivePrice(p),

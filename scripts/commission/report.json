@@ -1,0 +1,10 @@
+{
+  "generatedAt": "2026-09-02T18:06:15.223Z",
+  "model": "percentile 30/40/30 on competitiveness score (bestseller, demandRank, soldCount, reviews, discount, stock, price-band) + margin guard <3 KWD",
+  "distribution": {
+    "HOT": 791,
+    "WARM": 1135,
+    "NICHE": 712
+  },
+  "avgCommission": 1.485
+}

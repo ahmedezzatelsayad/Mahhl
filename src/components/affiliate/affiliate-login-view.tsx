@@ -75,10 +75,24 @@ export function AffiliateLoginView() {
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
             <Handshake className="h-8 w-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold">بوابة المسوقين — محل شوب</h1>
+          <h1 className="text-2xl font-bold">منصة دروب شيبنج — محل شوب</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            سوّق منتجاتنا واكسب عمولة على كل طلب مسلّم — بدون رأس مال
+            سوّق آلاف المنتجات واربح من 1 إلى 2 د.ك على كل طلب يوصَل — بدون رأس مال وبدون هم الشحن
           </p>
+          <div className="grid grid-cols-3 gap-2 mt-4 text-center">
+            <div className="border rounded-lg p-2.5 bg-card">
+              <div className="text-lg font-extrabold text-primary">1–2 د.ك</div>
+              <div className="text-[10px] text-muted-foreground">عمولة كل طلب</div>
+            </div>
+            <div className="border rounded-lg p-2.5 bg-card">
+              <div className="text-lg font-extrabold text-primary">+2600</div>
+              <div className="text-[10px] text-muted-foreground">منتج جاهز للتسويق</div>
+            </div>
+            <div className="border rounded-lg p-2.5 bg-card">
+              <div className="text-lg font-extrabold text-primary">0 د.ك</div>
+              <div className="text-[10px] text-muted-foreground">رسوم انضمام</div>
+            </div>
+          </div>
         </div>
 
         {done ? (
@@ -112,7 +126,7 @@ export function AffiliateLoginView() {
                 variant={mode === 'register' ? 'default' : 'outline'}
                 onClick={() => setMode('register')}
               >
-                انضم كمسوق
+                انضم مجاناً
               </Button>
             </div>
 
@@ -209,8 +223,8 @@ export function AffiliateLoginView() {
                   {loading ? 'جاري الإرسال...' : 'إرسال طلب الانضمام'}
                 </Button>
                 <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                  بعد التسجيل تقدر تتصفح المنتجات والعمولات فوراً،
-                  وتبدأ إضافة الطلبات بعد موافقة الإدارة على حسابك.
+                  بعد التسجيل تقدر تتصفح كل المنتجات وعمولاتها (1–2 د.ك) فوراً،
+                  تشارك روابطك التسويقية وتحسب عمولتك تلقائياً على كل طلب يوصَل.
                 </p>
               </form>
             )}

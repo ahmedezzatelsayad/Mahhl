@@ -17,6 +17,7 @@ import { trackEvent } from '@/lib/behavior-tracker';
 import { trackFB } from '@/lib/facebook-pixel';
 import { trackGA4, ga4Item } from '@/lib/ga4';
 import { getUtmForOrder, captureUtm } from '@/lib/utm';
+import { getStoredRef } from '@/lib/ref';
 import { normalizeKwPhone, isValidKwPhone } from '@/lib/kw-phone';
 
 const KUWAIT_GOVERNORATES = [
@@ -42,6 +43,8 @@ export function CheckoutView() {
   const [honeypot, setHoneypot] = useState('');
   const submitLock = useRef(false); // hard double-submit lock
   const [affiliateCode, setAffiliateCode] = useState('');
+  // ?ref=CODE → auto-filled marketer code (user can clear it)
+  const [autoRef, setAutoRef] = useState<string | null>(null);
   const [shippingCfg, setShippingCfg] = useState({ price: 1, freeThreshold: 30, note: '' });
   const [form, setForm] = useState({
     customerName: '',
@@ -91,6 +94,15 @@ export function CheckoutView() {
         }
       })
       .catch(() => {});
+  }, []);
+
+  // Auto-fill marketer code from the stored referral link (?ref=CODE)
+  useEffect(() => {
+    const ref = getStoredRef();
+    if (ref) {
+      setAffiliateCode((prev) => prev || ref);
+      setAutoRef(ref);
+    }
   }, []);
 
   // Track checkout_start once on mount
@@ -371,13 +383,18 @@ export function CheckoutView() {
                 </Label>
                 <Input
                   value={affiliateCode}
-                  onChange={(e) => setAffiliateCode(e.target.value)}
+                  onChange={(e) => {
+                    setAffiliateCode(e.target.value);
+                    setAutoRef(null);
+                  }}
                   placeholder="مثال: MH-7K3F — إذا طلبك عبر مسوق"
                   dir="ltr"
                   className="uppercase"
                 />
                 <p className="text-[11px] text-muted-foreground mt-1">
-                  عندك مسوق بيعك المنتج؟ اكتب كوده هنا لتصله عمولته على هذا الطلب
+                  {autoRef && affiliateCode === autoRef
+                    ? `تم تعبئة كود المسوق ${autoRef} تلقائياً من رابط المشاركة — عمولته تتحسب على هذا الطلب`
+                    : 'عندك مسوق بيعك المنتج؟ اكتب كوده هنا لتصله عمولته على هذا الطلب'}
                 </p>
               </div>
             </div>

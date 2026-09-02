@@ -9,6 +9,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Truck, Shield, CreditCard, Headphones, Sparkles, Megaphone, HelpCircle, Flame } from 'lucide-react';
 import { useBrand } from '@/components/store/header';
 import { HeroSlider, type Slide } from '@/components/store/hero-slider';
+import { DropshipSection } from '@/components/store/dropship-section';
 import { useT } from '@/lib/i18n';
 import { readLang } from '@/lib/stores/lang-store';
 import type { SliderSlide } from '@/lib/slider-types';
@@ -211,6 +212,9 @@ export function HomeView() {
           </div>
         </div>
       </section>
+
+      {/* ===== منصة دروب شيبنج رقم 1 في الكويت — وجه المنصة للمسوقين ===== */}
+      <DropshipSection />
 
       {/* ===== TOP-100 Kuwait/Gulf most-demanded — research-ranked, founder-requested ===== */}
       {topDemand.length > 0 && (

@@ -8,6 +8,7 @@
 import { useEffect } from 'react';
 import { useAppStore } from '@/lib/stores/app-store';
 import { captureUtm } from '@/lib/utm';
+import { captureRef } from '@/lib/ref';
 import { Header } from '@/components/store/header';
 import { Footer } from '@/components/store/footer';
 import { CartDrawer } from '@/components/store/cart-drawer';
@@ -76,8 +77,9 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
 
   // Hydrate store from the server-resolved URL state (deep links / SEO)
   useEffect(() => {
-    // Capture ad attribution (?utm_*) on the first landing of the session
+    // Capture ad attribution (?utm_*) + marketer referral (?ref=CODE)
     captureUtm();
+    captureRef();
     applyUrlState({
       view: initial.view,
       infoPage: (INFO_PAGES.includes(initial.infoPage as InfoPage)
