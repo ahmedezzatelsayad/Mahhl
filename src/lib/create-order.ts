@@ -64,7 +64,10 @@ export interface CreateOrderInput {
   /** customer already verified via auth token (guest checkout = null) */
   authCustomerId?: string | null;
   /** marks orders created by the AI agent for admin visibility */
-  source?: 'checkout' | 'ai-agent';
+  source?: 'checkout' | 'ai-agent' | 'affiliate';
+  /** affiliate attribution: resolved internally (id for portal orders, code for checkout box) */
+  affiliateId?: string | null;
+  affiliateCode?: string | null;
 }
 
 export type CreateOrderResult =
@@ -136,6 +139,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       trackStock: true,
       quantity: true,
       disableOOS: true,
+      commission: true,
     },
   });
   const byId = new Map(products.map((p) => [p.id, p]));
@@ -158,11 +162,17 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       price: effectivePrice(p),
       quantity: qtyById.get(p.id)!,
       image: p.thumb,
+      // per-unit commission snapshot (نظام العمولات)
+      commission: p.commission || 0,
       variations:
         typeof rawItems.find((i) => i?.productId === p.id)?.variations === 'string'
           ? cleanText(rawItems.find((i) => i?.productId === p.id)?.variations, 400) || null
           : null,
     }));
+
+  const affiliateCommissionTotal = Math.round(
+    orderItemsData.reduce((s, i) => s + i.commission * i.quantity, 0) * 1000
+  ) / 1000;
 
   const subtotal =
     Math.round(orderItemsData.reduce((s, i) => s + i.price * i.quantity, 0) * 1000) / 1000;
@@ -238,10 +248,21 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     accountCreated = true;
   }
 
-  // ---- 7. UTM attribution (ads readiness) ----------------------
+  // ---- 7. Affiliate attribution (نظام العمولات) ------------------
+  let affiliate: { id: string; code: string } | null = null;
+  if (input.affiliateId) {
+    const aff = await db.affiliate.findUnique({ where: { id: input.affiliateId } });
+    if (aff && aff.status === 'active') affiliate = { id: aff.id, code: aff.code };
+  } else if (input.affiliateCode) {
+    const code = cleanText(input.affiliateCode, 20).toUpperCase();
+    const aff = await db.affiliate.findUnique({ where: { code } });
+    if (aff && aff.status === 'active') affiliate = { id: aff.id, code: aff.code };
+  }
+
+  // ---- 8. UTM attribution (ads readiness) ----------------------
   const utm = input.utm || {};
 
-  // ---- 8. Atomic stock guard + order create (pool-safe) --------
+  // ---- 9. Atomic stock guard + order create (pool-safe) --------
   // Race-safe under concurrency (e.g. many buyers hitting the last unit in
   // the same second) WITHOUT an interactive transaction: interactive BEGIN
   // is unreliable on Neon's PgBouncer (-pooler) endpoint under bursts
@@ -293,6 +314,9 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
         phone,
         customerName,
         arrivalNote: AUTO_SHIP_ARRIVAL_NOTE,
+        affiliateId: affiliate?.id || null,
+        affiliateCode: affiliate?.code || null,
+        commissionTotal: affiliate ? affiliateCommissionTotal : null,
         utmSource: cleanText(utm.utmSource, 120) || null,
         utmMedium: cleanText(utm.utmMedium, 120) || null,
         utmCampaign: cleanText(utm.utmCampaign, 150) || null,

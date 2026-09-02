@@ -89,6 +89,7 @@ export async function POST(req: NextRequest) {
         landingPath: body.landingPath,
       },
       authCustomerId,
+      affiliateCode: body.affiliateCode || null,
       source: 'checkout',
     });
 
@@ -119,7 +120,11 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   return requirePermission(req, 'orders', 'view', async () => {
     const orders = await db.order.findMany({
-      include: { items: true, customer: true },
+      include: {
+        items: true,
+        customer: true,
+        affiliate: { select: { name: true, code: true } },
+      },
       orderBy: { createdAt: 'desc' },
       take: 200,
     });

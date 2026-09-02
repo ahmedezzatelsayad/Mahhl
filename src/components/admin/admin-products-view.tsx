@@ -326,6 +326,7 @@ function ProductForm({ mode }: { mode: 'add' | 'edit' }) {
     sku: '',
     price: '',
     salePrice: '',
+    commission: '',
     quantity: '20',
     categoryId: '',
     description: '',
@@ -357,6 +358,7 @@ function ProductForm({ mode }: { mode: 'add' | 'edit' }) {
             sku: p.sku || '',
             price: String(p.price ?? ''),
             salePrice: String(p.salePrice ?? ''),
+            commission: String(p.commission ?? 0),
             quantity: String(p.quantity ?? 20),
             categoryId: p.categoryId || '',
             description: p.description || '',
@@ -428,6 +430,7 @@ function ProductForm({ mode }: { mode: 'add' | 'edit' }) {
         sku: form.sku.trim(),
         price,
         salePrice,
+        commission: form.commission ? parseFloat(form.commission) : 0,
         quantity: parseInt(form.quantity) || 0,
         categoryId: form.categoryId || null,
         description: form.description,
@@ -586,7 +589,7 @@ function ProductForm({ mode }: { mode: 'add' | 'edit' }) {
 
         <Card className="p-5 space-y-4">
           <h2 className="font-bold text-sm">السعر والمخزون (د.ك)</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <Label className="mb-1 block">السعر الأصلي <span className="text-destructive">*</span></Label>
               <Input
@@ -605,6 +608,17 @@ function ProductForm({ mode }: { mode: 'add' | 'edit' }) {
                 value={form.salePrice}
                 onChange={(e) => setForm({ ...form, salePrice: e.target.value })}
                 placeholder="8.500 (اتركه فاضي = نفس الأصلي)"
+                dir="ltr"
+                className="bg-white"
+              />
+            </div>
+            <div>
+              <Label className="mb-1 block">عمولة المسوق 🤝</Label>
+              <Input
+                type="number" step="0.001" min="0"
+                value={form.commission}
+                onChange={(e) => setForm({ ...form, commission: e.target.value })}
+                placeholder="1.000 لكل قطعة"
                 dir="ltr"
                 className="bg-white"
               />

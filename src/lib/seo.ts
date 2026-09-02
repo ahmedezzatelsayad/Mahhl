@@ -475,7 +475,7 @@ export async function resolveSeoPage(sp: Record<string, string | string[] | unde
   const view = one('view');
   const q = one('q');
 
-  if (view?.startsWith('admin')) return { kind: 'admin' };
+  if (view?.startsWith('admin') || view?.startsWith('affiliate')) return { kind: 'admin' };
 
   if (p) {
     const product = await loadProduct(p);

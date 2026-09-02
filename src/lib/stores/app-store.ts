@@ -40,7 +40,18 @@ export type View =
   | 'admin-settings'
   | 'admin-staff'
   | 'admin-add-product'
-  | 'admin-edit-product';
+  | 'admin-edit-product'
+  | 'admin-affiliates'
+  | 'admin-commissions'
+  | 'admin-withdrawals'
+  // ===== بوابة المسوقين (affiliate portal) =====
+  | 'affiliate-login'
+  | 'affiliate-dashboard'
+  | 'affiliate-products'
+  | 'affiliate-add-order'
+  | 'affiliate-orders'
+  | 'affiliate-commissions'
+  | 'affiliate-profile';
 
 export type InfoPage =
   | 'about'
@@ -82,6 +93,9 @@ interface AppState {
   editProductId: string | null;
   /** prefill for the guest tracking form (order + phone from AI agent receipts) */
   trackPrefill: { orderNumber: string; phone: string } | null;
+  /** ===== affiliate portal session ===== */
+  affiliateToken: string | null;
+  affiliateUser: { id: string; name: string; phone: string; code: string; status: string } | null;
 
   setView: (v: View) => void;
   openInfo: (page: InfoPage) => void;
@@ -102,6 +116,9 @@ interface AppState {
   setCategoryMap: (cats: { id: string; slug: string }[]) => void;
   setEditProduct: (id: string | null) => void;
   setTrackPrefill: (v: { orderNumber: string; phone: string } | null) => void;
+  loginAffiliate: (token: string, user: { id: string; name: string; phone: string; code: string; status: string }) => void;
+  logoutAffiliate: () => void;
+  updateAffiliateStatus: (status: string) => void;
   /** apply a state patch coming from URL parsing — no history push */
   applyUrlState: (patch: Partial<Pick<AppState, 'view' | 'infoPage' | 'selectedProductSlug' | 'selectedCategoryId' | 'selectedCategorySlug' | 'searchQuery' | 'selectedLandingSlug'>>) => void;
 }
@@ -136,6 +153,8 @@ export const useAppStore = create<AppState>()(
       categoryMap: {},
       editProductId: null,
       trackPrefill: null,
+      affiliateToken: null,
+      affiliateUser: null,
 
       setView: (v) => {
         set({ view: v });
@@ -148,6 +167,7 @@ export const useAppStore = create<AppState>()(
         else if (v === 'checkout') pushUrl('/?checkout=1');
         else if (v === 'order-success') pushUrl('/?order=1');
         else if (v.startsWith('admin-')) pushUrl(`/?view=${v}`);
+        else if (v.startsWith('affiliate-')) pushUrl(`/?view=${v}`);
         // info pushes its own URL via openInfo
       },
       openInfo: (page) => {
@@ -230,6 +250,16 @@ export const useAppStore = create<AppState>()(
         }),
       setEditProduct: (id) => set({ editProductId: id }),
       setTrackPrefill: (v) => set({ trackPrefill: v }),
+      loginAffiliate: (token, user) =>
+        set({ affiliateToken: token, affiliateUser: user, view: 'affiliate-dashboard' }),
+      logoutAffiliate: () => {
+        set({ affiliateToken: null, affiliateUser: null, view: 'affiliate-login' });
+        pushUrl('/?view=affiliate-login');
+      },
+      updateAffiliateStatus: (status) =>
+        set((s) =>
+          s.affiliateUser ? { affiliateUser: { ...s.affiliateUser, status } } : {}
+        ),
       applyUrlState: (patch) => set(patch),
     }),
     {
@@ -240,6 +270,8 @@ export const useAppStore = create<AppState>()(
         adminUser: s.adminUser,
         customer: s.customer,
         customerToken: s.customerToken,
+        affiliateToken: s.affiliateToken,
+        affiliateUser: s.affiliateUser,
       }),
     }
   )

@@ -27,6 +27,9 @@ export const MODULES = [
   'facebook',
   'settings',
   'staff',
+  'affiliates',
+  'commissions',
+  'withdrawals',
 ] as const;
 export type Module = (typeof MODULES)[number];
 
@@ -57,6 +60,9 @@ export const MODULE_LABELS_AR: Record<Module, string> = {
   facebook: 'التتبع والتحليلات',
   settings: 'الإعدادات',
   staff: 'المستخدمون والصلاحيات',
+  affiliates: 'المسوقون',
+  commissions: 'العمولات والمحاسبة',
+  withdrawals: 'طلبات السحب',
 };
 
 export const ACCESS_LABELS_AR: Record<Access, string> = {
@@ -79,30 +85,35 @@ export const ROLE_MATRIX: Record<Role, Record<Module, Access>> = {
     categories: 'manage', reviews: 'manage', reports: 'manage', top100: 'manage',
     insights: 'manage', seo: 'manage', slider: 'manage', landing: 'manage',
     facebook: 'manage', settings: 'manage', staff: 'manage',
+    affiliates: 'manage', commissions: 'manage', withdrawals: 'manage',
   },
   admin: {
     dashboard: 'manage', orders: 'manage', products: 'manage', inventory: 'manage',
     categories: 'manage', reviews: 'manage', reports: 'manage', top100: 'manage',
     insights: 'manage', seo: 'manage', slider: 'manage', landing: 'manage',
     facebook: 'manage', settings: 'manage', staff: 'none',
+    affiliates: 'manage', commissions: 'manage', withdrawals: 'manage',
   },
   manager: {
     dashboard: 'manage', orders: 'manage', products: 'manage', inventory: 'manage',
     categories: 'manage', reviews: 'manage', reports: 'view', top100: 'view',
     insights: 'view', seo: 'none', slider: 'view', landing: 'none',
     facebook: 'none', settings: 'none', staff: 'none',
+    affiliates: 'view', commissions: 'view', withdrawals: 'manage',
   },
   support: {
     dashboard: 'view', orders: 'manage', products: 'none', inventory: 'none',
     categories: 'none', reviews: 'manage', reports: 'view', top100: 'view',
     insights: 'none', seo: 'none', slider: 'none', landing: 'none',
     facebook: 'none', settings: 'none', staff: 'none',
+    affiliates: 'view', commissions: 'view', withdrawals: 'view',
   },
   viewer: {
     dashboard: 'view', orders: 'view', products: 'view', inventory: 'view',
     categories: 'view', reviews: 'view', reports: 'view', top100: 'view',
     insights: 'view', seo: 'view', slider: 'view', landing: 'view',
     facebook: 'none', settings: 'none', staff: 'none',
+    affiliates: 'view', commissions: 'view', withdrawals: 'view',
   },
 };
 
@@ -140,6 +151,9 @@ export const VIEW_MODULE: Record<string, Module> = {
   'admin-facebook': 'facebook',
   'admin-settings': 'settings',
   'admin-staff': 'staff',
+  'admin-affiliates': 'affiliates',
+  'admin-commissions': 'commissions',
+  'admin-withdrawals': 'withdrawals',
 };
 
 /**

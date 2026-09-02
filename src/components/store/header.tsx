@@ -1,6 +1,6 @@
 'use client';
 
-import { ShoppingCart, Menu, X, Store, User, Heart, MessageCircle, Languages } from 'lucide-react';
+import { ShoppingCart, Menu, X, Store, User, Heart, MessageCircle, Languages, Handshake } from 'lucide-react';
 import { useAppStore } from '@/lib/stores/app-store';
 import { useCartStore } from '@/lib/stores/cart-store';
 import { useWishlistStore } from '@/lib/stores/wishlist-store';
@@ -142,6 +142,17 @@ export function Header() {
               {t('hdr.track')}
             </Button>
 
+            {/* بوابة المسوقين */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden lg:flex gap-1.5 border-primary/40 text-primary hover:text-primary"
+              onClick={() => setView('affiliate-login')}
+            >
+              <Handshake className="h-4 w-4" />
+              سوّق معنا
+            </Button>
+
             {/* حسابي */}
             <Button
               variant="ghost"
@@ -226,6 +237,7 @@ export function Header() {
                 { label: t('hdr.allProducts'), action: () => setView('shop') },
                 { label: customer ? `${t('hdr.account')} (${customer.name.split(' ')[0]})` : t('hdr.accountLogin'), action: () => setView('account') },
                 { label: t('hdr.track'), action: () => setView('track-order') },
+                { label: 'سوّق معنا 💰', action: () => setView('affiliate-login') },
                 { label: t('hdr.wishlist'), action: () => setView('wishlist') },
                 { label: t('hdr.cart'), action: () => setView('cart') },
                 {

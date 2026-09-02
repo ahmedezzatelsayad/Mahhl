@@ -101,6 +101,7 @@ export async function POST(req: NextRequest) {
           keywords: body.keywords || null,
           price,
           salePrice,
+          commission: Math.max(0, parseFloat(body.commission) || 0),
           quantity: parseInt(body.quantity ?? '20') || 20,
           trackStock: !!body.trackStock,
           disableOOS: !!body.disableOOS,

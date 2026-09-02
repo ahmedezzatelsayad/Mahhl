@@ -41,6 +41,7 @@ export function CheckoutView() {
   const [loading, setLoading] = useState(false);
   const [honeypot, setHoneypot] = useState('');
   const submitLock = useRef(false); // hard double-submit lock
+  const [affiliateCode, setAffiliateCode] = useState('');
   const [shippingCfg, setShippingCfg] = useState({ price: 1, freeThreshold: 30, note: '' });
   const [form, setForm] = useState({
     customerName: '',
@@ -163,6 +164,7 @@ export function CheckoutView() {
           ...form,
           phone: normalizedPhone,
           website: honeypot, // honeypot — must stay empty
+          affiliateCode: affiliateCode.trim() || null, // كود المسوق (اختياري)
           ...getUtmForOrder(),
           items: items.map((i) => ({
             productId: i.productId,
@@ -362,6 +364,21 @@ export function CheckoutView() {
                   placeholder={t('ck.notesPh')}
                   rows={2}
                 />
+              </div>
+              <div>
+                <Label className="mb-1 flex items-center gap-1">
+                  كود المسوق (اختياري)
+                </Label>
+                <Input
+                  value={affiliateCode}
+                  onChange={(e) => setAffiliateCode(e.target.value)}
+                  placeholder="مثال: MH-7K3F — إذا طلبك عبر مسوق"
+                  dir="ltr"
+                  className="uppercase"
+                />
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  عندك مسوق بيعك المنتج؟ اكتب كوده هنا لتصله عمولته على هذا الطلب
+                </p>
               </div>
             </div>
 

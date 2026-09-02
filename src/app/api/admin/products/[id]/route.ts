@@ -34,6 +34,7 @@ export async function PUT(
       if (body.disableOOS !== undefined) data.disableOOS = !!body.disableOOS;
       if (body.price !== undefined) data.price = parseFloat(body.price);
       if (body.salePrice !== undefined) data.salePrice = parseFloat(body.salePrice);
+      if (body.commission !== undefined) data.commission = Math.max(0, parseFloat(body.commission) || 0);
       if (body.name !== undefined) data.name = String(body.name).trim();
       if (body.description !== undefined) data.description = body.description;
       if (body.metaDescription !== undefined) data.metaDescription = body.metaDescription || null;

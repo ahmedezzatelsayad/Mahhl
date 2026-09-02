@@ -41,10 +41,14 @@ import { AdminReviewsView } from '@/components/admin/admin-reviews-view';
 import { AdminSeoView } from '@/components/admin/admin-seo-view';
 import { AdminSettingsView } from '@/components/admin/admin-settings-view';
 import { AdminStaffView } from '@/components/admin/admin-staff-view';
+import { AdminAffiliatesView } from '@/components/admin/admin-affiliates-view';
+import { AdminCommissionsView } from '@/components/admin/admin-commissions-view';
+import { AdminWithdrawalsView } from '@/components/admin/admin-withdrawals-view';
 import { canAccessView, firstPermittedAdminView } from '@/lib/permissions';
 import { FacebookPixel } from '@/components/store/facebook-pixel';
 import { LandingView } from '@/components/store/landing-view';
 import { ViewErrorBoundary } from '@/components/store/view-error-boundary';
+import { AffiliatePortal } from '@/components/affiliate/affiliate-app';
 
 export interface InitialUrlState {
   /** any view incl. admin-* — admin views render only for authenticated admins */
@@ -65,6 +69,7 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
   const view = useAppStore((s) => s.view);
   const isAdmin = useAppStore((s) => s.isAdmin);
   const adminUser = useAppStore((s) => s.adminUser);
+  const affiliateToken = useAppStore((s) => s.affiliateToken);
   const refreshAdmin = useAppStore((s) => s.refreshAdmin);
   const setView = useAppStore((s) => s.setView);
   const applyUrlState = useAppStore((s) => s.applyUrlState);
@@ -267,7 +272,21 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
   else if (view === 'admin-seo' && isAdmin) content = <AdminSeoView />;
   else if (view === 'admin-settings' && isAdmin) content = <AdminSettingsView />;
   else if (view === 'admin-staff' && isAdmin) content = <AdminStaffView />;
+  else if (view === 'admin-affiliates' && isAdmin) content = <AdminAffiliatesView />;
+  else if (view === 'admin-commissions' && isAdmin) content = <AdminCommissionsView />;
+  else if (view === 'admin-withdrawals' && isAdmin) content = <AdminWithdrawalsView />;
+  else if (view === 'affiliate-login' || (view.startsWith('affiliate-') && affiliateToken))
+    content = <AffiliatePortal />;
   else content = <HomeView />;
+
+  // ===== بوابة المسوقين: shell خاص بها (بدون هيدر/فوتر المتجر) =====
+  if (view.startsWith('affiliate-')) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <AffiliatePortal />
+      </div>
+    );
+  }
 
   if (isAdminView) {
     return (

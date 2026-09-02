@@ -58,6 +58,8 @@ model Product {
   variations      String?
   supplier        String?
   originalPrice   Float?
+  // per-unit affiliate commission in KWD (نظام العمولات) — paid to the marketer per sold unit
+  commission      Float         @default(0)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   orderItems      OrderItem[]
@@ -141,6 +143,20 @@ model Order {
   /** human arrival promise shown to the customer */
   arrivalNote  String?
 
+  // ===== Affiliate attribution (نظام العمولات) =====
+  /// marketer who placed/owns this order — null for direct store orders
+  affiliateId     String?
+  affiliate       Affiliate? @relation(fields: [affiliateId], references: [id], onDelete: SetNull)
+  /// affiliate code snapshot at order time
+  affiliateCode   String?
+  /// total commission owed for this order (snapshot, sum of items)
+  commissionTotal Float?
+
+  // Commission ledger entries tied to this order (earned/reversal)
+  commissionEntries CommissionEntry[]
+  /// withdrawal requests this order was included in
+  withdrawalOrders  WithdrawalOrder[] @relation("WithdrawalOrders")
+
   // Ad-traffic attribution (utm params captured on first landing)
   utmSource    String?
   utmMedium    String?
@@ -170,6 +186,8 @@ model OrderItem {
   quantity    Int
   image       String?
   variations  String?
+  /// per-unit commission snapshot at order time (نظام العمولات)
+  commission  Float     @default(0)
 
   @@index([orderId])
   @@index([productId])
@@ -194,6 +212,104 @@ model SiteSetting {
   key       String   @id // e.g. "facebook_pixel", "deepseek", "shipping"
   value     Json     // { enabled, pixelId, accessToken, testEventCode }
   updatedAt DateTime @updatedAt
+}
+
+// ===== Affiliate / Marketer Commission System (نظام العمولات والمحاسبة) =====
+
+/// A marketer (مسوق) who sells products for a commission.
+/// Affiliates register, browse products with commission info, place orders
+/// for their customers, and withdraw their earned commission.
+model Affiliate {
+  id            String    @id @default(cuid())
+  name          String
+  /// Kuwaiti phone, used as login identifier
+  phone         String    @unique
+  email         String?   @unique
+  passwordHash  String
+  /// unique referral/shareable code (auto-generated)
+  code          String    @unique
+  /// active | suspended | pending (pending = awaiting admin approval)
+  status        String    @default("active")
+  /// payout preferences: knet | vodafone | paypal | bank
+  paymentMethod  String?
+  /// payout account identifier (IBAN / phone / email)
+  paymentAccount String?
+  notes         String?
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  orders      Order[]
+  ledger      CommissionEntry[]
+  withdrawals WithdrawalRequest[]
+
+  @@index([status])
+}
+
+/// Single source of truth for every commission money movement.
+/// Types: earned (+, order delivered) | reversal (−, order returned/cancelled
+/// after earning) | payout (−, money sent to affiliate) | adjustment (±, manual).
+model CommissionEntry {
+  id          String    @id @default(cuid())
+  affiliateId String
+  affiliate   Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  orderId     String?
+  order       Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  type        String
+  /// signed amount: positive increases balance, negative decreases
+  amount      Float
+  note        String?
+  /// admin who performed a manual adjustment / payout
+  createdById String?
+  createdAt   DateTime  @default(now())
+
+  @@index([affiliateId, createdAt])
+  @@index([orderId])
+  @@index([type])
+}
+
+/// Withdrawal request: affiliate selects delivered orders whose commission
+/// they want cashed out; admin approves & marks paid (with transfer proof).
+model WithdrawalRequest {
+  id            String    @id @default(cuid())
+  affiliateId   String
+  affiliate     Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  /// sum of selected orders' commission
+  amount        Float
+  /// knet | vodafone | paypal | bank
+  method        String
+  /// account snapshot at request time
+  accountInfo   String?
+  /// pending | paid | rejected
+  status        String    @default("pending")
+  adminNote     String?
+  /// transfer proof (image URL) attached by admin on payment
+  screenshotUrl String?
+  /// transfer reference code entered by admin
+  paymentRef    String?
+  processedById String?
+  processedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  orders WithdrawalOrder[]
+
+  @@index([affiliateId, status])
+  @@index([status, createdAt])
+}
+
+/// Which delivered orders are included in a withdrawal request.
+model WithdrawalOrder {
+  id            String            @id @default(cuid())
+  withdrawalId  String
+  withdrawal    WithdrawalRequest @relation(fields: [withdrawalId], references: [id], onDelete: Cascade)
+  orderId       String
+  order         Order             @relation("WithdrawalOrders", fields: [orderId], references: [id], onDelete: Cascade)
+  /// commission snapshot at selection time
+  amount        Float
+
+  @@unique([withdrawalId, orderId])
+  @@index([orderId])
 }
 
 // ===== AI-Generated Landing Pages =====

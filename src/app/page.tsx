@@ -133,7 +133,12 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
         openGraph: { ...ogBase, title: page.title, url: `${siteUrl}/?info=${page.page}` },
       };
     case 'admin':
-      return { title: 'دخول الإدارة', robots: NO_INDEX };
+      return {
+        title: String(one0('view') || '').startsWith('affiliate')
+          ? 'بوابة المسوقين — محل شوب'
+          : 'دخول الإدارة',
+        robots: NO_INDEX,
+      };
     default:
       return {
         title: seo.siteTitle,
@@ -197,10 +202,26 @@ export default async function Page({ searchParams }: PageProps) {
     'admin-staff',
     'admin-add-product',
     'admin-edit-product',
+    'admin-affiliates',
+    'admin-commissions',
+    'admin-withdrawals',
+  ] as const;
+  // Whitelist of affiliate-portal views (rendered only for logged-in
+  // affiliates — StoreApp shows the login view otherwise)
+  const AFFILIATE_VIEWS = [
+    'affiliate-login',
+    'affiliate-dashboard',
+    'affiliate-products',
+    'affiliate-add-order',
+    'affiliate-orders',
+    'affiliate-commissions',
+    'affiliate-profile',
   ] as const;
   if (page.kind === 'admin') {
     const v = String(one('view') || '');
     if ((ADMIN_VIEWS as readonly string[]).includes(v)) {
+      initial.view = v as InitialUrlState['view'];
+    } else if ((AFFILIATE_VIEWS as readonly string[]).includes(v)) {
       initial.view = v as InitialUrlState['view'];
     }
   }

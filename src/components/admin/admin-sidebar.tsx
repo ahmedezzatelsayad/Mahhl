@@ -21,6 +21,9 @@ import {
   Star,
   Trophy,
   Users,
+  Handshake,
+  Receipt,
+  Banknote,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -41,6 +44,9 @@ const navItems: NavItem[] = [
   { view: 'admin-top100', label: 'الأكثر طلباً Top 100', icon: Trophy },
   { view: 'admin-inventory', label: 'المخزون', icon: Boxes },
   { view: 'admin-orders', label: 'الطلبات', icon: ShoppingCart },
+  { view: 'admin-affiliates', label: 'المسوقون', icon: Handshake },
+  { view: 'admin-commissions', label: 'العمولات والمحاسبة', icon: Receipt },
+  { view: 'admin-withdrawals', label: 'طلبات السحب', icon: Banknote },
   { view: 'admin-categories', label: 'الفئات', icon: Tags },
   { view: 'admin-insights', label: 'محرك الذكاء', icon: Brain },
   { view: 'admin-facebook', label: 'التتبع والتحليلات', icon: Facebook },

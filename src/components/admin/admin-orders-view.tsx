@@ -12,20 +12,27 @@ import { Truck, Loader2 } from 'lucide-react';
 import { useAppStore } from '@/lib/stores/app-store';
 
 const STATUS_LABELS: Record<string, string> = {
-  pending: 'قيد الانتظار',
-  confirmed: 'مؤكد',
+  pending: 'معلق',
+  confirmed: 'تم التأكيد',
+  deferred: 'مؤجل',
   processing: 'قيد التجهيز',
   shipped: 'تم الشحن',
   delivered: 'تم التسليم',
-  cancelled: 'ملغي',
+  returned: 'مرتجع',
+  cancelled: 'ملغي قبل الشحن',
+  commission_received: 'تم استلام العمولة',
 };
 
 const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
   confirmed: 'bg-blue-100 text-blue-800',
+  deferred: 'bg-orange-100 text-orange-800',
+  processing: 'bg-cyan-100 text-cyan-800',
   shipped: 'bg-purple-100 text-purple-800',
   delivered: 'bg-green-100 text-green-800',
+  returned: 'bg-rose-100 text-rose-800',
   cancelled: 'bg-red-100 text-red-800',
+  commission_received: 'bg-emerald-100 text-emerald-800',
 };
 
 export function AdminOrdersView() {
@@ -182,6 +189,20 @@ export function AdminOrdersView() {
                         >
                           إعلان: {(o as any).utmSource}
                         </Badge>
+                      )}
+                      {(o as any).affiliate && (
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] border-amber-300 text-amber-700 bg-amber-50"
+                          title={`مسوق: ${(o as any).affiliate.name}`}
+                        >
+                          🤝 {(o as any).affiliate.name}
+                        </Badge>
+                      )}
+                      {(o as any).commissionTotal > 0 && (
+                        <span className="text-[11px] font-bold text-amber-700">
+                          عمولة: {formatKwd((o as any).commissionTotal)}
+                        </span>
                       )}
                     </div>
                     <p className="text-sm">
