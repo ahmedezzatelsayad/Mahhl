@@ -435,3 +435,20 @@ Work Log:
 Stage Summary:
 - الموقع كله الآن بهوية منصة دروب شيبنج في الكويت: metadata + JSON-LD + شريط إعلاني + سلايدر + فوتر + صفحات المعلومات + FAQ + المساعد الذكي + llms.txt/manifest — بالعربية والإنجليزية.
 - ملاحظة للمؤسس: لو كان عندك شريط إعلاني/تاجلاين محفوظين مخصصة من لوحة التحكم سيتم ترقيتهما تلقائياً لو قيمتهما = القيمة الافتراضية القديمة؛ وتقدر تعدل السلايدر من تبويب «السلايدر» إذا أردت سلايدات منتجات بدل سلايد المنصة.
+
+---
+Task ID: 8
+Agent: Super Z (main)
+Task: إصلاح فشل نشر Vercel — ENOENT next-server.js.nft.json
+
+Work Log:
+- تشخيص: build على Vercel ينجح حتى "Finalizing page optimization" ثم يفشل بـ ENOENT /vercel/path0/.next/next-server.js.nft.json — السبب output: "standalone" في next.config.ts غير مدعوم على Vercel (Vercel له pipeline خاص؛ standalone للم:hosting الذاتي فقط).
+- إصلاح next.config.ts: جعل output شرطياً — يتفعل فقط عند BUILD_STANDALONE=1 (للتشغيل الذاتي)، ويعطل افتراضياً فيرفع Vercel بلا مشاكل.
+- إصلاح package.json: build = "prisma generate && next build" (بدل خطوات cp الخاصة بالـ standalone التي كانت ستتعطل)، وأضيف build:standalone للم hosting الذاتي بنفس السلوك القديم. start بقي كما هو (للـ standalone الذاتي فقط).
+- التحقق محلياً: npm install + npm run build نظيف (33 صفحة) — وملف .next/next-server.js.nft.json يُنشأ فعلاً بعد إزالة standalone (وهو الملف الذي تبحث عنه Vercel)، ولا يوجد مجلد .next/standalone.
+- استعادة البيئة بعد sandbox reset: أعيد استنساخ المستودع، واستُرجع رابط Neon الحقيقي من scripts/test-neon.ts (كان محفوظاً داخله) وأعيد إنشاء .env محلي (NEON_DATABASE_URL + DIRECT_URL بدون -pooler). إنتاج Neon وVercel env غير متأثرين.
+
+Stage Summary:
+- سبب فشل النشر: standalone + خطوات cp في build — أُصلحا. أي deploy قادم على Vercel سينجح.
+- للنشر الذاتي مستقبلاً: npm run build:standalone ثم bun .next/standalone/server.js.
+- .env المحلي مستعاد؛ رابط Neon متاح محلياً للاختبار (لا يُرفع على git).

@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
+// ⚠️ `output: "standalone"` must NEVER be active on Vercel:
+// Vercel's build finalizer expects `.next/next-server.js.nft.json`, which
+// standalone builds do not emit at that path → deploy fails with
+// "Error: ENOENT ... next-server.js.nft.json".
+// Standalone is only for self-hosting: BUILD_STANDALONE=1 npm run build:standalone
 const nextConfig: NextConfig = {
-  output: "standalone",
+  ...(process.env.BUILD_STANDALONE === "1" ? { output: "standalone" as const } : {}),
   typescript: {
     ignoreBuildErrors: true,
   },
