@@ -12,10 +12,11 @@ type Dict = Record<string, { ar: string; en: string }>;
 export const DICT: Dict = {
   /* ===== header ===== */
   'hdr.announcement': {
-    ar: 'منصة دروب شيبنج رقم 1 في الكويت 🇰🇼 — عمولة 1–2 د.ك على كل طلب · دفع عند الاستلام · شحن مجاني فوق 30 د.ك',
-    en: 'Kuwait’s #1 Dropshipping Platform 🇰🇼 — 1–2 KWD commission per order · Cash on Delivery · FREE shipping over 30 KWD',
+    ar: 'منصة دروب شيبنج رقم 1 في الكويت 🇰🇼 — عمولات مقترحة من 1 إلى 10 د.ك على كل منتج · إنت تختار عمولتك',
+    en: 'Kuwait’s #1 Dropshipping Platform 🇰🇼 — suggested commissions 1–10 KWD per product · you pick your own',
   },
   'hdr.track': { ar: 'تتبع طلبك', en: 'Track Order' },
+  'hdr.affiliate': { ar: 'سوّق معنا 💰', en: 'Sell With Us 💰' },
   'hdr.account': { ar: 'حسابي', en: 'My Account' },
   'hdr.wishlist': { ar: 'المفضلة', en: 'Wishlist' },
   'hdr.cart': { ar: 'السلة', en: 'Cart' },
@@ -210,14 +211,14 @@ export const DICT: Dict = {
   'ch.sug2': { ar: 'ساعات', en: 'Watches' },
   'ch.sug3': { ar: 'لعبة أطفال', en: "Kids' toys" },
   'ch.sug4': { ar: 'إكسسوارات موبايل', en: 'Mobile accessories' },
-  'ch.sugOrder': { ar: 'أبي أسجل طلب 🛒', en: 'I want to place an order 🛒' },
-  'ch.agentTitle': { ar: 'مندوب محل شوب الذكي', en: 'Mahal Shop AI Rep' },
-  'ch.agentSub': { ar: 'يلقى لك اللي تبيه ويسجّل طلبك — دفع عند الاستلام', en: 'Finds it & places your order — cash on delivery' },
+  'ch.sugOrder': { ar: 'أبي ألاقي منتج أربح منه 💰', en: 'Find me a product to sell 💰' },
+  'ch.agentTitle': { ar: 'مساعد محل شوب الذكي', en: 'Mahal Shop AI Assistant' },
+  'ch.agentSub': { ar: 'يدوّر لك منتجات تربح منها — عمولات من 1 إلى 10 د.ك', en: 'Finds winning products for you — commissions 1–10 KWD' },
   'ch.agentWelcome': {
-    ar: 'هلا والله! 👋 أنا مندوب محل شوب — أول منصة دروب شيبنج في الكويت، وأعرف المنتجات كلها وأقدر أسجّل طلبك من هنا مباشرة.\nقل لي شنو تدور عليه (عطر، ساعة، خلاط..) وألقاه لك، وبعدها أجمع بيانات التوصيل وأأكّد الطلب ✅\nواللي يبي يربح: سجّل من زر «سوّق معنا» واربح عمولة 1–2 د.ك على كل طلب 💰\nالدفع عند الاستلام · توصيل ١-٣ أيام لكل الكويت 🚚',
-    en: "Hey there! 👋 I'm your Mahal Shop rep — Kuwait's dropshipping platform. I know every product and can place your order right here in the chat.\nTell me what you're looking for (perfume, watch, blender..), then I'll take your delivery details and confirm the order ✅\nWant to earn? Register from “Sell With Us” and get 1–2 KWD commission per order 💰\nCash on delivery · 1-3 days to all Kuwait 🚚",
+    ar: 'هلا والله! 👋 أنا مساعد محل شوب — أول منصة دروب شيبنج في الكويت.\nالموقع ما يبيع مباشرة — هنا تختار منتج، تحط عليه عمولتك (من 1 إلى 10 د.ك بمزاجك)، وتبيعه لجمهورك برابطك الخاص 💰\nقل لي شنو مجالك أو جمهورك (عطور، أدوات منزلية، ألعاب..) وأرشح لك منتجات عليها عمولة حلوة، أو اسألني عن أي شيء بالمنصة ✅',
+    en: "Hey there! 👋 I'm your Mahal Shop assistant — Kuwait's dropshipping platform.\nWe don't sell directly — you pick a product, add your own commission (1–10 KWD, your choice), and sell it to your audience with your own link 💰\nTell me your niche or audience (perfumes, home tools, toys..) and I'll recommend products with great commissions, or ask me anything about the platform ✅",
   },
-  'ch.agentPlaceholder': { ar: 'شنو تدور عليه؟ أو كمّل بيانات طلبك...', en: 'What are you looking for? Or finish your order...' },
+  'ch.agentPlaceholder': { ar: 'شنو مجالك؟ أو شنو المنتج اللي تدور عليه؟', en: 'What is your niche? Or what product are you looking for?' },
 
   /* ===== مساعد المسوقين الذكي (marketer assistant mode) ===== */
   'mkt.title': { ar: 'مساعد المسوقين الذكي', en: 'Marketers’ AI Assistant' },
@@ -407,8 +408,8 @@ export const DICT: Dict = {
     en: 'How do I earn as a marketer on Mahal Shop?',
   },
   'faq.a5': {
-    ar: 'سجّل مجاناً من زر «سوّق معنا» — بياصلك كود ورابط خاص فيك. شارك أي منتج من أكثر من 2,600 منتج، وكل طلب يوصَل عبر رابطك يتحسبلك عمولة من 1 إلى 2 د.ك حسب تنافسية المنتج — بدون رأس مال وبدون هم الشحن أو التحصيل.',
-    en: 'Register for free from the “Sell With Us” button — you get your own code and link. Share any of our 2,600+ products, and every delivered order from your link earns you a commission of 1–2 KWD depending on the product — no capital, no shipping or collection hassle.',
+    ar: 'سجّل مجاناً من زر «سوّق معنا» — بياصلك كود ورابط خاص فيك. شارك أي منتج من أكثر من 2,600 منتج، وكل طلب يوصَل عبر رابطك يتحسبلك عمولة على السعر: المقترحة على كل منتج من 1 إلى 10 د.ك — وإنت حر تحط عمولتك بمزاجك — بدون رأس مال وبدون هم الشحن أو التحصيل.',
+    en: 'Register for free from the “Sell With Us” button — you get your own code and link. Share any of our 2,600+ products, and every delivered order from your link earns you a commission added on top of the price: suggested commissions range 1–10 KWD per product — and you are free to set your own — no capital, no shipping or collection hassle.',
   },
   'faq.q6': {
     ar: 'متى وكيف أستلم عمولتي كم مسوّق؟',
@@ -478,8 +479,13 @@ export const DICT: Dict = {
   'pc.wishAddAria': { ar: 'إضافة للمفضلة', en: 'Add to wishlist' },
   'pc.oos': { ar: 'نفذ المخزون', en: 'Out of stock' },
   'pc.sold': { ar: 'طُلب {n}×', en: 'Ordered {n}×' },
-  'pc.commission': { ar: 'عمولة المسوق: {n} د.ك', en: 'Marketer commission: {n} KWD' },
+  'pc.commission': { ar: 'العمولة المقترحة: {n} د.ك', en: 'Suggested commission: {n} KWD' },
+  'pc.commissionShort': { ar: 'عمولة {n} د.ك', en: '{n} KWD commission' },
   'pc.addToCart': { ar: 'أضف للسلة', en: 'Add to Cart' },
+  'pc.marketIt': { ar: 'سوّقه واربح', en: 'Market & Earn' },
+  'pc.copyLink': { ar: 'انسخ رابط التسويق', en: 'Copy Marketing Link' },
+  'pc.linkCopied': { ar: 'تم نسخ رابط التسويق مع كودك ✅ — شاركه واربح عمولتك', en: 'Marketing link copied with your code ✅ — share it and earn' },
+  'pc.linkCopyFail': { ar: 'ما قدرت أنسخ الرابط — جرّب مرة ثانية', en: 'Could not copy the link — try again' },
 
   /* ===== cart drawer ===== */
   'cd.empty': { ar: 'سلتك فارغة.', en: 'Your cart is empty.' },

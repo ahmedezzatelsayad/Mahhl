@@ -10,7 +10,7 @@
  * يُصدَّر أيضاً MarketerChatWidget للبوابة الخاصة بالمسوقين.
  */
 import { useEffect, useRef, useState } from 'react';
-import { MessageCircle, X, Send, Store, WhatsAppIcon, PackageSearch, Trash2, Bot, Handshake } from '@/components/store/icons';
+import { MessageCircle, X, Send, Store, WhatsAppIcon, Bot, Handshake } from '@/components/store/icons';
 import { useAppStore } from '@/lib/stores/app-store';
 import { useBrand, waHref } from '@/components/store/header';
 import { formatKwd } from '@/lib/utils/format';
@@ -37,30 +37,11 @@ interface MktLink {
   action: 'guide-ads' | 'guide-campaigns' | 'affiliate-products' | 'affiliate-commissions';
 }
 
-/** order draft the AI agent builds with the customer (travels with every request) */
-interface AgentDraft {
-  items: { productId: string; qty: number }[];
-  name?: string;
-  phone?: string;
-  governorate?: string;
-  area?: string;
-  address?: string;
-  notes?: string;
-  placedOrder?: {
-    orderNumber: string;
-    total: number;
-    phone: string;
-    itemCount: number;
-  } | null;
-}
-
 interface Msg {
   role: 'user' | 'assistant';
   content: string;
   products?: ChatProduct[];
-  /** receipt card rendered inside the chat after a successful AI order */
-  placedOrder?: AgentDraft['placedOrder'];
-  /** marketer-mode action links */
+  /** action links suggested by the assistant (marketer pitch / guides) */
   links?: MktLink[];
 }
 
@@ -317,12 +298,8 @@ export function FloatingWidgets() {
   ]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
-  /** agent order draft — server re-validates it on every turn.
-   *  ref = mutable source of truth for the API call; items mirrored in state for rendering. */
-  const draftRef = useRef<AgentDraft>({ items: [] });
-  const [draftItems, setDraftItems] = useState<AgentDraft['items']>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { openProduct, setView, openInfo, setTrackPrefill } = useChatActions();
+  const { openProduct, setView, openInfo } = useChatActions();
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -333,8 +310,6 @@ export function FloatingWidgets() {
     if (next === mode) return;
     setMode(next);
     setMessages([{ role: 'assistant', content: next === 'marketer' ? t('mkt.welcome') : t('ch.agentWelcome') }]);
-    draftRef.current = { items: [] };
-    setDraftItems([]);
   }
 
   async function send(text?: string) {
@@ -345,58 +320,23 @@ export function FloatingWidgets() {
     setInput('');
     setBusy(true);
     try {
-      if (mode === 'marketer') {
-        const res = await fetch('/api/ai/marketer', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(affiliateToken ? { Authorization: `Bearer ${affiliateToken}` } : {}),
-          },
-          body: JSON.stringify({
-            lang,
-            messages: next.slice(1).map((m) => ({ role: m.role, content: m.content })),
-          }),
-        });
-        const data = await res.json();
-        setMessages((prev) => [
-          ...prev,
-          { role: 'assistant', content: data.reply, products: data.products || [], links: data.links || [] },
-        ]);
-        return;
-      }
-
-      const res = await fetch('/api/ai/agent', {
+      // الوضعان يفوّضان لنفس العقل: مساعد المسوقين (منتجات + عمولات + دعاية)
+      // منصة افلييت: لا مسار طلبات مباشرة إطلاقاً
+      const res = await fetch('/api/ai/marketer', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(affiliateToken ? { Authorization: `Bearer ${affiliateToken}` } : {}),
+        },
         body: JSON.stringify({
           lang,
-          messages: next
-            .slice(1)
-            .map((m) => ({ role: m.role, content: m.content })),
-          draft: draftRef.current,
-          customerConfirmed: /^(نعم|ايوا|أيوا|اكد|أكد|تأكيد|موافق|ok|yes|confirm)/i.test(q),
-          /** chips from the previous assistant reply — lets the agent add
-           *  them to the order when the customer says "أبغيه" next turn */
-          lastOfferedIds: [...next]
-            .reverse()
-            .find((m) => m.role === 'assistant' && m.products?.length)
-            ?.products?.map((p) => p.id) || [],
+          messages: next.slice(1).map((m) => ({ role: m.role, content: m.content })),
         }),
       });
       const data = await res.json();
-      // server is the source of truth for the draft
-      if (data.draft) {
-        draftRef.current = data.draft;
-        setDraftItems(data.draft.items || []);
-      }
       setMessages((prev) => [
         ...prev,
-        {
-          role: 'assistant',
-          content: data.reply,
-          products: data.products || [],
-          placedOrder: data.placedOrder || null,
-        },
+        { role: 'assistant', content: data.reply, products: data.products || [], links: data.links || [] },
       ]);
     } catch {
       setMessages((prev) => [
@@ -409,23 +349,6 @@ export function FloatingWidgets() {
     } finally {
       setBusy(false);
     }
-  }
-
-  /** remove a product from the agent draft (customer edits the order in-chat) */
-  function removeDraftItem(id: string) {
-    draftRef.current = {
-      ...draftRef.current,
-      items: draftRef.current.items.filter((i) => i.productId !== id),
-    };
-    setDraftItems(draftRef.current.items);
-    const summary = draftRef.current.items
-      .map((i) => `• ${i.productId} × ${i.qty}`)
-      .join('\n');
-    send(
-      lang === 'en'
-        ? `(remove product ${id} from my order draft. Current draft:\n${summary})`
-        : `(احذف المنتج ${id} من مسودة طلبي. المسودة الحالية:\n${summary})`
-    );
   }
 
   return (
@@ -499,50 +422,6 @@ export function FloatingWidgets() {
                     {m.content}
                   </div>
 
-                  {/* order receipt card — order link + account + tracking */}
-                  {m.placedOrder && (
-                    <div className="mt-2 rounded-xl border-2 border-emerald-300 bg-emerald-50/60 dark:bg-emerald-950/20 p-3 space-y-2.5">
-                      <p className="text-xs font-extrabold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
-                        <PackageSearch className="h-4 w-4" />
-                        {lang === 'en' ? 'Order placed' : 'تم تسجيل طلبك'} — {m.placedOrder.orderNumber}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground">
-                        {lang === 'en'
-                          ? `${m.placedOrder.itemCount} item(s) · ${formatKwd(m.placedOrder.total)} · COD`
-                          : `${m.placedOrder.itemCount} منتج · ${formatKwd(m.placedOrder.total)} · دفع عند الاستلام`}
-                      </p>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={() => {
-                            setTrackPrefill({
-                              orderNumber: m.placedOrder!.orderNumber,
-                              phone: m.placedOrder!.phone,
-                            });
-                            setView('track-order');
-                            setChatOpen(false);
-                          }}
-                          className="btn-gold rounded-lg px-2 py-2 text-[11px] font-bold cursor-pointer"
-                        >
-                          {lang === 'en' ? 'Track order' : 'تتبع طلبك'}
-                        </button>
-                        <button
-                          onClick={() => {
-                            setView('account');
-                            setChatOpen(false);
-                          }}
-                          className="rounded-lg px-2 py-2 text-[11px] font-bold border bg-card hover:bg-muted/50 transition-colors cursor-pointer"
-                        >
-                          {lang === 'en' ? 'My account' : 'حسابي'}
-                        </button>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground leading-relaxed">
-                        {lang === 'en'
-                          ? `Login: phone ${m.placedOrder.phone} · password = same number`
-                          : `الدخول: هاتف ${m.placedOrder.phone} · كلمة المرور نفس الرقم`}
-                      </p>
-                    </div>
-                  )}
-
                   {/* product chips */}
                   {m.products && m.products.length > 0 && (
                     <div className="flex gap-2 overflow-x-auto no-scrollbar mt-2 pb-1">
@@ -567,54 +446,20 @@ export function FloatingWidgets() {
                           </div>
                           <div className="p-1.5 space-y-0.5">
                             <p className="text-[11px] font-medium line-clamp-1 text-foreground">{p.name}</p>
-                            {mode === 'marketer' ? (
-                              <>
-                                <p className="text-[11px] font-bold text-gold-deep">
-                                  {lang === 'en' ? 'Commission' : 'عمولتك'}: {formatKwd(p.commission ?? 0)}
-                                </p>
-                                <p className="text-[10px] text-muted-foreground">
-                                  {DEMAND_BADGE[p.demandTier ?? ''] ?? ''} {formatKwd(p.price)}
-                                </p>
-                              </>
-                            ) : (
-                              <p className="text-[11px] font-bold text-gold-deep">{formatKwd(p.price)}</p>
-                            )}
+                            <p className="text-[11px] font-bold text-gold-deep">
+                              {lang === 'en' ? 'Commission' : 'العمولة'}: {formatKwd(p.commission ?? 0)}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">
+                              {DEMAND_BADGE[p.demandTier ?? ''] ?? ''} {formatKwd(p.price)}
+                            </p>
                           </div>
                         </button>
                       ))}
                     </div>
                   )}
 
-                  {/* marketer action links */}
-                  {mode === 'marketer' && (
-                    <MktLinks links={m.links} onDone={() => setChatOpen(false)} />
-                  )}
-
-                  {/* agent draft summary — the order being built in-chat (store mode) */}
-                  {mode === 'store' && m.role === 'assistant' && i === messages.length - 1 && draftItems.length > 0 && !m.placedOrder && (
-                    <div className="mt-2 rounded-xl border bg-muted/40 p-2.5 space-y-1.5">
-                      <p className="text-[11px] font-bold text-muted-foreground flex items-center gap-1">
-                        <PackageSearch className="h-3.5 w-3.5" />
-                        {lang === 'en' ? 'Your order (in progress)' : 'طلبك (قيد الإعداد)'}
-                      </p>
-                      {draftItems.map((it) => (
-                        <div key={it.productId} className="flex items-center justify-between gap-2">
-                          <span className="text-[11px] truncate">
-                            {m.products?.find((p) => p.id === it.productId)?.name ||
-                              (lang === 'en' ? `Product ${it.productId}` : `منتج ${it.productId}`)}
-                            <span className="text-muted-foreground"> × {it.qty}</span>
-                          </span>
-                          <button
-                            onClick={() => removeDraftItem(it.productId)}
-                            className="text-muted-foreground/60 hover:text-red-500 transition-colors cursor-pointer shrink-0"
-                            aria-label={lang === 'en' ? 'Remove' : 'حذف'}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  {/* action links suggested by the assistant (both modes) */}
+                  <MktLinks links={m.links} onDone={() => setChatOpen(false)} />
                 </div>
               </div>
             ))}

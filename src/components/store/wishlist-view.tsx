@@ -1,19 +1,16 @@
 'use client';
 
 import { useWishlistStore } from '@/lib/stores/wishlist-store';
-import { useCartStore } from '@/lib/stores/cart-store';
 import { useAppStore } from '@/lib/stores/app-store';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
 import { useT } from '@/lib/i18n';
-import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
+import { Heart, HandCoins, Trash2 } from 'lucide-react';
 import { formatKwd } from '@/lib/utils/format';
 
 export function WishlistView() {
-  const { t } = useT();
+  const { t, lang } = useT();
   const items = useWishlistStore((s) => s.items);
   const remove = useWishlistStore((s) => s.remove);
-  const addItem = useCartStore((s) => s.addItem);
   const openProduct = useAppStore((s) => s.openProduct);
   const setView = useAppStore((s) => s.setView);
 
@@ -66,19 +63,9 @@ export function WishlistView() {
                 <Button
                   size="sm"
                   className="btn-gold border-0 flex-1"
-                  onClick={() => {
-                    addItem({
-                      productId: w.productId,
-                      slug: w.slug,
-                      name: w.name,
-                      sku: w.slug,
-                      price: w.price,
-                      image: w.image,
-                    });
-                    toast.success(t('wl.added'));
-                  }}
+                  onClick={() => openProduct(w.slug)}
                 >
-                  <ShoppingCart className="h-3.5 w-3.5 ml-1" /> {t('wl.toCart')}
+                  <HandCoins className="h-3.5 w-3.5 ml-1" /> {lang === 'en' ? 'Market & earn' : 'سوّقه واربح'}
                 </Button>
                 <Button
                   size="sm"

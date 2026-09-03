@@ -1,8 +1,7 @@
 'use client';
 
-import { ShoppingCart, Menu, X, Store, User, Heart, MessageCircle, Languages, Handshake } from 'lucide-react';
+import { Menu, X, Store, User, Heart, MessageCircle, Languages, Handshake } from 'lucide-react';
 import { useAppStore } from '@/lib/stores/app-store';
-import { useCartStore } from '@/lib/stores/cart-store';
 import { useWishlistStore } from '@/lib/stores/wishlist-store';
 import { useLangStore } from '@/lib/stores/lang-store';
 import { useT } from '@/lib/i18n';
@@ -21,7 +20,7 @@ interface Brand {
 
 const DEFAULT_BRAND: Brand = {
   siteName: 'محل شوب',
-  announcement: 'منصة دروب شيبنج رقم 1 في الكويت 🇰🇼 — سوّق واربح عمولة 1–2 د.ك على كل طلب',
+  announcement: 'منصة دروب شيبنج رقم 1 في الكويت 🇰🇼 — عمولات مقترحة من 1 إلى 10 د.ك على كل منتج، وإنت تختار عمولتك',
   logo: '',
   whatsapp: '66046358',
   categoryImages: {},
@@ -58,8 +57,6 @@ export function Header() {
   const setView = useAppStore((s) => s.setView);
   const customer = useAppStore((s) => s.customer);
   const brand = useBrand();
-  const toggleCart = useCartStore((s) => s.toggleCart);
-  const totalItems = useCartStore((s) => s.getTotalItems());
   const wishCount = useWishlistStore((s) => s.items.length);
   const lang = useLangStore((s) => s.lang);
   const setLang = useLangStore((s) => s.setLang);
@@ -147,15 +144,14 @@ export function Header() {
               {t('hdr.track')}
             </Button>
 
-            {/* بوابة المسوقين */}
+            {/* بوابة المسوقين — CTA الأساسي (منصة افلييت: لا بيع مباشر) */}
             <Button
-              variant="outline"
               size="sm"
-              className="hidden lg:flex gap-1.5 border-primary/40 text-primary hover:text-primary"
+              className="hidden md:flex gap-1.5 btn-gold border-0 font-bold"
               onClick={() => setView('affiliate-login')}
             >
               <Handshake className="h-4 w-4" />
-              سوّق معنا
+              {t('hdr.affiliate')}
             </Button>
 
             {/* حسابي */}
@@ -193,26 +189,6 @@ export function Header() {
               )}
             </Button>
 
-            {/* السلة */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleCart}
-              className="relative"
-              aria-label={t('hdr.cart')}
-              title={t('hdr.cart')}
-            >
-              <ShoppingCart className="h-5 w-5" />
-              {mounted && totalItems > 0 && (
-                <Badge
-                  variant="destructive"
-                  className="absolute -top-1 -left-1 h-5 w-5 flex items-center justify-center p-0 text-[10px]"
-                >
-                  {totalItems}
-                </Badge>
-              )}
-            </Button>
-
             <Button
               variant="ghost"
               size="icon"
@@ -240,11 +216,10 @@ export function Header() {
             <div className="grid grid-cols-2 gap-2">
               {[
                 { label: t('hdr.allProducts'), action: () => setView('shop') },
+                { label: t('hdr.affiliate'), action: () => setView('affiliate-login') },
                 { label: customer ? `${t('hdr.account')} (${customer.name.split(' ')[0]})` : t('hdr.accountLogin'), action: () => setView('account') },
                 { label: t('hdr.track'), action: () => setView('track-order') },
-                { label: 'سوّق معنا 💰', action: () => setView('affiliate-login') },
                 { label: t('hdr.wishlist'), action: () => setView('wishlist') },
-                { label: t('hdr.cart'), action: () => setView('cart') },
                 {
                   label: t('hdr.whatsapp'),
                   action: () => window.open(waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I have a question 🙏' : 'هلا محل شوب، عندي استفسار 🙏'), '_blank'),

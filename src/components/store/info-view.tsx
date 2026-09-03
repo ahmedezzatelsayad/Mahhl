@@ -77,20 +77,20 @@ export function InfoView() {
           <p>
             {lang === 'en' ? (
               <>
-                <b>{brand.siteName}</b> is <b>Kuwait’s dropshipping platform</b>, built around two
-                missions: helping marketers earn a real income without capital — <b>1–2 KWD
-                commission on every delivered order</b> from 2,600+ ready-to-sell products we
-                store, pack, ship and collect payment for — and giving shoppers a fast,
-                effortless buying experience with clear prices in Kuwaiti Dinar and zero hidden
-                fees.
+                <b>{brand.siteName}</b> is <b>Kuwait’s affiliate-only dropshipping platform</b> —
+                no direct sales. Our mission: helping marketers earn a real income without
+                capital — <b>suggested commissions of 1–10 KWD per product, and you pick your
+                own</b> — from 2,600+ ready-to-sell products we store, pack, ship and collect
+                payment for. Browse the top-200 picks for free, register free to unlock the
+                full catalog, share your link, and earn on every delivered order.
               </>
             ) : (
               <>
-                <b>{brand.siteName}</b> هي <b>منصة دروب شيبنج كويتية</b>، نبنيها على مهمتين: نعّن
-                المسوّقين يربحون دخل حقيقي بدون رأس مال — <b>عمولة من 1 إلى 2 د.ك على كل طلب
-                يوصَل</b> من أكثر من 2,600 منتج جاهز للبيع، وإحنا نتكفّل بالتخزين والتغليف
-                والشحن وتحصيل الفلوس — ونعطي المتسوق تجربة شراء سريعة بأسعار واضحة
-                بالدينار الكويتي وبدون أي رسوم خفية.
+                <b>{brand.siteName}</b> هي <b>منصة دروب شيبنج كويتية للتسويق بالعمولة فقط — ما نبيع مباشرة</b>،
+                مهمتنا نعّن المسوّقين يربحون دخل حقيقي بدون رأس مال — <b>عمولة مقترحة من 1 إلى 10 د.ك
+                على كل منتج وإنت تختار عمولتك</b> — من أكثر من 2,600 منتج جاهز للبيع، وإحنا نتكفّل
+                بالتخزين والتغليف والشحن وتحصيل الفلوس. تصفح أفضل 200 منتج مجاناً، سجّل مجاناً وافتح
+                الكتالوج الكامل، شارك رابطك، واربح على كل طلب يوصَل.
               </>
             )}
           </p>
@@ -132,12 +132,12 @@ export function InfoView() {
             {(lang === 'en'
               ? [
                   ['2,600+', 'products ready to market'],
-                  ['1–2 KWD', 'commission per delivered order'],
+                  ['1–10 KWD', 'suggested commission per product — you pick'],
                   ['All Kuwait', 'delivery to 6 governorates'],
                 ]
               : [
                   ['+2,600', 'منتج جاهز للتسويق'],
-                  ['1–2 د.ك', 'عمولة على كل طلب يوصَل'],
+                  ['1–10 د.ك', 'العمولة المقترحة على كل منتج — وإنت تختار'],
                   ['كل الكويت', 'توصيل للمحافظات الست'],
                 ]
             ).map(([v, l]) => (
@@ -374,7 +374,7 @@ export function InfoView() {
                 },
                 {
                   q: 'How do I earn as a marketer (dropshipping)?',
-                  a: 'Register for free from “Sell With Us” — you get your own code and referral link. Share any product, and every delivered order from your link earns you 1–2 KWD commission depending on the product. No capital, no shipping — we handle everything.',
+                  a: 'Register for free from “Sell With Us” — you get your own code and referral link. Share any product: every delivered order from your link earns you a commission added on top of the price — suggested 1–10 KWD per product, and you pick your own. No capital, no shipping — we handle everything.',
                 },
                 {
                   q: 'When do I receive my commission?',
@@ -414,7 +414,7 @@ export function InfoView() {
                 },
                 {
                   q: 'شلون أربح من محل شوب كم مسوّق (دروب شيبنج)؟',
-                  a: 'سجّل مجاناً من زر «سوّق معنا» — بياصلك كود ورابط خاص فيك. شارك أي منتج مع عملائك، وكل طلب يوصَل عبر رابطك يتحسبلك عمولة من 1 إلى 2 د.ك حسب تنافسية المنتج — بدون رأس مال، وإحنا نتكفل بالشحن والتحصيل.',
+                  a: 'سجّل مجاناً من زر «سوّق معنا» — بياصلك كود ورابط خاص فيك. شارك أي منتج مع عملائك، وكل طلب يوصَل عبر رابطك يتحسبلك عمولة تُضاف فوق سعر المنتج — المقترحة من 1 إلى 10 د.ك وإنت حر تختار عمولتك بمزاجك — بدون رأس مال، وإحنا نتكفل بالشحن والتحصيل.',
                 },
                 {
                   q: 'متى أستلم عمولتي؟',
@@ -505,7 +505,7 @@ export function InfoView() {
                   'Cash on Delivery is collected by the courier only after handing over the order — we never request prepayment.',
                   'Product photos are illustrative; the actual item may differ slightly (color/packaging) without affecting the specifications.',
                   'The store may decline any order containing incorrect data or signs of abuse.',
-                  'Marketer commissions (1–2 KWD per delivered order) are calculated automatically in the marketer’s wallet and can be withdrawn from the marketers’ dashboard.',
+                  'Marketer commissions (suggested 1–10 KWD per product — the marketer picks his own) are calculated automatically in the marketer’s wallet and can be withdrawn from the marketers’ dashboard.',
                 ]
               : [
                   'الأسعار المعروضة بالدينار الكويتي وتشمل المنتج فقط، والتوصيل يُضاف عند الدفع حسب سياسة الشحن المعروضة.',
@@ -514,7 +514,7 @@ export function InfoView() {
                   'الدفع عند الاستلام يُطلب من المندوب فقط بعد تسليم الطلب — لا نطلب أي دفع مسبق.',
                   'صور المنتجات توضيحية، وقد يختلف المنتج الفعلي بشكل بسيط عن الصورة (اللون/التغليف) دون تأثير على المواصفات.',
                   'يحق للمنصة رفض أي طلب فيه بيانات غير صحيحة أو إساءة استخدام.',
-                  'عمولات المسوّقين (1–2 د.ك على كل طلب مسلّم) تُحسب تلقائياً في محفظة المسوّق ويمكن سحبها من لوحة المسوقين.',
+                  'عمولات المسوّقين (المقترحة من 1 إلى 10 د.ك على كل منتج — والمسوق يختار عمولته) تُحسب تلقائياً في محفظة المسوّق ويمكن سحبها من لوحة المسوقين.',
                 ]
             ).map((li, i) => (
               <li key={i} className="flex items-start gap-2">
@@ -536,8 +536,8 @@ export function InfoView() {
           <p className="rounded-xl bg-accent/10 border border-accent/20 px-4 py-3 text-sm leading-7">
             {L(
               lang,
-              'برنامج التسويق بالعمولة في محل شوب: تسوّق، شارك، واربح — عمولة من 1 إلى 2 د.ك على كل طلب يوصَل عبر رابطك الخاص. بدون رأس مال، بدون مخزون، وبدون هم الشحن أو تحصيل الفلوس — إحنا نتكفّل بكل شي وأنت تربح من تسويقك بس.',
-              'Mahal Shop’s affiliate program: share, promote, earn — a 1–2 KWD commission on every order delivered through your own link. No capital, no inventory, no shipping or payment hassle — we handle everything while you earn from your marketing.'
+              'برنامج التسويق بالعمولة في محل شوب: شارك، سوّق، واربح — عمولة مقترحة من 1 إلى 10 د.ك على كل منتج تختارها بمزاجك، وتتحسب على كل طلب يوصَل عبر رابطك الخاص. بدون رأس مال، بدون مخزون، وبدون هم الشحن أو تحصيل الفلوس — إحنا نتكفّل بكل شي وأنت تربح من تسويقك بس.',
+              'Mahal Shop’s affiliate program: share, promote, earn — a suggested commission of 1–10 KWD per product (you pick your own), credited on every order delivered through your own link. No capital, no inventory, no shipping or payment hassle — we handle everything while you earn from your marketing.'
             )}
           </p>
 
@@ -573,12 +573,12 @@ export function InfoView() {
           </div>
 
           <div>
-            <h2 className="font-extrabold text-lg mb-2">{L(lang, 'شرائح العمولات — واضحة على كل منتج', 'Commission tiers — clear on every product')}</h2>
+            <h2 className="font-extrabold text-lg mb-2">{L(lang, 'العمولة المقترحة على كل منتج — من 1 إلى 10 د.ك', 'Suggested commission per product — 1 to 10 KWD')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                ['1.000 د.ك', L(lang, 'المنتجات الأكثر تنافسية — الأسرع بيعاً بالكويت', 'The most competitive — fastest movers in Kuwait'), '1.000 KWD'],
-                ['1.500 د.ك', L(lang, 'المنتجات متوسطة التنافسية — التوازن الأفضل', 'Medium competition — the best balance'), '1.500 KWD'],
-                ['2.000 د.ك', L(lang, 'منتجات مميزة بمنافسة أقل — هامش أعلى لكل طلب', 'Distinctive, lower-competition items — higher margin per order'), '2.000 KWD'],
+                ['1–3 د.ك', L(lang, 'منتجات اقتصادية — عمولة مقترحة منخفضة وحجم مبيعات كبير', 'Budget products — lower suggested commission, high volume'), '1–3 KWD'],
+                ['2.5–5 د.ك', L(lang, 'منتجات متوسطة السعر — التوازن الأفضل بين السعر والهامش', 'Mid-price products — the best price/margin balance'), '2.5–5 KWD'],
+                ['5–10 د.ك', L(lang, 'منتجات غالية أو نيش — أعلى هامش لكل طلب', 'Premium or niche items — the highest margin per order'), '5–10 KWD'],
               ].map(([ar, sub, en, enVal], i) => (
                 <div key={i} className="rounded-xl border bg-card p-4 text-center">
                   <p className="font-extrabold text-xl text-gold-deep">{lang === 'en' ? enVal : ar}</p>
@@ -638,8 +638,8 @@ export function InfoView() {
           <p className="rounded-xl bg-accent/10 border border-accent/20 px-4 py-3 text-sm leading-7 text-foreground/90">
             {L(
               lang,
-              'دليل عملي للمسوّقين في الكويت — كل اللي تحتاجه لتشغّل إعلانات تبيع، من اختيار القناة إلى إدارة الميزانية. العمولات مفتوحة على كل منتج في المنصة: سوّق واربح 1–2 د.ك على كل طلب يوصَل.',
-              'A practical guide for marketers in Kuwait — everything you need to run ads that sell, from channel choice to budget management. Commissions are open on every product: earn 1–2 KWD per delivered order.'
+              'دليل عملي للمسوّقين في الكويت — كل اللي تحتاجه لتشغّل إعلانات تبيع، من اختيار القناة إلى إدارة الميزانية. العمولات مفتوحة على كل منتج في المنصة: سوّق واربح عمولة مقترحة من 1 إلى 10 د.ك على كل منتج — وإنت تختار.',
+              'A practical guide for marketers in Kuwait — everything you need to run ads that sell, from channel choice to budget management. Commissions are open on every product: earn a suggested 1–10 KWD commission per product — you pick your own.'
             )}
           </p>
           <GuideRenderer sections={GUIDE_ADS_SECTIONS} en={lang === 'en'} />
@@ -657,7 +657,7 @@ export function InfoView() {
               className="rounded-xl bg-primary text-primary-foreground px-4 py-3.5 text-start hover:opacity-95 transition-opacity"
             >
               <p className="text-sm font-bold flex items-center gap-2"><Megaphone className="h-4 w-4" />{L(lang, 'سجّل مجاناً وابدأ الكسب', 'Register free & start earning')}</p>
-              <p className="text-xs text-primary-foreground/70 mt-1">{L(lang, 'بوابة المسوقين — عمولة 1–2 د.ك على كل طلب يوصَل', 'Marketers’ portal — 1–2 KWD per delivered order')}</p>
+              <p className="text-xs text-primary-foreground/70 mt-1">{L(lang, 'بوابة المسوقين — عمولات مقترحة من 1 إلى 10 د.ك على كل منتج', 'Marketers’ portal — suggested commissions 1–10 KWD per product')}</p>
             </button>
           </div>
         </div>

@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppStore } from '@/lib/stores/app-store';
-import { useCartStore } from '@/lib/stores/cart-store';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
@@ -11,8 +10,6 @@ import { toast } from 'sonner';
 import {
   ChevronLeft,
   ShoppingCart,
-  Minus,
-  Plus,
   Star,
   Truck,
   Shield,
@@ -21,10 +18,9 @@ import {
   HandCoins,
   TrendingUp,
   Megaphone,
+  Link2,
 } from 'lucide-react';
 import { ProductCard } from '@/components/store/product-card';
-import { UpsellWidget } from '@/components/store/upsell-widget';
-import { BoughtTogether } from '@/components/store/bought-together';
 import { ReviewsSection, useReviewSummary, StarsRow } from '@/components/store/reviews-section';
 import { pushRecentlyViewed } from '@/components/store/recently-viewed';
 import { trackEvent } from '@/lib/behavior-tracker';
@@ -69,15 +65,16 @@ export function ProductView() {
   const slug = useAppStore((s) => s.selectedProductSlug);
   const setView = useAppStore((s) => s.setView);
   const openInfo = useAppStore((s) => s.openInfo);
-  const addItem = useCartStore((s) => s.addItem);
-  const openCart = useCartStore((s) => s.openCart);
+  const affiliateToken = useAppStore((s) => s.affiliateToken);
+  const affiliateCode = useAppStore((s) => s.affiliateUser?.code ?? null);
   const { t, lang } = useT();
 
   const [product, setProduct] = useState<(ProductDetail & { demandRank?: number | null; liveViewers?: number }) | null>(null);
   const [related, setRelated] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
-  const [qty, setQty] = useState(1);
+  /** العمولة اللي يختارها المسوق (1–10 د.ك) — الافتراضي: المقترحة من دراسة السوق */
+  const [myCommission, setMyCommission] = useState<number>(2);
   const [selectedVariations, setSelectedVariations] = useState<Record<string, string>>({});
   const { summary: reviewSummary } = useReviewSummary(slug ?? undefined);
 
@@ -89,13 +86,15 @@ export function ProductView() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setActiveImage(0);
-    setQty(1);
     setSelectedVariations({});
     fetch(`/api/products/${slug}${readLang() === 'en' ? '?lang=en' : ''}`)
       .then((r) => r.json())
       .then((data) => {
         if (data.product) {
           setProduct(data.product);
+          // default commission = the market-study suggestion clamped to 1–10
+          const suggested = Number(data.product.commission) || 2;
+          setMyCommission(Math.min(10, Math.max(1, Math.round(suggested * 2) / 2)));
           setRelated(data.related || []);
           // Keep the browser tab title in sync with the product (UX + sharing).
           // Arabic: prefer the curated SEO title so the tab matches the SERP
@@ -197,25 +196,19 @@ export function ProductView() {
     } catch {}
   }
 
-  function handleAddToCart() {
+  function copyMarketingLink() {
     if (!product) return;
-    const variationStr = Object.entries(selectedVariations)
-      .map(([k, v]) => `${k}: ${v}`)
-      .join('، ');
-    addItem(
-      {
-        productId: product.id,
-        slug: product.slug,
-        name: product.name,
-        sku: product.sku,
-        price: product.salePrice,
-        image: images[activeImage] || product.thumb || '',
-        variations: variationStr || undefined,
-      },
-      qty
-    );
-    toast.success(lang === 'en' ? `Added ${qty} × "${product.name}" to cart` : `تمت إضافة ${qty} × "${product.name}" إلى السلة`);
-    openCart();
+    const base = `${window.location.origin}/?p=${encodeURIComponent(product.slug)}`;
+    const url = affiliateCode ? `${base}&ref=${affiliateCode}` : base;
+    navigator.clipboard
+      .writeText(url)
+      .then(() => toast.success(lang === 'en' ? 'Marketing link copied ✅ — share it and earn your commission' : 'تم نسخ رابط التسويق ✅ — شاركه واربح عمولتك'))
+      .catch(() => toast.error(lang === 'en' ? 'Could not copy — try again' : 'ما قدرت أنسخ — جرّب مرة ثانية'));
+  }
+
+  function marketerCta() {
+    if (affiliateToken && affiliateCode) copyMarketingLink();
+    else setView('affiliate-login');
   }
 
   return (
@@ -339,6 +332,16 @@ export function ProductView() {
                   {t('p.soldTimes', { n: reviewSummary.soldCount })}
                 </span>
               )}
+            </div>
+          )}
+
+          {/* العمولة المقترحة — فوق السعر (هوية منصة الافلييت) */}
+          {product.commission != null && product.commission > 0 && (
+            <div className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-sm font-extrabold text-emerald-700 w-fit">
+              <HandCoins className="h-4 w-4" />
+              {lang === 'en'
+                ? `Suggested commission: ${product.commission.toFixed(3)} KWD per order`
+                : `العمولة المقترحة: ${product.commission.toFixed(3)} د.ك على كل طلب`}
             </div>
           )}
 
@@ -529,41 +532,75 @@ export function ProductView() {
             </div>
           )}
 
-          {/* Quantity + Add to cart */}
-          <div id="main-atc-block" className="flex items-center gap-3 pt-4">
-            <div className="flex items-center border rounded-md">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setQty((q) => Math.max(1, q - 1))}
-                disabled={qty <= 1}
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-              <span className="w-12 text-center font-medium">{qty}</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() =>
-                  setQty((q) => Math.min(product.quantity || 99, q + 1))
-                }
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
+          {/* ===== أداة المسوق — اختَر عمولتك (1–10 د.ك) وشوف سعر بيعك =====
+              منصة افلييت: ما فيه بيع مباشر — المسوق يحط عمولته فوق السعر بمزاجه */}
+          {product.commission != null && product.commission > 0 && (
+            <div id="main-atc-block" className="rounded-xl border-2 border-emerald-200 bg-gradient-to-l from-emerald-50 to-white p-4 space-y-3">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <p className="text-sm font-extrabold flex items-center gap-1.5 text-emerald-900">
+                  <HandCoins className="h-4.5 w-4.5 text-emerald-600" />
+                  {lang === 'en' ? 'Pick your commission — your choice' : 'اختَر عمولتك — إنت بمزاجك'}
+                </p>
+                <span className="rounded-full bg-emerald-600 text-white text-[11px] font-extrabold px-2.5 py-1 whitespace-nowrap">
+                  {lang === 'en' ? 'Range 1–10 KWD' : 'النطاق من 1 إلى 10 د.ك'}
+                </span>
+              </div>
+              <input
+                type="range"
+                min={1}
+                max={10}
+                step={0.5}
+                value={myCommission}
+                onChange={(e) => setMyCommission(parseFloat(e.target.value))}
+                className="w-full accent-emerald-600 cursor-pointer"
+                aria-label={lang === 'en' ? 'Your commission in KWD' : 'عمولتك بالدينار'}
+              />
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="rounded-lg bg-white/90 border border-emerald-200 px-3 py-2">
+                  <p className="text-[11px] text-muted-foreground">{lang === 'en' ? 'Your commission per order' : 'عمولتك لكل طلب'}</p>
+                  <p className="text-lg font-extrabold text-emerald-700 leading-tight">{myCommission.toFixed(3)} د.ك</p>
+                </div>
+                <div className="rounded-lg bg-white/90 border border-emerald-200 px-3 py-2">
+                  <p className="text-[11px] text-muted-foreground">{lang === 'en' ? 'Your selling price to your customer' : 'سعر بيعك لعميلك'}</p>
+                  <p className="text-lg font-extrabold text-foreground leading-tight">{formatKwd(product.salePrice + myCommission)}</p>
+                </div>
+              </div>
+              <p className="text-[11px] leading-5 text-muted-foreground">
+                {lang === 'en'
+                  ? 'Your price = platform price + your commission. Higher commission = bigger margin, but may slow orders.'
+                  : 'سعر بيعك = سعر المنصة + عمولتك. عمولة أعلى = هامش أكبر، بس ممكن تقلل عدد الطلبات — جرّب وضبطها حسب جمهورك.'}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  size="sm"
+                  className="bg-emerald-600 text-white hover:bg-emerald-700 border-0 font-bold"
+                  onClick={marketerCta}
+                >
+                  {affiliateToken && affiliateCode ? (
+                    <>
+                      <Link2 className="h-4 w-4 ml-1" />
+                      {lang === 'en' ? 'Copy my marketing link' : 'انسخ رابط التسويق حقي'}
+                    </>
+                  ) : (
+                    <>
+                      <HandCoins className="h-4 w-4 ml-1" />
+                      {lang === 'en' ? 'Register as marketer — free' : 'سجّل كمسوق — مجاناً'}
+                    </>
+                  )}
+                </Button>
+                <a
+                  href="#"
+                  className="text-xs font-bold text-emerald-800 underline underline-offset-4 hover:text-emerald-600"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    openInfo(lang === 'en' ? 'guide-ads' : 'affiliate-program');
+                  }}
+                >
+                  {lang === 'en' ? 'How the program works' : 'شلون يشتغل البرنامج؟'}
+                </a>
+              </div>
             </div>
-            <Button
-              size="lg"
-              className="flex-1"
-              disabled={product.quantity <= 0}
-              onClick={handleAddToCart}
-            >
-              <ShoppingCart className="h-5 w-5 ml-2" />
-              {t('p.addToCart')} ({formatKwd(product.salePrice * qty)})
-            </Button>
-          </div>
-
-          {/* AI Upsell */}
-          <UpsellWidget context="product" productId={product.id} limit={3} />
+          )}
 
           {/* SKU + features */}
           <div className="pt-4 border-t space-y-2">
@@ -588,11 +625,6 @@ export function ProductView() {
         </div>
       </div>
 
-      {/* Amazon-style: frequently bought together (real co-purchase data) */}
-      <div className="mt-10">
-        <BoughtTogether productId={product.id} />
-      </div>
-
       {/* Customer reviews */}
       <div className="mt-10">
         <ReviewsSection slug={product.slug} />
@@ -610,31 +642,32 @@ export function ProductView() {
         </section>
       )}
 
-      {/* Sticky mobile add-to-cart bar — appears once the main button scrolls
-          out of view. Global best practice: thumb-zone, always-reachable CTA. */}
-      {product.quantity > 0 && <StickyAtcBar
-        price={product.salePrice * qty}
-        qty={qty}
-        onAdd={handleAddToCart}
-      />}
+      {/* Sticky mobile marketer bar — the affiliate CTA stays thumb-reachable */}
+      {product.commission != null && product.commission > 0 && (
+        <StickyMarketerBar
+          commission={myCommission}
+          ctaLabel={affiliateToken && affiliateCode ? (lang === 'en' ? 'Copy my link' : 'انسخ رابطي') : (lang === 'en' ? 'Register — free' : 'سجّل مجاناً')}
+          onCta={marketerCta}
+        />
+      )}
     </div>
   );
 }
 
-function StickyAtcBar({
-  price,
-  qty,
-  onAdd,
+function StickyMarketerBar({
+  commission,
+  ctaLabel,
+  onCta,
 }: {
-  price: number;
-  qty: number;
-  onAdd: () => void;
+  commission: number;
+  ctaLabel: string;
+  onCta: () => void;
 }) {
-  const { t } = useT();
+  const { t, lang } = useT();
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    // observe the quantity+CTA block rendered in the product info column
+    // observe the marketer panel rendered in the product info column
     const cta = document.getElementById('main-atc-block');
     if (!cta || typeof IntersectionObserver === 'undefined') return;
     const io = new IntersectionObserver(
@@ -658,22 +691,22 @@ function StickyAtcBar({
 
   return (
     <div className="fixed bottom-0 inset-x-0 z-40 md:hidden border-t bg-card/95 backdrop-blur shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-        <div className="container px-4 py-2.5 flex items-center gap-3">
+      <div className="container px-4 py-2.5 flex items-center gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-[11px] text-muted-foreground truncate">
-            {t('p.total')} ({qty} {t('p.pieces')})
+            {lang === 'en' ? 'Your commission per order' : 'عمولتك لكل طلب'}
           </p>
-          <p className="text-lg font-extrabold text-primary leading-tight">
-            {formatKwd(price)}
+          <p className="text-lg font-extrabold text-emerald-700 leading-tight">
+            {commission.toFixed(3)} د.ك
           </p>
         </div>
         <Button
           size="lg"
-          onClick={onAdd}
-          className="flex-1 max-w-[60%] h-12 text-base gap-2"
+          onClick={onCta}
+          className="flex-1 max-w-[60%] h-12 text-base gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-0"
         >
-          <ShoppingCart className="h-5 w-5" />
-          {t('p.addToCart')}
+          <HandCoins className="h-5 w-5" />
+          {ctaLabel}
         </Button>
       </div>
     </div>

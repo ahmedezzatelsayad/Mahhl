@@ -4,9 +4,8 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAppStore } from '@/lib/stores/app-store';
 import { formatKwd } from '@/lib/utils/format';
-import { ShoppingCart, Star, Heart, Flame, HandCoins } from 'lucide-react';
+import { ShoppingCart, Star, Heart, Flame, HandCoins, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useCartStore } from '@/lib/stores/cart-store';
 import { useWishlistStore } from '@/lib/stores/wishlist-store';
 import { toast } from 'sonner';
 import { useT } from '@/lib/i18n';
@@ -24,7 +23,7 @@ export interface ProductCardProps {
     quantity: number;
     isBestSeller?: boolean;
     category?: { name: string } | null;
-    /** open commission (KWD) — shown to ALL visitors (منصة دروب شيبنج) */
+    /** open suggested commission (KWD 1–10) — shown to ALL visitors (منصة افلييت) */
     commission?: number | null;
     /** optional social proof (top-demand / related endpoints) */
     rating?: number;
@@ -37,8 +36,9 @@ export interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { t } = useT();
   const openProduct = useAppStore((s) => s.openProduct);
-  const addItem = useCartStore((s) => s.addItem);
-  const openCart = useCartStore((s) => s.openCart);
+  const setView = useAppStore((s) => s.setView);
+  const affiliateToken = useAppStore((s) => s.affiliateToken);
+  const affiliateCode = useAppStore((s) => s.affiliateUser?.code ?? null);
   const toggleWish = useWishlistStore((s) => s.toggle);
   const wished = useWishlistStore((s) => s.items.some((i) => i.productId === product.id));
   const [imgError, setImgError] = useState(false);
@@ -57,22 +57,18 @@ export function ProductCard({ product }: ProductCardProps) {
       ? Math.round(((product.price - product.salePrice) / product.price) * 100)
       : 0;
 
-  function addToCart(e: React.MouseEvent) {
+  /** marketing link with the marketer's ref code (no direct selling — منصة افلييت) */
+  function marketerCta(e: React.MouseEvent) {
     e.stopPropagation();
-    addItem({
-      productId: product.id,
-      slug: product.slug,
-      name: product.name,
-      sku: (product as { sku?: string }).sku || product.slug,
-      price: product.salePrice,
-      image: imgUrl,
-    });
-    toast.success(t('pc.added', { name: product.name }), {
-      action: {
-        label: t('cd.openCart'),
-        onClick: () => openCart(),
-      },
-    });
+    if (affiliateToken && affiliateCode) {
+      const url = `${window.location.origin}/?p=${encodeURIComponent(product.slug)}&ref=${affiliateCode}`;
+      navigator.clipboard
+        .writeText(url)
+        .then(() => toast.success(t('pc.linkCopied')))
+        .catch(() => toast.error(t('pc.linkCopyFail')));
+    } else {
+      setView('affiliate-login');
+    }
   }
 
   function toggleWishlist(e: React.MouseEvent) {
@@ -184,6 +180,13 @@ export function ProductCard({ product }: ProductCardProps) {
             ) : null}
           </div>
         ) : null}
+        {/* العمولة المقترحة أعلى السعر — هوية منصة الافلييت: المسوق يختار عمولته 1–10 د.ك */}
+        {product.commission != null && product.commission > 0 && (
+          <p className="inline-flex max-w-full items-center gap-1 rounded-md bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 whitespace-nowrap">
+            <HandCoins className="h-3 w-3 shrink-0" />
+            <span className="truncate">{t('pc.commissionShort', { n: product.commission.toFixed(3) })}</span>
+          </p>
+        )}
         <div className="flex items-baseline gap-2">
           <span className="text-base font-extrabold text-foreground">
             {formatKwd(product.salePrice)}
@@ -194,21 +197,22 @@ export function ProductCard({ product }: ProductCardProps) {
             </span>
           )}
         </div>
-        {/* العمولة المفتوحة — تظهر للجميع (هوية منصة الدروب شيبنج) */}
-        {product.commission != null && product.commission > 0 && (
-          <p className="inline-flex items-center gap-1 rounded-md bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
-            <HandCoins className="h-3 w-3" />
-            {t('pc.commission', { n: product.commission.toFixed(3) })}
-          </p>
-        )}
         <Button
           size="sm"
           className="w-full btn-gold border-0 hover:opacity-95"
-          disabled={product.quantity <= 0}
-          onClick={addToCart}
+          onClick={marketerCta}
         >
-          <ShoppingCart className="h-4 w-4 ml-1" />
-          {t('pc.addToCart')}
+          {affiliateToken && affiliateCode ? (
+            <>
+              <Link2 className="h-4 w-4 ml-1" />
+              {t('pc.copyLink')}
+            </>
+          ) : (
+            <>
+              <HandCoins className="h-4 w-4 ml-1" />
+              {t('pc.marketIt')}
+            </>
+          )}
         </Button>
       </div>
     </Card>

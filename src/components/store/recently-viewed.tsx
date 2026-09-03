@@ -6,13 +6,10 @@
  * and boosts cross-sell without extra API calls (product data cached at view time).
  */
 import { useEffect, useState } from 'react';
-import { History } from 'lucide-react';
+import { History, ShoppingCart } from 'lucide-react';
 import { useAppStore } from '@/lib/stores/app-store';
 import { useT } from '@/lib/i18n';
 import { formatKwd } from '@/lib/utils/format';
-import { ShoppingCart } from 'lucide-react';
-import { useCartStore } from '@/lib/stores/cart-store';
-import { toast } from 'sonner';
 
 export interface RvItem {
   slug: string;
@@ -50,7 +47,6 @@ function readRv(): RvItem[] {
 export function RecentlyViewed() {
   const [items, setItems] = useState<RvItem[]>([]);
   const openProduct = useAppStore((s) => s.openProduct);
-  const addItem = useCartStore((s) => s.addItem);
   const { t, lang } = useT();
 
   useEffect(() => {
@@ -93,24 +89,6 @@ export function RecentlyViewed() {
                   </p>
                 </div>
               </button>
-              {it.id && (
-                <button
-                  onClick={() => {
-                    addItem({
-                      productId: String(it.id),
-                      slug: it.slug,
-                      name: it.name,
-                      sku: it.slug,
-                      price: it.salePrice ?? it.price,
-                      image: it.thumb,
-                    });
-                    toast.success(t('p.added'));
-                  }}
-                  className="w-full text-[11px] font-bold btn-gold py-1.5 cursor-pointer"
-                >
-                  {t('p.addToCart')}
-                </button>
-              )}
             </div>
           ))}
         </div>

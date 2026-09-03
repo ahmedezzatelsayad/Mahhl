@@ -139,8 +139,8 @@ export async function POST(req: NextRequest) {
         : 'Welcome! I\'m your dropshipping assistant 🤝\nI can recommend hot products, explain commissions & wallet, and give you a quick Kuwait ads plan.\nWhat do you want to know today?';
     } else if (/عمول|كم.*ربح|كيف.*ربح|ارباح|شلون.*ربح/i.test(q) && !/سحب|استلام|محفظ/i.test(q)) {
       reply = AR
-        ? 'العمولة عندنا مفتوحة وواضحة على كل منتج 💰\n• المنتجات الأكثر تنافسية: عمولة 1.000 د.ك\n• المتوسطة: 1.500 د.ك\n• المميزة وذات المنافسة الأقل: 2.000 د.ك\nكل منتج في الكتالوج مكتوب عليه عمولتك بالضبط — تتحسب تلقائياً لما يوصَل الطلب عبر رابطك، وتطلب سحبها من محفظتك متى ما تبى.'
-        : 'Commissions are open and clear on every product 💰\n• Most competitive: 1.000 KWD\n• Medium: 1.500 KWD\n• Niche items: 2.000 KWD\nEvery product shows your exact commission — credited when the order is delivered through your link, withdrawable anytime.';
+        ? 'العمولة عندنا مفتوحة وإنت بمزاجك 💰\n• على كل منتج في الكتالوج مكتوبة العمولة المقترحة — من 1 إلى 10 د.ك حسب قيمة المنتج وتنافسيته.\n• وإنت حر تحط عمولتك اللي تبغى داخل هذا النطاق: تبني سعر بيعك = سعر المنصة + عمولتك.\nتتحسب تلقائياً لما يوصَل الطلب عبر رابطك، وتطلب سحبها من محفظتك متى ما تبى.'
+        : 'Commissions are open — your choice 💰\n• Every product shows a suggested commission from 1 to 10 KWD based on its value and competition.\n• You are free to set your own commission within that range: your selling price = platform price + your commission.\nCredited automatically when the order is delivered through your link, withdrawable anytime.';
       if (personal) reply += '\n' + personal.trim();
       links.push({ label: AR ? 'شوف الكتالوج والعمولات' : 'Browse catalog & commissions', action: 'affiliate-products' });
     } else if (/سحب|اسحب|أستلم|استلم|محفظة|محفظتي|متى.*فلوس|withdraw|payout/i.test(q)) {
@@ -169,22 +169,22 @@ export async function POST(req: NextRequest) {
     // ===== AI (يغطي أي سؤال خارج القوائم) =====
     if (!reply) {
       const system = AR
-        ? `أنت «مساعد المسوقين» الذكي في محل شوب — منصة دروب شيبنج كويتية. دورك: خبير تسويق رقمي يساعد المسوقين الكويتيين يربحون عمولات من 1 إلى 2 د.ك على كل طلب يوصَل.
+        ? `أنت «مساعد المسوقين» الذكي في محل شوب — منصة دروب شيبنج كويتية. دورك: خبير تسويق رقمي يساعد المسوقين الكويتيين يربحون عمولات على كل طلب يوصَل. المنصة ما تبيع مباشرة للزوار — كل زائر مسوّق محتمل نساعده يبدأ.
 قواعدك:
 - رد بلهجة كويتية ودّية ومختصرة (3-5 أسطر) — عملي ومباشر، بلا حشو.
 - إذا فيه منتجات مطابقة بالقائمة، رشّحها بأسمائها واذكر عمولتها وسعرها.
-- عمولات المنصة: 1.000 د.ك للمنتجات الأكثر تنافسية، 1.500 د.ك للمتوسطة، 2.000 د.ك للمنتجات المميزة. العمولة تتحسب عند تسليم الطلب عبر رابط ?ref الخاص بالمسوق (نافذة 30 يوم).
+- عمولات المنصة: المقترحة على كل منتج من 1 إلى 10 د.ك حسب قيمته وتنافسيته — والمسوق حر يختار عمولته داخل النطاق ويبني سعر بيعه = سعر المنصة + عمولته. العمولة تتحسب عند تسليم الطلب عبر رابط ?ref الخاص بالمسوق (نافذة 30 يوم).
 - المنتجات عندها دراسة تسويقية: سعر بيع مقترح + مستوى الطلب (hot/warm/cold) + أنسب قناة إعلانية (سناب/تيك توك/إنستا/واتساب).
 - قنوات الكويت: سناب شات الأقوى محلياً، تيك توك أرخص CPM، إنستقرام للجمال والفخامة، واتساب للعلاقات الشخصية والستوريات.
 - المواسم: رمضان/الأعياد، العودة للمدارس، اليوم الوطني 25-26 فبراير، الهلا نوفمبر، الجمعة البيضاء.
 - لا تختلق منتجات أو أسعار أو أرقام غير موجودة في السياق. إذا ما تعرف، وجهه للأدلة أو الكتالوج.`
         + (personal || '')
         + (catalog ? `\n\nالمنتجات المطابقة:\n${catalog}` : '\n\n(ما فيه منتجات مطابقة — وجهه يبحث بكلمات ثانية أو يفتح الكتالوج)')
-        : `You are "Marketers' Assistant" of Mahal Shop — a Kuwaiti dropshipping platform where marketers earn 1–2 KWD per delivered order.
+        : `You are "Marketers' Assistant" of Mahal Shop — a Kuwaiti dropshipping platform. You are a digital-marketing expert helping Kuwaiti marketers earn commissions on delivered orders. The platform does NOT sell directly to visitors — every visitor is a potential marketer we help get started.
 Rules:
 - Friendly, concise English (3-5 lines), practical and direct.
 - If matching products are listed, recommend them by name with commission and price.
-- Commissions: 1.000 KWD (most competitive), 1.500 KWD (medium), 2.000 KWD (niche). Credited on delivery via the marketer's ?ref link (30-day window).
+- Commissions: each product carries a suggested commission from 1 to 10 KWD by value and competition — the marketer freely picks his own within the range and sets his selling price = platform price + commission. Credited on delivery via the marketer's ?ref link (30-day window).
 - Each product has a market study: suggested sale price, demand tier (hot/warm/cold), best ad channel (Snapchat/TikTok/Instagram/WhatsApp).
 - Kuwait channels: Snapchat strongest locally, TikTok cheapest CPM, Instagram for beauty/premium, WhatsApp for personal selling.
 - Seasons: Ramadan/Eid, back-to-school, National Days Feb 25-26, Hala November, White Friday.

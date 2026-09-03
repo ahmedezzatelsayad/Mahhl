@@ -196,7 +196,7 @@ export function AffiliateDashboardView() {
           <h1 className="text-xl font-bold">أهلاً {affiliateUser?.name} 👋</h1>
           <p className="text-xs text-muted-foreground mt-1">
             كودك التسويقي: <span className="font-mono font-bold text-primary">{affiliateUser?.code}</span>
-            {' '}— كل منتج في المنصة عليه عمولة من 1 إلى 2 د.ك
+            {' '}— كل منتج في المنصة عليه عمولة مقترحة من 1 إلى 10 د.ك وإنت تختار
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -250,26 +250,26 @@ export function AffiliateDashboardView() {
       {/* 30-day earnings chart */}
       {data?.trend && data.trend.length > 0 && <EarningsChart trend={data.trend} />}
 
-      {/* Commission tiers explainer */}
+      {/* Commission range explainer */}
       <div>
-        <h2 className="text-sm font-bold mb-2">🎯 شرائح العمولات — كل منتج عليه عمولة</h2>
+        <h2 className="text-sm font-bold mb-2">🎯 العمولة المقترحة على كل منتج — من 1 إلى 10 د.ك</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <Card className="p-3 flex items-center gap-3">
-            <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white">1.000 د.ك</Badge>
+            <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white">منتجات رخيصة</Badge>
             <div className="text-xs text-muted-foreground">
-              المنتجات الأكثر تنافسية — بتبيع نفسها بحجم كبير
+              عمولة مقترحة 1–3 د.ك — بتبيع بحجم كبير
             </div>
           </Card>
           <Card className="p-3 flex items-center gap-3">
-            <Badge className="bg-amber-500 hover:bg-amber-500 text-white">1.500 د.ك</Badge>
+            <Badge className="bg-amber-500 hover:bg-amber-500 text-white">منتجات متوسطة</Badge>
             <div className="text-xs text-muted-foreground">
-              منتجات متوسطة الانتشار — توازن ممتاز بين السعر والعمولة
+              عمولة مقترحة 2.5–5 د.ك — توازن بين السعر والهامش
             </div>
           </Card>
           <Card className="p-3 flex items-center gap-3">
-            <Badge className="bg-rose-600 hover:bg-rose-600 text-white">2.000 د.ك</Badge>
+            <Badge className="bg-rose-600 hover:bg-rose-600 text-white">منتجات غالية/نيش</Badge>
             <div className="text-xs text-muted-foreground">
-              منتجات نيش وسعر أعلى — حافز أقوى لك لتنشرها
+              عمولة مقترحة 5–10 د.ك — هامش أكبر لكل طلب
             </div>
           </Card>
         </div>

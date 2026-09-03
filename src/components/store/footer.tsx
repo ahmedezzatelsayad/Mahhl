@@ -78,8 +78,8 @@ export function Footer() {
             </button>
             <p className="text-sm text-primary-foreground/70 leading-relaxed max-w-sm">
               {lang === 'en'
-                ? 'Kuwait’s #1 dropshipping platform — market 2,600+ products and earn a 1–2 KWD commission on every delivered order, with zero capital and zero shipping hassle. For shoppers: competitive prices in KWD, fast delivery to every governorate, and cash on delivery.'
-                : 'منصة دروب شيبنج رقم 1 في الكويت — سوّق أكثر من 2,600 منتج واربح عمولة من 1 إلى 2 د.ك على كل طلب يوصَل، بدون رأس مال وبدون هم الشحن. ولتسوق: أسعار تنافسية بالدينار الكويتي وتوصيل سريع لكل المحافظات ودفع عند الاستلام.'}
+                ? 'Kuwait’s #1 dropshipping platform — 2,600+ products ready to market with a suggested commission of 1–10 KWD per product, and you pick your own. Zero capital, zero inventory, zero shipping hassle: register free, share your link, and earn on every delivered order — your customers get fast delivery and cash on delivery.'
+                : 'منصة دروب شيبنج رقم 1 في الكويت — أكثر من 2,600 منتج جاهز للتسويق بعمولة مقترحة من 1 إلى 10 د.ك على كل منتج وإنت تختار عمولتك. بدون رأس مال وبدون مخزون وبدون هم الشحن: سجّل مجاناً وشارك رابطك واربح على كل طلب يوصَل — وعملاؤك يتوصلون لهم طلباتهم بسرعة مع الدفع عند الاستلام.'}
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <a
@@ -219,8 +219,8 @@ export function Footer() {
           <p>
             © {new Date().getFullYear()} {brand.siteName} — {t('f.rights')}.{' '}
             {lang === 'en'
-              ? 'Kuwait’s dropshipping platform. Prices in KWD, cash on delivery, delivery to all Kuwait governorates, marketer commissions 1–2 KWD per delivered order.'
-              : 'منصة دروب شيبنج في الكويت. الأسعار بالدينار الكويتي، الدفع عند الاستلام، توصيل لكل المحافظات، وعمولات المسوقين 1–2 د.ك على كل طلب مسلّم.'}
+              ? 'Kuwait’s dropshipping platform — affiliate only (no direct sales). Suggested marketer commissions 1–10 KWD per product, delivery to all Kuwait governorates, cash on delivery.'
+              : 'منصة دروب شيبنج في الكويت — للتسويق بالعمولة فقط (لا بيع مباشر). عمولات مقترحة للمسوقين من 1 إلى 10 د.ك على كل منتج، توصيل لكل المحافظات، ودفع عند الاستلام.'}
           </p>
           <p className="text-primary-foreground/25 flex items-center justify-center gap-2 flex-wrap">
             <MapPin className="h-3 w-3 inline" /> {lang === 'en' ? 'Kuwait' : 'الكويت'}

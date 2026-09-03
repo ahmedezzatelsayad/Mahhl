@@ -11,18 +11,14 @@ import { captureUtm } from '@/lib/utm';
 import { captureRef } from '@/lib/ref';
 import { Header } from '@/components/store/header';
 import { Footer } from '@/components/store/footer';
-import { CartDrawer } from '@/components/store/cart-drawer';
 import { HomeView } from '@/components/store/home-view';
 import { ShopView } from '@/components/store/shop-view';
 import { ProductView } from '@/components/store/product-view';
-import { CartView } from '@/components/store/cart-view';
-import { CheckoutView, OrderSuccessView } from '@/components/store/checkout-view';
 import { AccountView } from '@/components/store/account-view';
 import { TrackOrderView } from '@/components/store/track-order-view';
 import { WishlistView } from '@/components/store/wishlist-view';
 import { InfoView } from '@/components/store/info-view';
 import { FloatingWidgets } from '@/components/store/floating-widgets';
-import { ExitIntentPopup } from '@/components/store/exit-intent';
 import { RecentlyViewed } from '@/components/store/recently-viewed';
 import { useLangStore } from '@/lib/stores/lang-store';
 import { AdminLoginView } from '@/components/admin/admin-login-view';
@@ -107,9 +103,6 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
       const track = sp.get('track');
       const wishlist = sp.get('wishlist');
       const info = sp.get('info');
-      const cart = sp.get('cart');
-      const checkout = sp.get('checkout');
-      const order = sp.get('order');
       const viewParam = sp.get('view');
 
       if (p) {
@@ -162,18 +155,7 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
         applyUrlState({ view: 'wishlist' });
         return;
       }
-      if (cart) {
-        applyUrlState({ view: 'cart' });
-        return;
-      }
-      if (checkout) {
-        applyUrlState({ view: 'checkout' });
-        return;
-      }
-      if (order) {
-        applyUrlState({ view: 'order-success' });
-        return;
-      }
+      // legacy cart/checkout/order URLs → home (منصة افلييت: لا بيع مباشر)
       // admin views survive back/forward too (guard effect enforces auth)
       if (viewParam && viewParam.startsWith('admin-')) {
         applyUrlState({ view: viewParam as View });
@@ -248,9 +230,6 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
   if (view === 'home') content = <HomeView />;
   else if (view === 'shop') content = <ShopView />;
   else if (view === 'product') content = <ProductView />;
-  else if (view === 'cart') content = <CartView />;
-  else if (view === 'checkout') content = <CheckoutView />;
-  else if (view === 'order-success') content = <OrderSuccessView />;
   else if (view === 'landing') content = <LandingView />;
   else if (view === 'account') content = <AccountView />;
   else if (view === 'track-order') content = <TrackOrderView />;
@@ -317,9 +296,7 @@ export function StoreApp({ initial }: { initial: InitialUrlState }) {
         </ViewErrorBoundary>
       </main>
       <Footer />
-      <CartDrawer />
       <FloatingWidgets />
-      <ExitIntentPopup />
     </div>
   );
 }

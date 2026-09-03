@@ -23,7 +23,7 @@ export interface SiteIdentity {
 export const DEFAULT_IDENTITY: SiteIdentity = {
   siteName: 'محل شوب',
   tagline: 'منصة دروب شيبنج رقم 1 في الكويت',
-  announcement: 'منصة دروب شيبنج رقم 1 في الكويت 🇰🇼 — سوّق واربح عمولة 1–2 د.ك على كل طلب',
+  announcement: 'منصة دروب شيبنج رقم 1 في الكويت 🇰🇼 — عمولات مقترحة من 1 إلى 10 د.ك على كل منتج، وإنت تختار عمولتك',
   whatsapp: '66046358',
   logo: '',
   favicon: '',
