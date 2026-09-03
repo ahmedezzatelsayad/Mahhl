@@ -60,6 +60,15 @@ model Product {
   originalPrice   Float?
   // per-unit affiliate commission in KWD (نظام العمولات) — paid to the marketer per sold unit
   commission      Float         @default(0)
+  // ===== Kuwait market study (محرك دراسة السوق الكويتي — scripts/pricing/study.mjs) =====
+  /// سعر البيع المقترح بالدينار الكويتي (نهايات نفسية .500/.900) لسوق الكويت
+  suggestedPrice  Float?
+  /// مستوى الطلب: hot / warm / cold (مبيعات + تقييمات + ترتيب الطلب)
+  demandTier      String?
+  /// أنسب قناة إعلانية بالكويت: snapchat / tiktok / instagram / whatsapp
+  adChannel       String?
+  /// ملاحظة تسويقية قصيرة بالعربية (دراسة مختصرة لكل منتج)
+  studyNote       String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   orderItems      OrderItem[]

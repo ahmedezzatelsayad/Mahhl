@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAppStore } from '@/lib/stores/app-store';
 import { formatKwd } from '@/lib/utils/format';
-import { ShoppingCart, Star, Heart, Flame } from 'lucide-react';
+import { ShoppingCart, Star, Heart, Flame, HandCoins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/lib/stores/cart-store';
 import { useWishlistStore } from '@/lib/stores/wishlist-store';
@@ -24,6 +24,8 @@ export interface ProductCardProps {
     quantity: number;
     isBestSeller?: boolean;
     category?: { name: string } | null;
+    /** open commission (KWD) — shown to ALL visitors (منصة دروب شيبنج) */
+    commission?: number | null;
     /** optional social proof (top-demand / related endpoints) */
     rating?: number;
     reviewCount?: number;
@@ -192,6 +194,13 @@ export function ProductCard({ product }: ProductCardProps) {
             </span>
           )}
         </div>
+        {/* العمولة المفتوحة — تظهر للجميع (هوية منصة الدروب شيبنج) */}
+        {product.commission != null && product.commission > 0 && (
+          <p className="inline-flex items-center gap-1 rounded-md bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+            <HandCoins className="h-3 w-3" />
+            {t('pc.commission', { n: product.commission.toFixed(3) })}
+          </p>
+        )}
         <Button
           size="sm"
           className="w-full btn-gold border-0 hover:opacity-95"

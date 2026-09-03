@@ -18,6 +18,9 @@ import {
   Shield,
   CheckCircle,
   Flame,
+  HandCoins,
+  TrendingUp,
+  Megaphone,
 } from 'lucide-react';
 import { ProductCard } from '@/components/store/product-card';
 import { UpsellWidget } from '@/components/store/upsell-widget';
@@ -54,11 +57,18 @@ interface ProductDetail {
   isBestSeller: boolean;
   variations: string | null;
   category: { name: string } | null;
+  // Kuwait market study (مفتوحة للجميع — هوية منصة الدروب شيبنج)
+  commission?: number | null;
+  suggestedPrice?: number | null;
+  demandTier?: string | null;
+  adChannel?: string | null;
+  studyNote?: string | null;
 }
 
 export function ProductView() {
   const slug = useAppStore((s) => s.selectedProductSlug);
   const setView = useAppStore((s) => s.setView);
+  const openInfo = useAppStore((s) => s.openInfo);
   const addItem = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openCart);
   const { t, lang } = useT();
@@ -389,6 +399,84 @@ export function ProductView() {
                 }, [])}
             </p>
           </div>
+
+          {/* ===== فرصة المسوقين — دراسة سوق مفتوحة للجميع (هوية منصة الدروب شيبنج) ===== */}
+          {product.commission != null && product.commission > 0 && (
+            <div className="rounded-xl border border-amber-300/60 bg-gradient-to-l from-amber-50 to-white p-4 space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-extrabold flex items-center gap-1.5 text-amber-900">
+                  <HandCoins className="h-4.5 w-4.5 text-amber-600" />
+                  {lang === 'en' ? 'Marketer opportunity — open commission' : 'فرصة للمسوقين — العمولة مفتوحة'}
+                </p>
+                <span className="rounded-full bg-amber-500 text-white text-[11px] font-extrabold px-2.5 py-1 whitespace-nowrap">
+                  {lang === 'en' ? `Earn ${product.commission.toFixed(3)} KWD / order` : `اربح ${product.commission.toFixed(3)} د.ك / طلب`}
+                </span>
+              </div>
+
+              {(product.suggestedPrice != null || product.demandTier || product.adChannel) && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                  {product.suggestedPrice != null && (
+                    <div className="rounded-lg bg-white/80 border border-amber-200 px-3 py-2">
+                      <p className="text-muted-foreground">{lang === 'en' ? 'Suggested retail price (Kuwait)' : 'سعر البيع المقترح في الكويت'}</p>
+                      <p className="font-extrabold text-foreground mt-0.5">{product.suggestedPrice.toFixed(3)} د.ك</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {lang === 'en'
+                          ? `Your margin ≈ ${(product.suggestedPrice - product.salePrice).toFixed(3)} KWD`
+                          : `هامشك ≈ ${(product.suggestedPrice - product.salePrice).toFixed(3)} د.ك`}
+                      </p>
+                    </div>
+                  )}
+                  {product.demandTier && (
+                    <div className="rounded-lg bg-white/80 border border-amber-200 px-3 py-2">
+                      <p className="text-muted-foreground">{lang === 'en' ? 'Demand level' : 'مستوى الطلب'}</p>
+                      <p className="font-extrabold text-foreground mt-0.5 flex items-center gap-1">
+                        {product.demandTier === 'hot' && <><Flame className="h-3.5 w-3.5 text-red-500" />{lang === 'en' ? 'High demand' : 'طلب عالي'}</>}
+                        {product.demandTier === 'warm' && <><TrendingUp className="h-3.5 w-3.5 text-amber-500" />{lang === 'en' ? 'Medium demand' : 'طلب متوسط'}</>}
+                        {product.demandTier === 'cold' && <><span aria-hidden="true">💎</span>{lang === 'en' ? 'Niche product' : 'منتج تخصصي'}</>}
+                      </p>
+                    </div>
+                  )}
+                  {product.adChannel && (
+                    <div className="rounded-lg bg-white/80 border border-amber-200 px-3 py-2">
+                      <p className="text-muted-foreground">{lang === 'en' ? 'Best ad channel' : 'أنسب قناة إعلان'}</p>
+                      <p className="font-extrabold text-foreground mt-0.5 flex items-center gap-1">
+                        <Megaphone className="h-3.5 w-3.5 text-amber-600" />
+                        {product.adChannel === 'snapchat' && (lang === 'en' ? 'Snapchat' : 'سناب شات')}
+                        {product.adChannel === 'tiktok' && (lang === 'en' ? 'TikTok' : 'تيك توك')}
+                        {product.adChannel === 'instagram' && (lang === 'en' ? 'Instagram' : 'إنستقرام')}
+                        {product.adChannel === 'whatsapp' && (lang === 'en' ? 'WhatsApp' : 'واتساب')}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {product.studyNote && (
+                <p className="text-xs leading-6 text-foreground/80">{product.studyNote}</p>
+              )}
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  size="sm"
+                  className="bg-amber-500 text-white hover:bg-amber-600 border-0 font-bold"
+                  onClick={() => setView('affiliate-login')}
+                >
+                  <HandCoins className="h-4 w-4 ml-1" />
+                  {lang === 'en' ? 'Market this product & earn' : 'سوّق هذا المنتج واربح'}
+                </Button>
+                <a
+                  href={lang === 'en' ? '/?info=guide-ads' : '/?info=guide-campaigns'}
+                  className="text-xs font-bold text-amber-800 underline underline-offset-4 hover:text-amber-600"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    openInfo(lang === 'en' ? 'guide-ads' : 'guide-campaigns');
+                  }}
+                >
+                  {lang === 'en' ? 'How to market it? (free guides)' : 'شلون أسوّقه؟ (أدلة مجانية)'}
+                </a>
+              </div>
+            </div>
+          )}
 
           {/* Description */}
           <div className="prose prose-sm max-w-none">

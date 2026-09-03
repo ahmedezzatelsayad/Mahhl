@@ -9,11 +9,12 @@ import { useAppStore } from '@/lib/stores/app-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Handshake, Phone, Lock, User, Mail, CheckCircle2 } from 'lucide-react';
+import { Handshake, Phone, Lock, User, Mail, CheckCircle2, GraduationCap, Megaphone, CalendarDays } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function AffiliateLoginView() {
   const loginAffiliate = useAppStore((s) => s.loginAffiliate);
+  const openInfo = useAppStore((s) => s.openInfo);
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState<string | null>(null);
@@ -91,6 +92,22 @@ export function AffiliateLoginView() {
             <div className="border rounded-lg p-2.5 bg-card">
               <div className="text-lg font-extrabold text-primary">0 د.ك</div>
               <div className="text-[10px] text-muted-foreground">رسوم انضمام</div>
+            </div>
+          </div>
+
+          {/* مركز المسوقين — أدلة مجانية */}
+          <div className="mt-4 rounded-lg border border-amber-300/60 bg-amber-50 p-3.5">
+            <p className="text-xs font-extrabold text-amber-900 mb-2 flex items-center gap-1.5">
+              <GraduationCap className="h-4 w-4 text-amber-600" />
+              مركز المسوقين — أدلة مجانية قبل ما تبدأ
+            </p>
+            <div className="space-y-1.5 text-xs">
+              <a href="/?info=guide-ads" onClick={(e) => { e.preventDefault(); openInfo('guide-ads'); }} className="flex items-center gap-1.5 font-bold text-amber-800 hover:text-amber-600">
+                <Megaphone className="h-3.5 w-3.5" /> أفضل ممارسات الدعاية والإعلانات في الكويت
+              </a>
+              <a href="/?info=guide-campaigns" onClick={(e) => { e.preventDefault(); openInfo('guide-campaigns'); }} className="flex items-center gap-1.5 font-bold text-amber-800 hover:text-amber-600">
+                <CalendarDays className="h-3.5 w-3.5" /> دليل الحملات والمواسم الكويتية + نصوص جاهزة
+              </a>
             </div>
           </div>
         </div>

@@ -26,11 +26,15 @@ export async function GET(req: NextRequest) {
     const orderBy: any[] =
       sort === 'commission'
         ? [{ commission: 'desc' }, { soldCount: 'desc' }]
-        : sort === 'price_asc'
-          ? [{ salePrice: 'asc' }]
-          : sort === 'price_desc'
-            ? [{ salePrice: 'desc' }]
-            : [{ isBestSeller: 'desc' }, { soldCount: 'desc' }];
+        : sort === 'demand'
+          ? [{ isBestSeller: 'desc' }, { demandRank: { sort: 'asc', nulls: 'last' } }, { soldCount: 'desc' }]
+          : sort === 'suggested'
+            ? [{ suggestedPrice: 'desc' }, { soldCount: 'desc' }]
+            : sort === 'price_asc'
+              ? [{ salePrice: 'asc' }]
+              : sort === 'price_desc'
+                ? [{ salePrice: 'desc' }]
+                : [{ isBestSeller: 'desc' }, { soldCount: 'desc' }];
 
     const where: any = {
       AND: [
@@ -57,6 +61,7 @@ export async function GET(req: NextRequest) {
           id: true, slug: true, name: true, sku: true, thumb: true,
           price: true, salePrice: true, quantity: true, trackStock: true,
           commission: true, isBestSeller: true, soldCount: true,
+          suggestedPrice: true, demandTier: true, adChannel: true, studyNote: true,
         },
         orderBy,
         skip: (page - 1) * perPage,

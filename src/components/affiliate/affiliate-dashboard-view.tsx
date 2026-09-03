@@ -16,7 +16,7 @@ import { STATUS_LABELS_AR, STATUS_COLORS } from '@/lib/commission';
 import { toast } from 'sonner';
 import {
   PackageCheck, Clock, Truck, XCircle, TrendingUp, Wallet, Banknote, Percent,
-  Copy, Share2, Link2, BarChart3,
+  Copy, Share2, Link2, BarChart3, Megaphone, CalendarDays,
 } from 'lucide-react';
 
 interface Buckets {
@@ -138,6 +138,7 @@ export function AffiliateDashboardView() {
   const affiliateToken = useAppStore((s) => s.affiliateToken);
   const affiliateUser = useAppStore((s) => s.affiliateUser);
   const setView = useAppStore((s) => s.setView);
+  const openInfo = useAppStore((s) => s.openInfo);
   const [data, setData] = useState<{
     buckets: Buckets;
     recentOrders: any[];
@@ -278,6 +279,31 @@ export function AffiliateDashboardView() {
         >
           تصفح المنتجات وعمولاتها ←
         </button>
+      </div>
+
+      {/* مركز المسوقين — أدلة التسويق */}
+      <div className="rounded-xl border border-amber-300/60 bg-amber-50 p-4">
+        <h2 className="text-sm font-bold text-amber-900 mb-2">📣 مركز المسوقين — طوّر مهاراتك واربح أكثر</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+          <a
+            href="/?info=guide-ads"
+            onClick={(e) => { e.preventDefault(); openInfo('guide-ads'); }}
+            className="rounded-lg bg-white border border-amber-200 px-3 py-2.5 font-bold text-amber-800 hover:border-amber-400 transition-colors"
+          >
+            <Megaphone className="h-3.5 w-3.5 inline ml-1" />
+            أفضل ممارسات الدعاية والإعلانات في الكويت
+            <span className="block font-normal text-amber-700/80 mt-0.5">القنوات الأقوى + الميزانية الذكية + الأرقام الواقعية</span>
+          </a>
+          <a
+            href="/?info=guide-campaigns"
+            onClick={(e) => { e.preventDefault(); openInfo('guide-campaigns'); }}
+            className="rounded-lg bg-white border border-amber-200 px-3 py-2.5 font-bold text-amber-800 hover:border-amber-400 transition-colors"
+          >
+            <CalendarDays className="h-3.5 w-3.5 inline ml-1" />
+            دليل الحملات والمواسم الكويتية
+            <span className="block font-normal text-amber-700/80 mt-0.5">تقويم المواسم + حملات جاهزة + نصوص بالعامية</span>
+          </a>
+        </div>
       </div>
 
       {/* Top products */}

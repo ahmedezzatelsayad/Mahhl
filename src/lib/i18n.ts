@@ -463,6 +463,7 @@ export const DICT: Dict = {
   'pc.wishAddAria': { ar: 'إضافة للمفضلة', en: 'Add to wishlist' },
   'pc.oos': { ar: 'نفذ المخزون', en: 'Out of stock' },
   'pc.sold': { ar: 'طُلب {n}×', en: 'Ordered {n}×' },
+  'pc.commission': { ar: 'عمولة المسوق: {n} د.ك', en: 'Marketer commission: {n} KWD' },
   'pc.addToCart': { ar: 'أضف للسلة', en: 'Add to Cart' },
 
   /* ===== cart drawer ===== */

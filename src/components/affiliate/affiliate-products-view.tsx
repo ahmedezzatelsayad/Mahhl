@@ -20,6 +20,7 @@ interface AffProduct {
   id: string; slug: string; name: string; sku: string; thumb: string | null;
   sellPrice: number; commission: number; quantity: number; trackStock: boolean;
   isBestSeller: boolean; soldCount: number;
+  suggestedPrice?: number | null; demandTier?: string | null; adChannel?: string | null; studyNote?: string | null;
 }
 
 const TIER_OPTIONS = [
@@ -32,6 +33,8 @@ const TIER_OPTIONS = [
 const SORT_OPTIONS = [
   { value: 'best', label: 'الأكثر مبيعاً' },
   { value: 'commission', label: 'أعلى عمولة' },
+  { value: 'demand', label: 'الأعلى طلباً 🔥' },
+  { value: 'suggested', label: 'أعلى سعر بيع مقترح' },
   { value: 'price_asc', label: 'الأرخص سعراً' },
   { value: 'price_desc', label: 'الأغلى سعراً' },
 ];
@@ -88,7 +91,8 @@ export function AffiliateProductsView() {
   }
 
   useEffect(() => {
-    load(1);
+    const t = setTimeout(() => load(1), 0);
+    return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -245,6 +249,26 @@ export function AffiliateProductsView() {
                 <div className="text-[11px] text-muted-foreground">
                   🔥 طُلب {p.soldCount > 0 ? p.soldCount.toLocaleString('en') : '—'} مرة
                 </div>
+                {/* الدراسة التسويقية: سعر مقترح + طلب + قناة */}
+                {(p.suggestedPrice != null || p.demandTier || p.adChannel) && (
+                  <div className="rounded-lg bg-amber-50 border border-amber-200 px-2.5 py-2 text-[11px] space-y-1">
+                    {p.suggestedPrice != null && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-amber-800">سعر البيع المقترح</span>
+                        <span className="font-extrabold text-amber-900">{formatKwd(p.suggestedPrice)}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {p.demandTier === 'hot' && <Badge className="bg-red-500 hover:bg-red-500 text-white text-[9px] px-1.5 py-0">طلب عالي 🔥</Badge>}
+                      {p.demandTier === 'warm' && <Badge className="bg-amber-500 hover:bg-amber-500 text-white text-[9px] px-1.5 py-0">طلب متوسط</Badge>}
+                      {p.demandTier === 'cold' && <Badge className="bg-slate-500 hover:bg-slate-500 text-white text-[9px] px-1.5 py-0">نيتش 💎</Badge>}
+                      {p.adChannel === 'snapchat' && <Badge variant="outline" className="text-[9px] px-1.5 py-0">سناب شات</Badge>}
+                      {p.adChannel === 'tiktok' && <Badge variant="outline" className="text-[9px] px-1.5 py-0">تيك توك</Badge>}
+                      {p.adChannel === 'instagram' && <Badge variant="outline" className="text-[9px] px-1.5 py-0">إنستقرام</Badge>}
+                      {p.adChannel === 'whatsapp' && <Badge variant="outline" className="text-[9px] px-1.5 py-0">واتساب</Badge>}
+                    </div>
+                  </div>
+                )}
                 <div className="mt-auto space-y-1.5">
                   <div className="flex items-center justify-between">
                     <div className="text-sm">{formatKwd(p.sellPrice)}</div>

@@ -4,10 +4,13 @@ import { useEffect, useState } from 'react';
 import { useAppStore, type InfoPage } from '@/lib/stores/app-store';
 import {
   Store, MessageCircle, Truck, ShieldCheck, RefreshCcw, HelpCircle,
-  Lock, FileText, Phone, MapPin, ChevronDown,
+  Lock, FileText, Phone, MapPin, ChevronDown, Megaphone, CalendarDays,
 } from 'lucide-react';
 import { useBrand, waHref } from '@/components/store/header';
 import { useT } from '@/lib/i18n';
+import { GuideRenderer } from '@/components/store/guide-renderer';
+import { GUIDE_ADS_SECTIONS } from '@/components/store/guide-ads';
+import { GUIDE_CAMPAIGNS_SECTIONS } from '@/components/store/guide-campaigns';
 
 interface ShippingInfo {
   price: number;
@@ -28,10 +31,14 @@ const PAGE_TITLES: Record<InfoPage, { ar: string; en: string; icon: typeof Store
   faq: { ar: 'الأسئلة الشائعة', en: 'FAQ', icon: HelpCircle },
   privacy: { ar: 'سياسة الخصوصية', en: 'Privacy Policy', icon: Lock },
   terms: { ar: 'الشروط والأحكام', en: 'Terms & Conditions', icon: FileText },
+  'guide-ads': { ar: 'أفضل ممارسات الدعاية والإعلانات في الكويت', en: 'Best Advertising Practices in Kuwait', icon: Megaphone },
+  'guide-campaigns': { ar: 'دليل الحملات والمواسم الكويتية', en: 'Campaigns & Kuwaiti Seasons Guide', icon: CalendarDays },
 };
 
 export function InfoView() {
   const infoPage = useAppStore((s) => s.infoPage);
+  const setView = useAppStore((s) => s.setView);
+  const openInfo = useAppStore((s) => s.openInfo);
   const brand = useBrand();
   const { lang } = useT();
   const [shipping, setShipping] = useState<ShippingInfo | null>(null);
@@ -519,6 +526,67 @@ export function InfoView() {
             {L(lang, 'آخر تحديث: ', 'Last updated: ')}
             {new Date().toLocaleDateString(lang === 'en' ? 'en-KW' : 'ar-KW', { year: 'numeric', month: 'long' })}
           </p>
+        </div>
+      )}
+
+      {/* ===================== GUIDE: ADS BEST PRACTICES ===================== */}
+      {infoPage === 'guide-ads' && (
+        <div className="space-y-6">
+          <p className="rounded-xl bg-accent/10 border border-accent/20 px-4 py-3 text-sm leading-7 text-foreground/90">
+            {L(
+              lang,
+              'دليل عملي للمسوّقين في الكويت — كل اللي تحتاجه لتشغّل إعلانات تبيع، من اختيار القناة إلى إدارة الميزانية. العمولات مفتوحة على كل منتج في المنصة: سوّق واربح 1–2 د.ك على كل طلب يوصَل.',
+              'A practical guide for marketers in Kuwait — everything you need to run ads that sell, from channel choice to budget management. Commissions are open on every product: earn 1–2 KWD per delivered order.'
+            )}
+          </p>
+          <GuideRenderer sections={GUIDE_ADS_SECTIONS} en={lang === 'en'} />
+          {/* cross-link + CTA */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              onClick={() => openInfo('guide-campaigns')}
+              className="rounded-xl border px-4 py-3.5 text-start hover:border-accent/60 hover:bg-accent/5 transition-colors"
+            >
+              <p className="text-sm font-bold flex items-center gap-2"><CalendarDays className="h-4 w-4 text-gold-deep" />{L(lang, 'التالي: دليل الحملات والمواسم الكويتية', 'Next: Campaigns & Kuwaiti Seasons Guide')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{L(lang, 'تقويم المواسم + قوالب حملات جاهزة + نصوص بالعامية', 'Season calendar + ready templates + Kuwaiti-dialect copy')}</p>
+            </button>
+            <button
+              onClick={() => setView('affiliate-login')}
+              className="rounded-xl bg-primary text-primary-foreground px-4 py-3.5 text-start hover:opacity-95 transition-opacity"
+            >
+              <p className="text-sm font-bold flex items-center gap-2"><Megaphone className="h-4 w-4" />{L(lang, 'سجّل مجاناً وابدأ الكسب', 'Register free & start earning')}</p>
+              <p className="text-xs text-primary-foreground/70 mt-1">{L(lang, 'بوابة المسوقين — عمولة 1–2 د.ك على كل طلب يوصَل', 'Marketers’ portal — 1–2 KWD per delivered order')}</p>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ===================== GUIDE: CAMPAIGNS & SEASONS ===================== */}
+      {infoPage === 'guide-campaigns' && (
+        <div className="space-y-6">
+          <p className="rounded-xl bg-accent/10 border border-accent/20 px-4 py-3 text-sm leading-7 text-foreground/90">
+            {L(
+              lang,
+              'تقويم مواسم الكويت + حملات جاهزة خطوة بخطوة + نصوص إعلانية بالعامية — انسخ، عدّل اسم المنتج والسعر، وشغّل أول حملة لك اليوم.',
+              'Kuwait’s season calendar + step-by-step ready campaigns + dialect ad copy — copy, swap the product name and price, and launch your first campaign today.'
+            )}
+          </p>
+          <GuideRenderer sections={GUIDE_CAMPAIGNS_SECTIONS} en={lang === 'en'} />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              onClick={() => openInfo('guide-ads')}
+              className="rounded-xl border px-4 py-3.5 text-start hover:border-accent/60 hover:bg-accent/5 transition-colors"
+            >
+              <p className="text-sm font-bold flex items-center gap-2"><Megaphone className="h-4 w-4 text-gold-deep" />{L(lang, 'قبل ما تبدأ: أفضل ممارسات الدعاية في الكويت', 'First: Best Advertising Practices in Kuwait')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{L(lang, 'القنوات، القواعد السبع، الميزانية، والأرقام الواقعية', 'Channels, the 7 rules, budgeting and realistic benchmarks')}</p>
+            </button>
+            <button
+              onClick={() => setView('affiliate-login')}
+              className="rounded-xl bg-primary text-primary-foreground px-4 py-3.5 text-start hover:opacity-95 transition-opacity"
+            >
+              <p className="text-sm font-bold flex items-center gap-2"><CalendarDays className="h-4 w-4" />{L(lang, 'سجّل مجاناً وشغّل أول حملة', 'Register free & launch your first campaign')}</p>
+              <p className="text-xs text-primary-foreground/70 mt-1">{L(lang, '+2,600 منتج بعمولة معروفة على كل منتج', '2,600+ products with a known commission on each')}</p>
+            </button>
+          </div>
         </div>
       )}
 

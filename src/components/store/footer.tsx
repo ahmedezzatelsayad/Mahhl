@@ -22,6 +22,8 @@ const INFO_LINKS: { page: InfoPage; label: string; labelEn: string }[] = [
   { page: 'faq', label: 'الأسئلة الشائعة', labelEn: 'FAQ' },
   { page: 'privacy', label: 'سياسة الخصوصية', labelEn: 'Privacy Policy' },
   { page: 'terms', label: 'الشروط والأحكام', labelEn: 'Terms & Conditions' },
+  { page: 'guide-ads', label: 'مركز المسوقين: دليل الدعاية في الكويت 📣', labelEn: 'Marketers Hub: Advertising Guide 📣' },
+  { page: 'guide-campaigns', label: 'دليل الحملات والمواسم الكويتية 📅', labelEn: 'Campaigns & Kuwaiti Seasons Guide 📅' },
 ];
 
 export function Footer() {

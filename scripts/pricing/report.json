@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-09-03T01:58:22.364Z",
+  "totalProducts": 2638,
+  "demandDistribution": {
+    "hot": 791,
+    "warm": 1055,
+    "cold": 792
+  },
+  "channelDistribution": {
+    "tiktok": 762,
+    "snapchat": 1056,
+    "instagram": 686,
+    "whatsapp": 134
+  },
+  "suggestedMargin": {
+    "avg": 2.372,
+    "median": 2.5,
+    "min": 1.4,
+    "max": 9.5
+  },
+  "priceRules": "<2KWD:+1.5 | 2-5:×1.5 | 5-12:×1.4 | 12-30:×1.33 | 30-80:×1.27 | 80+:×1.2 → snap .500/.900"
+}

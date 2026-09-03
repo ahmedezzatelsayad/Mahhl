@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { useAppStore } from '@/lib/stores/app-store';
 import {
   MousePointerClick, Share2, Banknote, Rocket, Handshake,
+  Megaphone, CalendarDays, Eye,
 } from 'lucide-react';
 
 const STEPS = [
@@ -95,6 +96,7 @@ function Calculator() {
 
 export function DropshipSection() {
   const setView = useAppStore((s) => s.setView);
+  const openInfo = useAppStore((s) => s.openInfo);
   return (
     <section className="relative overflow-hidden bg-gradient-to-l from-slate-950 via-slate-900 to-slate-950">
       {/* زخرفة خفيفة */}
@@ -114,6 +116,17 @@ export function DropshipSection() {
               وكل منتج عليه <span className="font-bold text-amber-400">عمولة من 1 إلى 2 د.ك</span> حسب
               تنافسيته. أنت بس سوّق، وإحنا نشحن ونحاسب ونوصل الفلوس لحسابك.
             </p>
+
+            {/* العمولات مفتوحة + أدلة التسويق */}
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px]">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/10 border border-emerald-400/30 px-3 py-1 font-bold text-emerald-300">
+                <Eye className="h-3 w-3" />
+                العمولات مفتوحة — شوف عمولة أي منتج على صفحته
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 border border-white/15 px-3 py-1 text-white/70">
+                + دراسة سعر بيع مقترح لكل منتج في الكويت
+              </span>
+            </div>
 
             <div className="mt-5 space-y-3">
               {STEPS.map((s) => {
@@ -137,9 +150,23 @@ export function DropshipSection() {
                 <Handshake className="h-4 w-4 ml-1.5" />
                 سوّق معنا واربح
               </Button>
-              <span className="text-[11px] text-white/50">
-                تسجيل مجاني · عمولات حتى 2 د.ك للطلب · سحب متى ما تبي
-              </span>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white/25 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                onClick={() => openInfo('guide-ads')}
+              >
+                <Megaphone className="h-4 w-4 ml-1.5" />
+                مركز المسوقين — أدلة مجانية
+              </Button>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
+              <button onClick={() => openInfo('guide-ads')} className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 font-bold text-amber-300 hover:bg-amber-400/20 transition-colors cursor-pointer">
+                <Megaphone className="h-3 w-3" /> أفضل ممارسات الدعاية في الكويت
+              </button>
+              <button onClick={() => openInfo('guide-campaigns')} className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 font-bold text-amber-300 hover:bg-amber-400/20 transition-colors cursor-pointer">
+                <CalendarDays className="h-3 w-3" /> دليل الحملات والمواسم الكويتية
+              </button>
             </div>
           </div>
 

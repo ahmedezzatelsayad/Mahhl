@@ -23,6 +23,8 @@ export type View =
   | 'track-order'
   | 'wishlist'
   | 'info'
+  | 'guide-ads'
+  | 'guide-campaigns'
   | 'admin-login'
   | 'admin-dashboard'
   | 'admin-products'
@@ -60,7 +62,9 @@ export type InfoPage =
   | 'shipping'
   | 'returns'
   | 'privacy'
-  | 'terms';
+  | 'terms'
+  | 'guide-ads'
+  | 'guide-campaigns';
 
 export interface CustomerSession {
   id: string;
