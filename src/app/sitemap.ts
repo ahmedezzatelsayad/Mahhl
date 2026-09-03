@@ -56,6 +56,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.6,
       });
     }
+
+    // صفحات المعلومات + مركز المسوقين (footer pages) — للفهرسة والأجوبة الذكية
+    const INFO_PAGES: { page: string; priority: number }[] = [
+      { page: 'about', priority: 0.7 },
+      { page: 'affiliate-program', priority: 0.8 },
+      { page: 'faq', priority: 0.6 },
+      { page: 'contact', priority: 0.5 },
+      { page: 'shipping', priority: 0.5 },
+      { page: 'returns', priority: 0.5 },
+      { page: 'privacy', priority: 0.3 },
+      { page: 'terms', priority: 0.3 },
+      { page: 'guide-ads', priority: 0.7 },
+      { page: 'guide-campaigns', priority: 0.7 },
+    ];
+    for (const { page, priority } of INFO_PAGES) {
+      entries.push({
+        url: `${base}/?info=${page}`,
+        lastModified: now,
+        changeFrequency: 'monthly',
+        priority,
+      });
+    }
   } catch {
     /* DB unavailable — return static entries */
   }

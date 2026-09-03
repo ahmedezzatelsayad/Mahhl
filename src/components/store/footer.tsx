@@ -16,14 +16,15 @@ interface Category {
 
 const INFO_LINKS: { page: InfoPage; label: string; labelEn: string }[] = [
   { page: 'about', label: 'من نحن', labelEn: 'About Us' },
+  { page: 'affiliate-program', label: 'برنامج المسوقين — سوّق واربح 💰', labelEn: 'Marketers Program — Sell & Earn 💰' },
   { page: 'contact', label: 'تواصل معنا', labelEn: 'Contact Us' },
   { page: 'shipping', label: 'الشحن والتوصيل', labelEn: 'Shipping & Delivery' },
   { page: 'returns', label: 'الاستبدال والاسترجاع', labelEn: 'Returns & Exchange' },
   { page: 'faq', label: 'الأسئلة الشائعة', labelEn: 'FAQ' },
   { page: 'privacy', label: 'سياسة الخصوصية', labelEn: 'Privacy Policy' },
   { page: 'terms', label: 'الشروط والأحكام', labelEn: 'Terms & Conditions' },
-  { page: 'guide-ads', label: 'مركز المسوقين: دليل الدعاية في الكويت 📣', labelEn: 'Marketers Hub: Advertising Guide 📣' },
-  { page: 'guide-campaigns', label: 'دليل الحملات والمواسم الكويتية 📅', labelEn: 'Campaigns & Kuwaiti Seasons Guide 📅' },
+  { page: 'guide-ads', label: 'دليل الدعاية في الكويت 📣', labelEn: 'Advertising Guide 📣' },
+  { page: 'guide-campaigns', label: 'دليل الحملات والمواسم 📅', labelEn: 'Campaigns & Seasons Guide 📅' },
 ];
 
 export function Footer() {
@@ -63,7 +64,7 @@ export function Footer() {
               className="flex items-center gap-2.5 font-extrabold text-lg mb-4 cursor-pointer"
             >
               {brand.logo ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
+                 
                 <img src={brand.logo} alt={brand.siteName} className="h-9 w-auto object-contain" />
               ) : (
                 <>

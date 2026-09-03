@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Loader2, SlidersHorizontal, X } from 'lucide-react';
+import { Loader2, SlidersHorizontal, X, Lock } from 'lucide-react';
 import { formatKwd } from '@/lib/utils/format';
 import { useT } from '@/lib/i18n';
 import { readLang } from '@/lib/stores/lang-store';
@@ -34,6 +34,14 @@ interface Category {
   slug: string;
 }
 
+/** registration-gate contract returned by /api/products */
+interface CatalogInfo {
+  unlocked: boolean;
+  locked: boolean;
+  publicLimit: number;
+  fullCatalog: number;
+}
+
 export function ShopView() {
   const { t } = useT();
   const lang = readLang();
@@ -49,6 +57,9 @@ export function ShopView() {
     toggleBestSellerFilter,
     resetFilters,
     setCategoryMap,
+    affiliateToken,
+    customerToken,
+    setView,
   } = useAppStore();
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -57,6 +68,7 @@ export function ShopView() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [catalog, setCatalog] = useState<CatalogInfo | null>(null);
   const [sort, setSort] = useState('newest');
   const [perPage, setPerPage] = useState(24); // Amazon-grade standard: 24/48/72
   const [showFilters, setShowFilters] = useState(false);
@@ -77,6 +89,14 @@ export function ShopView() {
     return params.toString();
   }, [page, perPage, sort, selectedCategoryId, searchQuery, filterBestSeller, priceMin, priceMax]);
 
+  // logged-in (marketer or buyer) → auth header unlocks the full catalog
+  const authHeaders = useMemo(() => {
+    const h: Record<string, string> = {};
+    if (affiliateToken) h.Authorization = `Bearer ${affiliateToken}`;
+    else if (customerToken) h.Authorization = `Bearer ${customerToken}`;
+    return h;
+  }, [affiliateToken, customerToken]);
+
   // Load categories once
   useEffect(() => {
     fetch(`/api/categories${lang === 'en' ? '?lang=en' : ''}`)
@@ -94,18 +114,19 @@ export function ShopView() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
-    fetch(`/api/products?${queryParams}`)
+    fetch(`/api/products?${queryParams}`, { headers: authHeaders })
       .then((r) => r.json())
       .then((data) => {
         setProducts(data.items || []);
         setTotal(data.pagination?.total || 0);
         setTotalPages(data.pagination?.pages || 1);
+        setCatalog(data.catalog || null);
       })
       .catch(() => {
         setProducts([]);
       })
       .finally(() => setLoading(false));
-  }, [queryParams]);
+  }, [queryParams, authHeaders]);
 
   // Reset page when filters change
   useEffect(() => {
@@ -116,8 +137,35 @@ export function ShopView() {
   const slugOfCategory = (id: string | null) =>
     id ? categories.find((c) => c.id === id)?.slug ?? null : null;
 
+  const locked = !!catalog?.locked;
+
   return (
     <div className="container mx-auto px-4 py-6">
+      {/* ===== registration gate banner (زائر يشوف التوب 200 فقط) ===== */}
+      {locked && (
+        <div className="mb-5 rounded-xl border-2 border-accent/40 bg-accent/5 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="flex-1">
+            <p className="font-extrabold text-sm sm:text-base flex items-center gap-2">
+              <Lock className="h-4 w-4 text-gold-deep shrink-0" />
+              {lang === 'en'
+                ? `You're viewing the TOP ${catalog?.publicLimit ?? 200} products from every section 🔥`
+                : `تشوف الآن أفضل ${catalog?.publicLimit ?? 200} منتج — التوب من كل الأقسام 🔥`}
+            </p>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              {lang === 'en'
+                ? `The full catalog (${(catalog?.fullCatalog ?? 2600).toLocaleString()}+ products) unlocks right after your FREE registration.`
+                : `الكتالوج الكامل (${(catalog?.fullCatalog ?? 2600).toLocaleString()}+ منتج) يفتح لك مباشرة بعد التسجيل المجاني.`}
+            </p>
+          </div>
+          <button
+            onClick={() => setView('affiliate-login')}
+            className="btn-gold rounded-lg px-5 py-2.5 text-sm font-extrabold shrink-0 cursor-pointer hover:scale-[1.02] transition-transform"
+          >
+            {lang === 'en' ? 'Register free — unlock all' : 'سجّل مجاناً وافتح الكل 🔓'}
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
         <div>
@@ -263,6 +311,31 @@ export function ShopView() {
                   </Button>
                 </div>
               )}
+
+              {/* locked-catalog card after the grid — only on the unfiltered
+                  "all products" browse (الفلترة النشطة تجيب نتائج داخل الـ200
+                  فالرقم "الباقي" ما ينطبق عليها) */}
+              {locked && !searchQuery && !selectedCategoryId && !filterBestSeller && priceMin === null && priceMax === null && (
+                <div className="mt-8 rounded-2xl border bg-card p-6 text-center">
+                  <p className="text-2xl mb-1">🔒</p>
+                  <p className="font-extrabold">
+                    {lang === 'en'
+                      ? `${Math.max(0, (catalog?.fullCatalog ?? 2600) - total).toLocaleString()} more products are waiting for you`
+                      : `باقي ${Math.max(0, (catalog?.fullCatalog ?? 2600) - total).toLocaleString()} منتج محتاجينك`}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
+                    {lang === 'en'
+                      ? 'Register free as a marketer (or a buyer) and the whole catalog opens instantly — with commission and pricing study on every product.'
+                      : 'سجّل مجاناً كمسوّق (أو مشتري) وينفتح لك الكتالوج كامل فوراً — مع العمولة ودراسة التسويق على كل منتج.'}
+                  </p>
+                  <button
+                    onClick={() => setView('affiliate-login')}
+                    className="btn-gold rounded-lg px-6 py-2.5 text-sm font-extrabold mt-4 cursor-pointer hover:scale-[1.02] transition-transform"
+                  >
+                    {lang === 'en' ? 'Free registration — open the catalog' : 'التسجيل المجاني — افتح الكتالوج'}
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -302,6 +375,7 @@ function FilterPanel({
   const [localSearch, setLocalSearch] = useState(searchQuery);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLocalSearch(searchQuery);
   }, [searchQuery]);
 

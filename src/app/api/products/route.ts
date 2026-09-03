@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { reqLang, locProduct, CDN_CACHE } from '@/lib/i18n-server';
+import { reqLang, locProduct } from '@/lib/i18n-server';
+import { verifyAffiliate } from '@/lib/affiliate-auth';
+import { verifyCustomer } from '@/lib/customer-auth';
+import { getCatalogGate } from '@/lib/catalog-gate';
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * GET /api/products — public catalog with the registration gate:
+ *  • زائر (بدون تسجيل) → أفضل 200 منتج فقط (التوب من كل الأقسام)
+ *  • مسوّق مسجّل أو مشتري مسجّل (Bearer token) → الكتالوج الكامل (2,600+)
+ */
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get('page') || '1');
@@ -16,7 +24,18 @@ export async function GET(req: NextRequest) {
   const sort = searchParams.get('sort') || 'newest';
   const lang = reqLang(req);
 
+  // ===== registration gate: logged-in affiliate OR customer unlocks everything
+  let unlocked = false;
+  if (req.headers.get('authorization')) {
+    unlocked = !!(await verifyAffiliate(req));
+    if (!unlocked) unlocked = !!(await verifyCustomer(req));
+  }
+
+  const gate = unlocked ? null : await getCatalogGate();
+  const locked = !!gate && gate.ids.length > 0 && gate.totalProducts > gate.publicLimit;
+
   const where: any = {};
+  if (locked) where.id = { in: gate!.ids };
   if (search) {
     const like = lang === 'en' ? search : search;
     where.OR = [
@@ -63,8 +82,17 @@ export async function GET(req: NextRequest) {
         pages: Math.ceil(total / limit),
         hasMore: page * limit < total,
       },
+      // registration-gate contract for the UI (شريط "سجّل وافتح الكتالوج")
+      catalog: {
+        unlocked,
+        locked,
+        publicLimit: gate?.publicLimit ?? 200,
+        fullCatalog: gate?.totalProducts || total,
+      },
     },
-    { headers: { 'Cache-Control': CDN_CACHE } }
+    // the guest (locked) variant is identical for everyone → edge-cacheable;
+    // the unlocked variant is per-session → never cached
+    { headers: { 'Cache-Control': locked ? 'public, s-maxage=300, stale-while-revalidate=600' : 'private, no-store' } }
   );
 }
 

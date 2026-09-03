@@ -126,6 +126,9 @@ export function DropshipSection() {
               <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 border border-white/15 px-3 py-1 text-white/70">
                 + دراسة سعر بيع مقترح لكل منتج في الكويت
               </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 border border-white/15 px-3 py-1 text-white/70">
+                🔓 بعد التسجيل المجاني يفتح لك الكتالوج كامل (2,600+ منتج) — الزائر يشوف أفضل 200
+              </span>
             </div>
 
             <div className="mt-5 space-y-3">

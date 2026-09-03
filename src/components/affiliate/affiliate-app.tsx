@@ -27,6 +27,7 @@ import { AffiliateOrdersView } from './affiliate-orders-view';
 import { AffiliateCommissionsView } from './affiliate-commissions-view';
 import { AffiliateProfileView } from './affiliate-profile-view';
 import { ViewErrorBoundary } from '@/components/store/view-error-boundary';
+import { MarketerChatWidget } from '@/components/store/floating-widgets';
 
 const NAV_ITEMS = [
   { view: 'affiliate-dashboard', label: 'الرئيسية', icon: LayoutDashboard },
@@ -108,6 +109,8 @@ export function AffiliatePortal() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {/* مساعد المسوقين الذكي — متاح داخل البوابة في كل الصفحات */}
+      <MarketerChatWidget />
       <div className="flex flex-1">
         {/* Desktop sidebar */}
         <aside className="hidden md:flex w-60 flex-shrink-0 border-l bg-card flex-col">

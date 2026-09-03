@@ -44,6 +44,7 @@ const ACTION_LABELS: Record<SlideAction, string> = {
   landing: 'صفحة هبوط',
   track: 'تتبع الطلب',
   product: 'منتج محدد',
+  'affiliate-login': 'بوابة المسوقين',
 };
 
 function CtaEditor({

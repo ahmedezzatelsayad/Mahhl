@@ -219,6 +219,21 @@ export const DICT: Dict = {
   },
   'ch.agentPlaceholder': { ar: 'شنو تدور عليه؟ أو كمّل بيانات طلبك...', en: 'What are you looking for? Or finish your order...' },
 
+  /* ===== مساعد المسوقين الذكي (marketer assistant mode) ===== */
+  'mkt.title': { ar: 'مساعد المسوقين الذكي', en: 'Marketers’ AI Assistant' },
+  'mkt.sub': { ar: 'خبير الدروب شيبنج — يرشح لك منتجات وخطط دعاية', en: 'Dropshipping expert — products & ad plans' },
+  'mkt.welcome': {
+    ar: 'هلا بيك يا مسوّق! 💰\nأنا مساعدك الذكي — أرشح لك المنتجات الأكثر طلباً بالكويت مع عمولتها وسعر بيعها المقترح، أجاوبك عن المحفظة والسحب، وأعطيك خطط دعاية جاهزة (سناب/تيك توك/إنستا).\nاسألني أي شي — مثلاً: «شنو أحسن منتج أبيع؟»',
+    en: 'Welcome, marketer! 💰\nI’m your AI assistant — I recommend Kuwait’s hottest products with their commission and suggested price, answer wallet & payout questions, and give ready ad plans (Snapchat/TikTok/Insta).\nAsk me anything — e.g. “What’s the best product to sell?”',
+  },
+  'mkt.placeholder': { ar: 'اسأل عن منتج، عمولة، أو خطة دعاية...', en: 'Ask about products, commissions, or ads...' },
+  'mkt.tabStore': { ar: 'مساعد المتجر', en: 'Store assistant' },
+  'mkt.tabMarketer': { ar: 'مساعد المسوقين', en: 'Marketers’ assistant' },
+  'mkt.sug1': { ar: 'شنو أحسن منتج أبيع؟ 🔥', en: 'Best product to sell? 🔥' },
+  'mkt.sug2': { ar: 'شلون أسوي حملة ناجحة؟ 🎯', en: 'How do I run a winning campaign? 🎯' },
+  'mkt.sug3': { ar: 'كم عمولتي ومتى أستلمها؟ 💰', en: 'My commission & payouts? 💰' },
+  'mkt.sug4': { ar: 'خطة دعاية بميزانية صغيرة 📱', en: 'Ads plan on a small budget 📱' },
+
   /* ===== footer ===== */
   'f.about': { ar: 'عن محل شوب', en: 'About Mahal Shop' },
   'f.links': { ar: 'روابط سريعة', en: 'Quick Links' },

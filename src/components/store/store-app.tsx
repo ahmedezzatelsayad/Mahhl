@@ -64,7 +64,7 @@ export interface InitialUrlState {
 
 import type { View, InfoPage } from '@/lib/stores/app-store';
 
-const INFO_PAGES: InfoPage[] = ['about', 'contact', 'faq', 'shipping', 'returns', 'privacy', 'terms', 'guide-ads', 'guide-campaigns'];
+const INFO_PAGES: InfoPage[] = ['about', 'contact', 'faq', 'shipping', 'returns', 'privacy', 'terms', 'affiliate-program', 'guide-ads', 'guide-campaigns'];
 
 export function StoreApp({ initial }: { initial: InitialUrlState }) {
   const view = useAppStore((s) => s.view);

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAppStore, type InfoPage } from '@/lib/stores/app-store';
 import {
   Store, MessageCircle, Truck, ShieldCheck, RefreshCcw, HelpCircle,
-  Lock, FileText, Phone, MapPin, ChevronDown, Megaphone, CalendarDays,
+  Lock, FileText, Phone, MapPin, ChevronDown, Megaphone, CalendarDays, Handshake,
 } from 'lucide-react';
 import { useBrand, waHref } from '@/components/store/header';
 import { useT } from '@/lib/i18n';
@@ -31,6 +31,7 @@ const PAGE_TITLES: Record<InfoPage, { ar: string; en: string; icon: typeof Store
   faq: { ar: 'الأسئلة الشائعة', en: 'FAQ', icon: HelpCircle },
   privacy: { ar: 'سياسة الخصوصية', en: 'Privacy Policy', icon: Lock },
   terms: { ar: 'الشروط والأحكام', en: 'Terms & Conditions', icon: FileText },
+  'affiliate-program': { ar: 'برنامج المسوقين — سوّق واربح', en: 'Marketers Program — Sell & Earn', icon: Handshake },
   'guide-ads': { ar: 'أفضل ممارسات الدعاية والإعلانات في الكويت', en: 'Best Advertising Practices in Kuwait', icon: Megaphone },
   'guide-campaigns': { ar: 'دليل الحملات والمواسم الكويتية', en: 'Campaigns & Kuwaiti Seasons Guide', icon: CalendarDays },
 };
@@ -526,6 +527,108 @@ export function InfoView() {
             {L(lang, 'آخر تحديث: ', 'Last updated: ')}
             {new Date().toLocaleDateString(lang === 'en' ? 'en-KW' : 'ar-KW', { year: 'numeric', month: 'long' })}
           </p>
+        </div>
+      )}
+
+      {/* ===================== AFFILIATE PROGRAM (برنامج المسوقين) ===================== */}
+      {infoPage === 'affiliate-program' && (
+        <div className="space-y-6 text-[15px] leading-8 text-foreground/90">
+          <p className="rounded-xl bg-accent/10 border border-accent/20 px-4 py-3 text-sm leading-7">
+            {L(
+              lang,
+              'برنامج التسويق بالعمولة في محل شوب: تسوّق، شارك، واربح — عمولة من 1 إلى 2 د.ك على كل طلب يوصَل عبر رابطك الخاص. بدون رأس مال، بدون مخزون، وبدون هم الشحن أو تحصيل الفلوس — إحنا نتكفّل بكل شي وأنت تربح من تسويقك بس.',
+              'Mahal Shop’s affiliate program: share, promote, earn — a 1–2 KWD commission on every order delivered through your own link. No capital, no inventory, no shipping or payment hassle — we handle everything while you earn from your marketing.'
+            )}
+          </p>
+
+          <div>
+            <h2 className="font-extrabold text-lg mb-2">{L(lang, 'شلون يشتغل البرنامج؟ 4 خطوات وبس', 'How it works — just 4 steps')}</h2>
+            <ol className="space-y-3 list-none">
+              {[
+                [
+                  L(lang, 'سجّل مجاناً', 'Register free'),
+                  L(lang, 'من بوابة «سوّق معنا» — اسمك ورقم هاتفك الكويتي وبس. حسابك يتفعّل ويصير لك كود ورابط إحالة خاص فيك.', 'From the “Sell With Us” portal — your name and a Kuwaiti phone number is all it takes. Once active, you get your own referral code and link.'),
+                ],
+                [
+                  L(lang, 'اختر منتجاتك', 'Pick your products'),
+                  L(lang, 'الكتالوج الكامل (2,600+ منتج) مفتوح لك بعد التسجيل، وكل منتج عليه عمولته ودراسته التسويقية: سعر البيع المقترح بالكويت، مستوى الطلب، وأنسب قناة إعلانية.', 'After registering, the full catalog (2,600+ products) opens for you — every product shows its commission and marketing study: suggested sale price in Kuwait, demand level, and the best ad channel.'),
+                ],
+                [
+                  L(lang, 'شارك رابطك', 'Share your link'),
+                  L(lang, 'انسخ «رابط التسويق» من صفحة المنتج وشاركه في سناب شات وتيك توك وإنستقرام وستوريات واتساب. أي زائر يطلب خلال 30 يوم من فتحه رابطك يتحسب الطلب لك تلقائياً.', 'Copy the marketing link from any product page and share it on Snapchat, TikTok, Instagram and WhatsApp stories. Anyone who orders within 30 days of opening your link counts for you automatically.'),
+                ],
+                [
+                  L(lang, 'استلم عمولتك', 'Get paid'),
+                  L(lang, 'عمولتك تتحسب لحظة تسليم كل طلب في محفظتك بشفافية كاملة، وتطلب سحبها متى ما تبى من تبويب «عمولاتي والسحب».', 'Your commission is credited to your transparent wallet the moment each order is delivered — withdraw anytime from the “Commissions & Withdrawals” tab.'),
+                ],
+              ].map(([title, body], i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="shrink-0 h-7 w-7 rounded-full btn-gold text-primary-foreground text-sm font-extrabold flex items-center justify-center mt-1">{i + 1}</span>
+                  <span>
+                    <b>{title}</b> — {body}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div>
+            <h2 className="font-extrabold text-lg mb-2">{L(lang, 'شرائح العمولات — واضحة على كل منتج', 'Commission tiers — clear on every product')}</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                ['1.000 د.ك', L(lang, 'المنتجات الأكثر تنافسية — الأسرع بيعاً بالكويت', 'The most competitive — fastest movers in Kuwait'), '1.000 KWD'],
+                ['1.500 د.ك', L(lang, 'المنتجات متوسطة التنافسية — التوازن الأفضل', 'Medium competition — the best balance'), '1.500 KWD'],
+                ['2.000 د.ك', L(lang, 'منتجات مميزة بمنافسة أقل — هامش أعلى لكل طلب', 'Distinctive, lower-competition items — higher margin per order'), '2.000 KWD'],
+              ].map(([ar, sub, en, enVal], i) => (
+                <div key={i} className="rounded-xl border bg-card p-4 text-center">
+                  <p className="font-extrabold text-xl text-gold-deep">{lang === 'en' ? enVal : ar}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{lang === 'en' ? en : sub}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              {L(
+                lang,
+                'ملاحظة: العمولة تتحسب على الطلبات المسلّمة فعلاً (بعد الاستلام عند العميل) — عشان تبقى المحاسبة عادلة وواضحة للجميع.',
+                'Note: commissions count on actually delivered orders (after the customer receives them) — keeping accounting fair and transparent for everyone.'
+              )}
+            </p>
+          </div>
+
+          <div>
+            <h2 className="font-extrabold text-lg mb-2">{L(lang, 'أدواتك في بوابة المسوقين', 'Your tools inside the marketers’ portal')}</h2>
+            <ul className="space-y-2">
+              <li className="flex gap-2"><Handshake className="h-5 w-5 text-gold-deep shrink-0 mt-1.5" />{L(lang, 'داشبورد بأرباحك وترند طلباتك آخر 30 يوم + قمة المنتجات اللي تبيع.', 'A dashboard with your earnings and a 30-day orders trend plus your best-selling products.')}</li>
+              <li className="flex gap-2"><Megaphone className="h-5 w-5 text-gold-deep shrink-0 mt-1.5" />{L(lang, 'مركز تعليمي كامل: دليل الدعاية في الكويت + دليل الحملات والمواسم بالنصوص الجاهزة.', 'A complete learning hub: the Kuwait advertising guide + the campaigns & seasons guide with ready-to-copy ad copy.')}</li>
+              <li className="flex gap-2"><HelpCircle className="h-5 w-5 text-gold-deep shrink-0 mt-1.5" />{L(lang, 'مساعد ذكي للمسوقين — اسأله «شنو أبيع؟» أو «شلون أسوي حملة؟» ويجاوبك فوراً.', 'A smart marketers’ assistant — ask it “what should I sell?” or “how do I run a campaign?” and it answers instantly.')}</li>
+              <li className="flex gap-2"><FileText className="h-5 w-5 text-gold-deep shrink-0 mt-1.5" />{L(lang, 'تقدر تسجّل طلب عميل يدوياً من «أضف طلب» لو العميل طلبك مباشرة — والعمولة تتحسب لك نفسها.', 'You can log a customer’s order manually via “Add Order” when they order from you directly — the commission is still yours.')}</li>
+            </ul>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              onClick={() => openInfo('guide-ads')}
+              className="rounded-xl border px-4 py-3.5 text-start hover:border-accent/60 hover:bg-accent/5 transition-colors"
+            >
+              <p className="text-sm font-bold flex items-center gap-2"><Megaphone className="h-4 w-4 text-gold-deep" />{L(lang, 'دليل الدعاية في الكويت 📣', 'Kuwait Advertising Guide 📣')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{L(lang, 'القنوات، القواعد السبع، الميزانية 70/20/10، وأرقام KPI واقعية', 'Channels, the 7 rules, 70/20/10 budgeting and realistic KPIs')}</p>
+            </button>
+            <button
+              onClick={() => openInfo('guide-campaigns')}
+              className="rounded-xl border px-4 py-3.5 text-start hover:border-accent/60 hover:bg-accent/5 transition-colors"
+            >
+              <p className="text-sm font-bold flex items-center gap-2"><CalendarDays className="h-4 w-4 text-gold-deep" />{L(lang, 'دليل الحملات والمواسم 📅', 'Campaigns & Seasons Guide 📅')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{L(lang, 'تقويم 7 مواسم كويتية + قوالب حملات + نصوص بالعامية', '7 Kuwaiti seasons + campaign templates + dialect ad copy')}</p>
+            </button>
+          </div>
+
+          <button
+            onClick={() => setView('affiliate-login')}
+            className="w-full rounded-xl bg-primary text-primary-foreground px-4 py-4 text-center hover:opacity-95 transition-opacity"
+          >
+            <p className="font-extrabold flex items-center justify-center gap-2"><Handshake className="h-5 w-5" />{L(lang, 'جاهز تبدأ؟ سجّل مجاناً في بوابة المسوقين', 'Ready to start? Register free in the marketers’ portal')}</p>
+            <p className="text-xs text-primary-foreground/70 mt-1">{L(lang, '+2,600 منتج جاهزين — وعمولتك مفتوحة على كل منتج', '2,600+ products ready — with your commission open on every one')}</p>
+          </button>
         </div>
       )}
 

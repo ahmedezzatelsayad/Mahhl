@@ -63,6 +63,7 @@ export type InfoPage =
   | 'returns'
   | 'privacy'
   | 'terms'
+  | 'affiliate-program'
   | 'guide-ads'
   | 'guide-campaigns';
 

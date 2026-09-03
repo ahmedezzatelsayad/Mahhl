@@ -76,6 +76,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: seo.description,
       url: siteUrl,
       locale: "ar_KW",
+      alternateLocale: ["en_US"],
     },
     twitter: {
       card: "summary_large_image",
@@ -85,7 +86,9 @@ export async function generateMetadata(): Promise<Metadata> {
     other: {
       "geo.region": "KW",
       "geo.placename": "الكويت, Kuwait",
+      "geo.position": "29.3759;47.9774",
       ICBM: "29.3759, 47.9774",
+      "content-language": "ar-KW",
       "ai-content-declaration": "product-listings",
     },
   };
