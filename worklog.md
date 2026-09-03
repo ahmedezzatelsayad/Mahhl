@@ -452,3 +452,19 @@ Stage Summary:
 - سبب فشل النشر: standalone + خطوات cp في build — أُصلحا. أي deploy قادم على Vercel سينجح.
 - للنشر الذاتي مستقبلاً: npm run build:standalone ثم bun .next/standalone/server.js.
 - .env المحلي مستعاد؛ رابط Neon متاح محلياً للاختبار (لا يُرفع على git).
+
+---
+Task ID: 8-b
+Agent: Super Z (main)
+Task: تحقق ما بعد النشر + تحديث صف SEO المحفوظ في إنتاج Neon
+
+Work Log:
+- PAT جديد من المؤسس تعمل بنجاح؛ كوميت a8a911b على main.
+- اكتشاف مهم: صف SiteSetting key='seo' في إنتاج Neon كان محفوظاً بالهوية القديمة («متجر إلكتروني عربي احترافي») ويتجاوز DEFAULT_SEO — فيتحديثه عبر scripts/update-seo-identity.mjs (siteTitle/description/keywords بالهوية الجديدة؛ siteUrl وأكواد التحقق لم تُمَس).
+- site_identity في الإنتاج: القيم القديمة (tagline/announcement) تتحدّث تلقائياً بآلية الترقية المدمجة عند التشغيل — لا تدخل يدوي مطلوب.
+- تحقق نهائي على الإنتاج: <title> = «محل شوب | منصة دروب شيبنج رقم 1 في الكويت» ✓، llms.txt بهوية المنصة وعمولات 1–2 د.ك ✓، /api/products تخدم 2,638 منتج ✓، الرئيسية HTTP 200 (~0.9s) ✓.
+- إصلاح .env محلياً: كان مفتاحا pooler/direct معكوسين — NEON_DATABASE_URL=pooler وDIRECT_URL=direct الآن (الساندبوكس يضبط DATABASE_URL=SQLite كمتغير بيئة؛ تجاوزه صراحةً عند أي سكريبت prisma محلي).
+
+Stage Summary:
+- النشر على Vercel نجح بعد إصلاح standalone، والموقع بالهوية الكاملة «منصة دروب شيبنج في الكويت» على الهواء.
+- سكريبتات الصيانة في repo: scripts/update-seo-identity.mjs (هوية SEO للإنتاج)، scripts/check-seo.mjs (فحص).
