@@ -49,6 +49,7 @@ export type View =
   // ===== بوابة المسوقين (affiliate portal) =====
   | 'affiliate-login'
   | 'affiliate-dashboard'
+  | 'affiliate-store'
   | 'affiliate-products'
   | 'affiliate-add-order'
   | 'affiliate-orders'

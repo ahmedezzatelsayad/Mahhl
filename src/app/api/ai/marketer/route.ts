@@ -63,11 +63,56 @@ const SELECT = {
   category: { select: { name: true } },
 } as const;
 
+/** كشف نية بسيط للروابط المقترحة بعد رد الـ AI (مش لتوليد الرد). */
+function suggestLinks(q: string, AR: boolean): MktLink[] {
+  const links: MktLink[] = [];
+  if (/سحب|اسحب|استلم|أستلم|محفظ|withdraw|payout/i.test(q)) {
+    links.push({ label: AR ? 'عمولاتي والسحب' : 'Commissions & withdrawals', action: 'affiliate-commissions' });
+  }
+  if (/حملة|دعاية|إعلان|اعلان|سناب|تيك|انستا|إنستا|ads|campaign|snapchat|tiktok/i.test(q)) {
+    links.push({ label: AR ? 'دليل الدعاية الكامل 📣' : 'Full advertising guide 📣', action: 'guide-ads' });
+    links.push({ label: AR ? 'دليل الحملات والمواسم 📅' : 'Campaigns & seasons guide 📅', action: 'guide-campaigns' });
+  } else if (/متجر خاص|متجري|storefront|دومين|سب دومين|subdomain/i.test(q)) {
+    // روابط المتجر تشرح من الرد نفسه
+  }
+  if (!links.length) {
+    links.push({ label: AR ? 'افتح الكتالوج كامل' : 'Open full catalog', action: 'affiliate-products' });
+  }
+  return links.slice(0, 2);
+}
+
+/** رد احتياطي (فقط لو الـ AI فشل بالكامل) — نفس القواعد القديمة مختصرة. */
+function fallbackReply(q: string, AR: boolean, products: MktProduct[], personal: string): string {
+  if (!q) {
+    return AR
+      ? 'هلا بيك! أنا مساعدك الذكي للدروب شيبنج 🤝 اسألني أي شي: عمولات، منتجات، دعاية، أو فتح متجرك الخاص.'
+      : 'Welcome! I\'m your dropshipping assistant 🤝 Ask me anything: commissions, products, ads, or your free store.';
+  }
+  if (/عمول|ربح|ارباح/i.test(q)) {
+    return AR
+      ? 'العمولة مفتوحة: من 1 إلى 10 د.ك على كل منتج — إنت تختار عمولتك وسعر بيعك = سعر المنصة + عمولتك 💰 تتحسب تلقائياً عند تسليم الطلب عبر رابطك.' + (personal ? '\n' + personal.trim() : '')
+      : 'Commissions are open: 1–10 KWD per product — you pick yours; your price = platform price + commission 💰 Credited on delivery via your link.' + (personal ? '\n' + personal.trim() : '');
+  }
+  if (/محفظ|سحب|استلام/i.test(q)) {
+    return AR
+      ? 'محفظتك شفافة 100%: العمولة تتحسب عند التسليم وتسحبها من «عمولاتي والسحب» بأي وقت 📊'
+      : 'Your wallet is 100% transparent: credited on delivery, withdrawable anytime from the Commissions tab 📊';
+  }
+  if (products.length) {
+    return AR
+      ? 'لقيت لك هذي المنتجات — كل واحد عليه عمولته ودراسته التسويقية 👇'
+      : 'Found these for you 👇';
+  }
+  return AR
+    ? 'جرّب كلمة أبسط أو تصفح الكتالوج 👇'
+    : 'Try a simpler word or browse the catalog 👇';
+}
+
 /**
- * POST /api/ai/marketer — «مساعد المسوقين» الذكي.
- * خبير تسويق رقمي داخل المنصة: يرشّح لك منتجات (عمولة + سعر مقترح + قناة)،
- * يجاوب على العمولات والمحفظة والسحب، ويعطي خطة دعاية مختصرة بسوق الكويت.
- * AI: DeepSeek → z-ai sdk → rule-based fallback (لا يفشل أبداً).
+ * POST /api/ai/marketer — «مساعد المسوقين» الذكي (AI-FIRST).
+ * الفهم أولاً ثم الرد: كل رسالة تمر على نموذج لغوي مع سياق المنصة الكامل
+ * (العمولات 1–10، المتجر المجاني، الكتالوج، القنوات، المواسم) + بيانات المسوق
+ * + منتجات حقيقية مطابقة — فما فيه ردود محفوظة إلا عند تعطل الـ AI تماماً.
  */
 export async function POST(req: NextRequest) {
   let lang: 'ar' | 'en' = 'ar';
@@ -75,11 +120,11 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     lang = body.lang === 'en' ? 'en' : 'ar';
     const history: { role: string; content: string }[] = Array.isArray(body.messages)
-      ? body.messages.slice(-8)
+      ? body.messages.slice(-10)
       : [];
     const q = ([...history].reverse().find((m) => m.role === 'user')?.content || '').trim();
 
-    // ===== personal context (optional — يعمل أيضاً للزائر من بوابة المسوقين) =====
+    // ===== سياق شخصي للمسوق المسجل =====
     const aff = await verifyAffiliate(req);
     let personal = '';
     if (aff) {
@@ -89,8 +134,8 @@ export async function POST(req: NextRequest) {
         : `\nاللي يسأل مسوّق مسجّل: ${aff.name} (كوده ${aff.code}). محفظته: المتاح ${formatKwdPlain(b.available)} د.ك، قيد التحصيل ${formatKwdPlain(b.expected)} د.ك، إجمالي أرباحه ${formatKwdPlain(b.paid + b.expected + b.available)} د.ك. رابط الإحالة: /?ref=${aff.code}`;
     }
 
-    // ===== product search / recommendations =====
-    const isRecommend = /شنو\s*أبيع|ايش\s*أبيع|أفضل منتج|افضل منتج|best product|best seller|الترند|ترند|أكثر طلب|الاكثر طلب|وين أبدأ|وين البداية|what.*sell|recommend/i.test(q);
+    // ===== بحث المنتجات الحقيقي (يتغذى للـ AI كسياق) =====
+    const isRecommend = /شنو\s*أبيع|ايش\s*أبيع|أفضل منتج|افضل منتج|best product|best seller|الترند|ترند|أكثر طلب|الاكثر طلب|وين أبدأ|وين البداية|what.*sell|recommend|رشح|ارشح/i.test(q);
     const tokens = q.split(/\s+/).filter((t) => t.length > 2).slice(0, 4);
 
     let products: MktProduct[] = [];
@@ -119,7 +164,6 @@ export async function POST(req: NextRequest) {
       products = found.map(chip);
     }
 
-    // ===== rule-based intents (بلغة الكويت — فورية وبدون انتظار AI) =====
     const AR = lang !== 'en';
     const catalog = products
       .map((p) => {
@@ -130,101 +174,60 @@ export async function POST(req: NextRequest) {
       })
       .join('\n');
 
-    const links: MktLink[] = [];
+    // ===== الرد: AI أولاً (يفهم الكلام ويرد طبيعي) =====
+    const system = AR
+      ? `أنت «مساعد المسوقين» الذكي في محل شوب — منصة دروب شيبنج كويتية رقم 1. دورك: خبير تسويق رقمي ودود يساعد الكويتيين يكسبون من الإنترنت. افهم سؤال المستخدم أولاً (حتى لو عام أو عامي أو فيه أخطاء إملائية) ثم رد عليه رداً طبيعياً مخصصاً له — لا تكرر قالب ثابت.
+معرفتك بالمنصة:
+- العمولات: كل منتج عليه عمولة مقترحة من 1 إلى 10 د.ك حسب قيمته وتنافسيته، والمسوق حر يختار عمولته داخل النطاق (سعر البيع = سعر المنصة + عمولته). تتحسب عند تسليم الطلب عبر رابط ?ref (نافذة 30 يوم) وتسحب من المحفظة بأي وقت.
+- المتجر المجاني (أقوى ميزة): كل مسوق يقدر يفتح متجره الخاص ببلاش من تبويب «متجري المجاني» في البوابة — متجر كامل باسمه ولوجوه ولونه، برابط /store/معرف أو سب دومين أو دومينه الخاص، يضيف منتجاتنا بنقرة واحدة، يحدد هامش ربحه فوق سعر المنصة لكل منتج، وزبائنه يطلبون أونلاين بالدفع عند الاستلام والمنصة تشحن وتحاسب — وطلبات المتجر تدخل عمولاته تلقائياً.
+- الكتالوج: 2,600+ منتج مع دراسة تسويقية لكل منتج (سعر بيع مقترح + مستوى الطلب hot/warm/cold + أنسب قناة إعلانية). الزائر يشوف أفضل 200 منتج، والتسجيل المجاني يفتح الكل.
+- قنوات الكويت: سناب شات الأقوى محلياً (ابدأ 2–3 د.ك/يوم)، تيك توك أرخص CPM، إنستقرام للجمال والفخامة، واتساب للستوريات والبيع الشخصي. قاعدة ميزانية 70/20/10.
+- المواسم: رمضان/الأعياد، العودة للمدارس، اليوم الوطني 25–26 فبراير، الهلا نوفمبر، الجمعة البيضاء.
+- المنصة ما تبيع مباشرة للزوار — كل زائر مسوق محتمل، وجهه للتسجيل المجاني بلطف.
+قواعد الرد:
+- رد بلهجة كويتية ودّية، مختصر (2–5 أسطر)، عملي ومباشر — وخلّ ردك يبان مفهوم لسؤاله بالذات.
+- إذا فيه منتجات مطابقة بالسياق رشّح منها بالاسم مع العمولة والسعر (لا تخترع منتجات).
+- إذا سأل عن «متجره الخاص» اشرح له الميزة بلطف ووجهه لتبويب «متجري المجاني» بعد التسجيل.`
+      + (personal || '')
+      + (catalog ? `\n\nمنتجات مطابقة لكلامه:\n${catalog}` : '\n\n(ما فيه منتجات مطابقة — اقترح كلمات بحث ثانية أو الكتالوج)')
+      : `You are "Marketers' Assistant" of Mahal Shop — Kuwait's #1 dropshipping platform. Understand the user's message first (even casual/slang/typos) then reply naturally and personally — never repeat a canned template.
+Platform knowledge:
+- Commissions: each product carries a suggested commission of 1–10 KWD; the marketer freely picks his own (selling price = platform price + commission). Credited on delivery via ?ref link (30-day window), withdrawable anytime.
+- Free Store (the killer feature): every marketer can open his own FREE store from the "متجري المجاني" tab — full store with his name/logo/color at /store/slug, a subdomain or his custom domain, one-click product imports, his own margin on top of platform prices, customers order online with cash-on-delivery — the platform ships and collects, store orders credit his commissions automatically.
+- Catalog: 2,600+ products, each with a market study (suggested price, demand tier, best ad channel). Visitors see top 200; free registration unlocks all.
+- Kuwait channels: Snapchat strongest locally, TikTok cheapest CPM, Instagram for premium looks, WhatsApp for personal selling. Budget rule 70/20/10.
+- Seasons: Ramadan/Eid, back-to-school, National Days Feb 25–26, Hala November, White Friday.
+- The platform does NOT sell directly — every visitor is a potential marketer; gently guide them to free registration.
+Reply rules: friendly concise English (2–5 lines), tailored to the actual question; recommend matching products by name with commissions; never invent products.`
+      + (personal ? personal.replace(/د\.ك/g, 'KWD') : '')
+      + (catalog ? `\n\nMatching products:\n${catalog}` : '\n\n(no matching products — suggest other keywords or the catalog)');
+
+    const convo = [
+      { role: 'system', content: system },
+      ...history.map((m) => ({
+        role: m.role === 'assistant' ? ('assistant' as const) : ('user' as const),
+        content: String(m.content).slice(0, 800),
+      })),
+    ];
+
     let reply = '';
-
-    if (!q) {
-      reply = AR
-        ? 'هلا بيك! أنا مساعدك الذكي للدروب شيبنج 🤝\nأقدر أرشح لك المنتجات الأكثر طلباً، أجاوبك عن العمولات والمحفظة، وأعطيك خطة دعاية سريعة لسوق الكويت.\nشنو تبغى تعرف اليوم؟'
-        : 'Welcome! I\'m your dropshipping assistant 🤝\nI can recommend hot products, explain commissions & wallet, and give you a quick Kuwait ads plan.\nWhat do you want to know today?';
-    } else if (/عمول|كم.*ربح|كيف.*ربح|ارباح|شلون.*ربح/i.test(q) && !/سحب|استلام|محفظ/i.test(q)) {
-      reply = AR
-        ? 'العمولة عندنا مفتوحة وإنت بمزاجك 💰\n• على كل منتج في الكتالوج مكتوبة العمولة المقترحة — من 1 إلى 10 د.ك حسب قيمة المنتج وتنافسيته.\n• وإنت حر تحط عمولتك اللي تبغى داخل هذا النطاق: تبني سعر بيعك = سعر المنصة + عمولتك.\nتتحسب تلقائياً لما يوصَل الطلب عبر رابطك، وتطلب سحبها من محفظتك متى ما تبى.'
-        : 'Commissions are open — your choice 💰\n• Every product shows a suggested commission from 1 to 10 KWD based on its value and competition.\n• You are free to set your own commission within that range: your selling price = platform price + your commission.\nCredited automatically when the order is delivered through your link, withdrawable anytime.';
-      if (personal) reply += '\n' + personal.trim();
-      links.push({ label: AR ? 'شوف الكتالوج والعمولات' : 'Browse catalog & commissions', action: 'affiliate-products' });
-    } else if (/سحب|اسحب|أستلم|استلم|محفظة|محفظتي|متى.*فلوس|withdraw|payout/i.test(q)) {
-      reply = AR
-        ? 'المحفظة والمحاسبة شفافة 100% 📊\nعمولتك تتحسب لحظة تسليم كل طلب، وتشوف رصيدك (المتاح وقيد التحصيل) في تبويب «عمولاتي والسحب». تطلب السحب من نفس الصفحة وتختار وسيلة الدفع — وطلب السحب يوصل الإدارة ويرد عليك بأسرع وقت. ما فيه حد أدنى معقد ولا رسوم خفية.'
-        : 'Your wallet is 100% transparent 📊\nCommission is credited on delivery, visible in "Commissions & Withdrawals". Request a payout from the same tab and pick your method — the team processes it quickly. No hidden fees.';
-      links.push({ label: AR ? 'عمولاتي والسحب' : 'Commissions & withdrawals', action: 'affiliate-commissions' });
-    } else if (/رابط|كود|ref|share|شارك|انسب|يحسب.*لي/i.test(q)) {
-      reply = AR
-        ? 'كل مسوّق عنده كود ورابط خاص 🖇️\nتفتح أي منتج، تضغط «انسخ رابط التسويق»، ويتولد لك رابط فيه ?ref=كودك — أي زائر يفتح رابطك ويطلب خلال 30 يوم يتحسب الطلب لك تلقائياً. روّج الرابط في سناب وتيك توك وإنستا وحتى ستوريات واتساب.'
-        : 'Every marketer gets a unique code & link 🖇️\nOpen any product, copy the marketing link with ?ref=YOURCODE — anyone who orders within 30 days of clicking counts for you automatically. Share it on Snapchat, TikTok, Instagram and WhatsApp stories.';
-      links.push({ label: AR ? 'المنتجات والروابط' : 'Products & links', action: 'affiliate-products' });
-    } else if (/حملة|دعاية|دعايه|إعلان|اعلان|اعلانات|سناب|تيك|انستا|إنستا|خطة|ads|campaign|snapchat|tiktok|instagram/i.test(q)) {
-      reply = AR
-        ? 'خلاصة الدعاية بالكويت 🎯\n1) سناب شات هو الملك محلياً — ابدأ فيه بميزانية يومية صغيرة (2–3 د.ك) وصلّص على الفيديو القصير.\n2) تيك توك أرخص CPM — مثالي للمنتجات الوظيفية اللي تشتغل قدام الكاميرا.\n3) إنستقرام للجمال والأشياء اللي تبان "فخمة".\nقاعدة الميزانية 70/20/10: 70% على اللي يثبت نجاحه، 20% تجارب، 10% سوايب جريئة. ووقف أي إعلان بعد 1,000 مشاهدة بدون تفاعل.'
-        : 'Kuwait ads in a nutshell 🎯\n1) Snapchat is king locally — start small (2–3 KWD/day) with short video.\n2) TikTok has the cheapest CPM — great for demo-driven products.\n3) Instagram suits beauty & premium-looking items.\nBudget rule 70/20/10: 70% proven winners, 20% tests, 10% bold bets. Kill any ad with no engagement after 1,000 views.';
-      links.push({ label: AR ? 'دليل الدعاية الكامل 📣' : 'Full advertising guide 📣', action: 'guide-ads' });
-      links.push({ label: AR ? 'دليل الحملات والمواسم 📅' : 'Campaigns & seasons guide 📅', action: 'guide-campaigns' });
-    } else if (/رمضان|عيد|موسم|مواسم|وطني|هلا|نوفمبر|جمعة|مدارس|شتاء/i.test(q)) {
-      reply = AR
-        ? 'المواسم الكويتية منجم ذهب 💡\n• رمضان والأعياد: كل شي مرتبط بالبيت والضيافة يبيع.\n• العودة للمدارس (أغسطس/سبتمبر): مستلزمات الأطفال.\n• اليوم الوطني 25-26 فبراير: إكسسوارات وعروض كويتية.\n• الهلا نوفمبر + الجمعة البيضاء: أقوى أسبوعين مبيعات بالسنة — جهّز حملتك قبلها بأسبوعين.'
-        : 'Kuwaiti seasons are gold 💡\n• Ramadan & Eid: home & hospitality items fly.\n• Back to school (Aug/Sep): kids\' supplies.\n• National Days (Feb 25–26): accessories & patriotic offers.\n• Hala November + White Friday: the two strongest sales weeks — prepare 2 weeks ahead.';
-      links.push({ label: AR ? 'تقويم المواسم الكامل 📅' : 'Full seasons calendar 📅', action: 'guide-campaigns' });
-    }
-
-    // ===== AI (يغطي أي سؤال خارج القوائم) =====
+    const ds = await deepSeekChat(convo as any, { temperature: 0.7, maxTokens: 420, timeoutMs: 22000 });
+    if (ds.ok) reply = ds.content;
     if (!reply) {
-      const system = AR
-        ? `أنت «مساعد المسوقين» الذكي في محل شوب — منصة دروب شيبنج كويتية. دورك: خبير تسويق رقمي يساعد المسوقين الكويتيين يربحون عمولات على كل طلب يوصَل. المنصة ما تبيع مباشرة للزوار — كل زائر مسوّق محتمل نساعده يبدأ.
-قواعدك:
-- رد بلهجة كويتية ودّية ومختصرة (3-5 أسطر) — عملي ومباشر، بلا حشو.
-- إذا فيه منتجات مطابقة بالقائمة، رشّحها بأسمائها واذكر عمولتها وسعرها.
-- عمولات المنصة: المقترحة على كل منتج من 1 إلى 10 د.ك حسب قيمته وتنافسيته — والمسوق حر يختار عمولته داخل النطاق ويبني سعر بيعه = سعر المنصة + عمولته. العمولة تتحسب عند تسليم الطلب عبر رابط ?ref الخاص بالمسوق (نافذة 30 يوم).
-- المنتجات عندها دراسة تسويقية: سعر بيع مقترح + مستوى الطلب (hot/warm/cold) + أنسب قناة إعلانية (سناب/تيك توك/إنستا/واتساب).
-- قنوات الكويت: سناب شات الأقوى محلياً، تيك توك أرخص CPM، إنستقرام للجمال والفخامة، واتساب للعلاقات الشخصية والستوريات.
-- المواسم: رمضان/الأعياد، العودة للمدارس، اليوم الوطني 25-26 فبراير، الهلا نوفمبر، الجمعة البيضاء.
-- لا تختلق منتجات أو أسعار أو أرقام غير موجودة في السياق. إذا ما تعرف، وجهه للأدلة أو الكتالوج.`
-        + (personal || '')
-        + (catalog ? `\n\nالمنتجات المطابقة:\n${catalog}` : '\n\n(ما فيه منتجات مطابقة — وجهه يبحث بكلمات ثانية أو يفتح الكتالوج)')
-        : `You are "Marketers' Assistant" of Mahal Shop — a Kuwaiti dropshipping platform. You are a digital-marketing expert helping Kuwaiti marketers earn commissions on delivered orders. The platform does NOT sell directly to visitors — every visitor is a potential marketer we help get started.
-Rules:
-- Friendly, concise English (3-5 lines), practical and direct.
-- If matching products are listed, recommend them by name with commission and price.
-- Commissions: each product carries a suggested commission from 1 to 10 KWD by value and competition — the marketer freely picks his own within the range and sets his selling price = platform price + commission. Credited on delivery via the marketer's ?ref link (30-day window).
-- Each product has a market study: suggested sale price, demand tier (hot/warm/cold), best ad channel (Snapchat/TikTok/Instagram/WhatsApp).
-- Kuwait channels: Snapchat strongest locally, TikTok cheapest CPM, Instagram for beauty/premium, WhatsApp for personal selling.
-- Seasons: Ramadan/Eid, back-to-school, National Days Feb 25-26, Hala November, White Friday.
-- NEVER invent products, prices or numbers not in context.`
-        + (personal ? personal.replace(/د\.ك/g, 'KWD') : '')
-        + (catalog ? `\n\nMatching products:\n${catalog}` : '\n\n(no matching products — guide them to search differently or open the catalog)');
-
-      const convo = [
-        { role: 'system', content: system },
-        ...history.map((m) => ({
-          role: m.role === 'assistant' ? ('assistant' as const) : ('user' as const),
-          content: String(m.content).slice(0, 800),
-        })),
-      ];
-
-      const ds = await deepSeekChat(convo as any, { temperature: 0.55, maxTokens: 380, timeoutMs: 20000 });
-      if (ds.ok) reply = ds.content;
-      if (!reply) {
-        try {
-          const { default: ZAI } = await import('z-ai-web-dev-sdk');
-          const zai = await ZAI.create();
-          const completion = await zai.chat.completions.create({ messages: convo as any });
-          reply = completion?.choices?.[0]?.message?.content || '';
-        } catch {
-          /* fall through */
-        }
-      }
-      if (!reply) {
-        reply = products.length
-          ? (AR ? 'لقيت لك هذي المنتجات — كل واحد عليه عمولته ودراسته التسويقية 👇' : 'Found these for you — each with its commission & marketing study 👇')
-          : (AR
-            ? 'ما لقيت منتجات بكلامك الحين — جرّب كلمة أبسط (مثلاً: "عجلة" أو "مكواة شعر") أو تصفح الكتالوج كامل من زر المنتجات 👇'
-            : 'No match right now — try a simpler word, or browse the full catalog from the products button 👇');
+      try {
+        const { default: ZAI } = await import('z-ai-web-dev-sdk');
+        const zai = await ZAI.create();
+        const completion = await zai.chat.completions.create({ messages: convo as any, temperature: 0.7, max_tokens: 420 });
+        reply = completion?.choices?.[0]?.message?.content || '';
+      } catch {
+        /* fall through */
       }
     }
 
-    // default nudge links so the assistant always drives action
-    if (!links.length && products.length) {
-      links.push({ label: AR ? 'افتح الكتالوج كامل' : 'Open full catalog', action: 'affiliate-products' });
-    }
+    // ===== احتياط فقط عند فشل الـ AI بالكامل =====
+    if (!reply) reply = fallbackReply(q, AR, products, personal);
+
+    const links: MktLink[] = suggestLinks(q, AR);
 
     return NextResponse.json({
       reply,

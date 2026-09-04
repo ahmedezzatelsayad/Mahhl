@@ -73,6 +73,8 @@ model Product {
   updatedAt       DateTime      @updatedAt
   orderItems      OrderItem[]
   reviews         Review[]
+  /// ظهور المنتج في متاجر المسوقين (Storefronts)
+  storefrontProducts StorefrontProduct[]
 
   // AI relations (passive — referenced via onDelete)
   viewEvents      UserEvent[]
@@ -251,6 +253,8 @@ model Affiliate {
   orders      Order[]
   ledger      CommissionEntry[]
   withdrawals WithdrawalRequest[]
+  /// متجر المسوّق (ميزة المتجر المجاني) — متجر واحد لكل مسوّق
+  storefront  Storefront?
 
   @@index([status])
 }
@@ -419,4 +423,56 @@ model UpsellOffer {
 
   @@index([sessionId, triggerProductId])
   @@index([expiresAt])
+}
+
+// ===== متاجر المسوقين (Storefronts — الميزة القاتلة) =====
+// كل مسوّق يقدر يفتح متجره الخاص (subdomain أو دومينه الخاص) مربوط مباشرة
+// بمنتجات المنصة — يسعّر بهامشه، يبرند متجره، وزوار متجره يطلبون مباشرة
+// والطلبات تدخل نظام العمولات محسوبة باسمه تلقائياً.
+model Storefront {
+  id           String   @id @default(cuid())
+  /// صاحب المتجر — مسوّق واحد لكل متجر
+  ownerId      String   @unique
+  owner        Affiliate @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  /// المعرف في الرابط: {slug}.mahhlkw.com أو /store/{slug} — حروف وأرقام وشرطات فقط
+  slug         String   @unique
+  /// اسم المتجر الظاهر للزوار
+  name         String
+  /// جملة تعريفية قصيرة تحت الاسم
+  tagline      String?
+  /// رابط اللوجو (صورة)
+  logoUrl      String?
+  /// اللون الأساسي للهوية
+  primaryColor String   @default("#B45309")
+  /// واتساب للتواصل (اختياري)
+  whatsapp     String?
+  /// الدومين الخاص المربوط (مثال: souq-ahmed.com) — يُربط من لوحة Vercel
+  customDomain String?  @unique
+  /// هامش الربح الافتراضي بالدينار — يُضاف فوق سعر المنصة تلقائياً
+  defaultMarkup Float   @default(2.0)
+  /// رسالة شكر بعد الطلب (اختياري)
+  thankYouNote String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  products StorefrontProduct[]
+
+  @@index([ownerId])
+}
+
+/// منتج داخل متجر مسوّق — بنقرة واحدة من كتالوج المنصة (2,638 منتج)
+model StorefrontProduct {
+  id           String     @id @default(cuid())
+  storefrontId String
+  storefront   Storefront @relation(fields: [storefrontId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  /// سعر البيع في المتجر — null = سعر المنصة + defaultMarkup
+  price        Float?
+  isActive     Boolean    @default(true)
+  addedAt      DateTime   @default(now())
+
+  @@unique([storefrontId, productId])
+  @@index([storefrontId, isActive])
 }

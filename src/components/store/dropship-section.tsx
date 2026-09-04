@@ -34,7 +34,7 @@ const STEPS = [
 
 function Calculator() {
   const [orders, setOrders] = useState(100);
-  const [tier, setTier] = useState(1.5);
+  const [tier, setTier] = useState(2.5);
   const monthly = orders * tier;
   return (
     <div className="rounded-2xl border border-white/15 bg-white/5 backdrop-blur p-5">
@@ -58,27 +58,24 @@ function Calculator() {
         aria-label="عدد الطلبات في الشهر"
       />
 
-      <p className="text-xs text-white/70 mt-3 mb-1.5">متوسط عمولة المنتجات اللي بتسوقها:</p>
-      <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="متوسط العمولة">
-        {[
-          { v: 1, label: '1 د.ك' },
-          { v: 1.5, label: '1.5 د.ك' },
-          { v: 2, label: '2 د.ك' },
-        ].map((o) => (
-          <button
-            key={o.v}
-            role="radio"
-            aria-checked={tier === o.v}
-            onClick={() => setTier(o.v)}
-            className={`rounded-lg border text-xs py-1.5 transition-colors ${
-              tier === o.v
-                ? 'border-amber-400 bg-amber-400 text-black font-bold'
-                : 'border-white/20 text-white/80 hover:border-white/40'
-            }`}
-          >
-            {o.label}
-          </button>
-        ))}
+      <p className="text-xs text-white/70 mt-3 mb-1.5">
+        متوسط عمولتك على المنتجات اللي بتسوقها (من 1 إلى 10 د.ك — إنت تختار):
+      </p>
+      <input
+        type="range"
+        min={1}
+        max={10}
+        step={0.5}
+        value={tier}
+        onChange={(e) => setTier(Number(e.target.value))}
+        className="w-full accent-amber-400 cursor-pointer"
+        dir="ltr"
+        aria-label="متوسط العمولة"
+      />
+      <div className="flex justify-between text-[10px] text-white/50 mt-1" dir="ltr">
+        <span>1 د.ك</span>
+        <span className="font-bold text-amber-400 text-sm">{tier} د.ك</span>
+        <span>10 د.ك</span>
       </div>
 
       <div className="mt-4 rounded-xl bg-black/30 border border-white/10 p-3.5 flex items-center justify-between">
@@ -163,6 +160,26 @@ export function DropshipSection() {
                 مركز المسوقين — أدلة مجانية
               </Button>
             </div>
+
+            {/* بانر المتجر المجاني — الميزة القاتلة */}
+            <button
+              onClick={() => setView('affiliate-login')}
+              className="mt-5 w-full text-right rounded-2xl border border-emerald-400/30 bg-gradient-to-l from-emerald-500/15 to-emerald-400/5 p-4 hover:border-emerald-400/60 transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-400/20 text-2xl">🏪</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-extrabold text-white">
+                    الجديد: افتح متجرك الخاص — ببلاش 🎉
+                    <span className="ms-2 rounded-full bg-emerald-400 text-black text-[10px] font-extrabold px-2 py-0.5">الميزة القاتلة</span>
+                  </p>
+                  <p className="text-xs text-white/60 mt-0.5 leading-relaxed">
+                    متجر إلكتروني كامل بهويتك ولوجوك ودومينك — منتجاتنا تنضاف بنقرة واحدة، حط هامشك فوق سعر المنصة، وزبائنك يطلبون أونلاين والدفع عند الاستلام — والشحن علينا.
+                  </p>
+                </div>
+                <span className="shrink-0 text-emerald-300 font-bold text-xs group-hover:translate-x-[-2px] transition-transform">افتحه الآن ←</span>
+              </div>
+            </button>
             <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
               <button onClick={() => openInfo('guide-ads')} className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 font-bold text-amber-300 hover:bg-amber-400/20 transition-colors cursor-pointer">
                 <Megaphone className="h-3 w-3" /> أفضل ممارسات الدعاية في الكويت

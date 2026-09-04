@@ -26,11 +26,13 @@ import { AffiliateAddOrderView } from './affiliate-add-order-view';
 import { AffiliateOrdersView } from './affiliate-orders-view';
 import { AffiliateCommissionsView } from './affiliate-commissions-view';
 import { AffiliateProfileView } from './affiliate-profile-view';
+import { AffiliateStoreView } from './affiliate-store-view';
 import { ViewErrorBoundary } from '@/components/store/view-error-boundary';
 import { MarketerChatWidget } from '@/components/store/floating-widgets';
 
 const NAV_ITEMS = [
   { view: 'affiliate-dashboard', label: 'الرئيسية', icon: LayoutDashboard },
+  { view: 'affiliate-store', label: 'متجري المجاني', icon: Store },
   { view: 'affiliate-products', label: 'المنتجات والعمولات', icon: Package },
   { view: 'affiliate-add-order', label: 'اضف طلب', icon: PlusCircle },
   { view: 'affiliate-orders', label: 'طلباتي', icon: ShoppingCart },
@@ -92,6 +94,8 @@ export function AffiliatePortal() {
 
   const content = (() => {
     switch (view) {
+      case 'affiliate-store':
+        return <AffiliateStoreView />;
       case 'affiliate-products':
         return <AffiliateProductsView />;
       case 'affiliate-add-order':

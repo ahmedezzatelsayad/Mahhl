@@ -64,10 +64,19 @@ export interface CreateOrderInput {
   /** customer already verified via auth token (guest checkout = null) */
   authCustomerId?: string | null;
   /** marks orders created by the AI agent for admin visibility */
-  source?: 'checkout' | 'ai-agent' | 'affiliate';
+  source?: 'checkout' | 'ai-agent' | 'affiliate' | 'storefront';
   /** affiliate attribution: resolved internally (id for portal orders, code for checkout box) */
   affiliateId?: string | null;
   affiliateCode?: string | null;
+  /**
+   * Storefront pricing (متاجر المسوقين): server-side price overrides —
+   * resolved from the StorefrontProduct table, NEVER from client input.
+   * The marketer's profit per unit = override − platform effective price,
+   * recorded as the item commission so the ledger stays one source of truth.
+   */
+  priceOverrides?: Record<string, number>;
+  /** storefront context for order notes / admin visibility */
+  storefront?: { id: string; name: string; slug: string };
 }
 
 export type CreateOrderResult =
@@ -155,20 +164,35 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
 
   const orderItemsData = products
     .filter((p) => qtyById.has(p.id))
-    .map((p) => ({
-      productId: p.id,
-      name: p.name,
-      sku: p.sku,
-      price: effectivePrice(p),
-      quantity: qtyById.get(p.id)!,
-      image: p.thumb,
-      // per-unit commission snapshot (نظام العمولات)
-      commission: p.commission || 0,
-      variations:
-        typeof rawItems.find((i) => i?.productId === p.id)?.variations === 'string'
-          ? cleanText(rawItems.find((i) => i?.productId === p.id)?.variations, 400) || null
-          : null,
-    }));
+    .map((p) => {
+      const basePrice = effectivePrice(p);
+      // Storefront pricing: server-resolved override (متاجر المسوقين).
+      // Override must never undercut the platform price (validated here too).
+      const override = input.priceOverrides?.[p.id];
+      const unitPrice =
+        typeof override === 'number' && Number.isFinite(override) && override >= basePrice
+          ? Math.round(override * 1000) / 1000
+          : basePrice;
+      // Storefront owner earns their markup as the commission snapshot.
+      const unitCommission =
+        input.source === 'storefront'
+          ? Math.max(0, Math.round((unitPrice - basePrice) * 1000) / 1000)
+          : p.commission || 0;
+      return {
+        productId: p.id,
+        name: p.name,
+        sku: p.sku,
+        price: unitPrice,
+        quantity: qtyById.get(p.id)!,
+        image: p.thumb,
+        // per-unit commission snapshot (نظام العمولات)
+        commission: unitCommission,
+        variations:
+          typeof rawItems.find((i) => i?.productId === p.id)?.variations === 'string'
+            ? cleanText(rawItems.find((i) => i?.productId === p.id)?.variations, 400) || null
+            : null,
+      };
+    });
 
   const affiliateCommissionTotal = Math.round(
     orderItemsData.reduce((s, i) => s + i.commission * i.quantity, 0) * 1000
@@ -307,7 +331,13 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
         total,
         status: 'pending',
         paymentMethod,
-        notes: notes || (input.source === 'ai-agent' ? 'طلب عبر مساعد الذكاء الاصطناعي' : null),
+        notes:
+          notes ||
+          (input.storefront
+            ? `طلب من متجر «${input.storefront.name}»`
+            : input.source === 'ai-agent'
+              ? 'طلب عبر مساعد الذكاء الاصطناعي'
+              : null),
         governorate,
         area,
         address,
