@@ -81,31 +81,51 @@ function suggestLinks(q: string, AR: boolean): MktLink[] {
   return links.slice(0, 2);
 }
 
-/** رد احتياطي (فقط لو الـ AI فشل بالكامل) — نفس القواعد القديمة مختصرة. */
+/** رد احتياطي غني (فقط لو الـ AI فشل بالكامل) — يغطي أهم النوايا بلهجة كويتية. */
 function fallbackReply(q: string, AR: boolean, products: MktProduct[], personal: string): string {
   if (!q) {
     return AR
-      ? 'هلا بيك! أنا مساعدك الذكي للدروب شيبنج 🤝 اسألني أي شي: عمولات، منتجات، دعاية، أو فتح متجرك الخاص.'
-      : 'Welcome! I\'m your dropshipping assistant 🤝 Ask me anything: commissions, products, ads, or your free store.';
+      ? 'هلا بيك! أنا مساعدك الذكي للدروب شيبنج 🤝\nأسألني عن: العمولات (1–10 د.ك إنت تختار) • رشح لك منتجات رابحة • خطة دعاية للكويت • أو فتح متجرك الخاص ببلاش 🏪'
+      : 'Welcome! I\'m your dropshipping assistant 🤝\nAsk me about: commissions (1–10 KWD you pick) • winning products • a Kuwait ads plan • or your free storefront 🏪';
   }
-  if (/عمول|ربح|ارباح/i.test(q)) {
+  if (/متجر خاص|متجري|متجر.*بلاش|storefront|دومين|سب دومين|subdomain|افتح.*متجر|متجري المجاني/i.test(q)) {
     return AR
-      ? 'العمولة مفتوحة: من 1 إلى 10 د.ك على كل منتج — إنت تختار عمولتك وسعر بيعك = سعر المنصة + عمولتك 💰 تتحسب تلقائياً عند تسليم الطلب عبر رابطك.' + (personal ? '\n' + personal.trim() : '')
-      : 'Commissions are open: 1–10 KWD per product — you pick yours; your price = platform price + commission 💰 Credited on delivery via your link.' + (personal ? '\n' + personal.trim() : '');
+      ? 'المتجر المجاني أقوى ميزة عندنا 🏪\n1) سجّل مجاناً وادخل بوابة المسوقين.\n2) افتح تبويب «متجري المجاني» — اختار اسم متجرك ولونه ولوجوك (وبالمقدور دومينك الخاص).\n3) أضف منتجاتنا بنقرة واحدة وحط هامش ربحك فوق سعر المنصة.\nزبائنك يطلبون أونلاين بالدفع عند الاستلام، إحنا نشحن ونحاسب، وطلبات متجرك تدخل عمولاتك تلقائياً 🎉'
+      : 'The Free Store is our killer feature 🏪\n1) Register free and open the marketers portal.\n2) Open "My Free Store" tab — pick your name, color and logo (custom domain supported).\n3) Import our products with one click and set your margin on top of platform prices.\nYour customers order online with COD — we ship and collect, and store orders credit your commissions automatically 🎉';
   }
-  if (/محفظ|سحب|استلام/i.test(q)) {
+  if (/عمول|كم.*ربح|كيف.*ربح|ارباح|شلون.*ربح/i.test(q) && !/سحب|استلام|محفظ/i.test(q)) {
     return AR
-      ? 'محفظتك شفافة 100%: العمولة تتحسب عند التسليم وتسحبها من «عمولاتي والسحب» بأي وقت 📊'
-      : 'Your wallet is 100% transparent: credited on delivery, withdrawable anytime from the Commissions tab 📊';
+      ? 'العمولة عندنا مفتوحة وإنت بمزاجك 💰\n• كل منتج عليه عمولة مقترحة من 1 إلى 10 د.ك حسب قيمته وتنافسيته.\n• إنت تختار عمولتك داخل النطاق: سعر بيعك = سعر المنصة + عمولتك.\nتتحسب تلقائياً لما يوصَل الطلب عبر رابطك (نافذة 30 يوم) وتسحبها من محفظتك بأي وقت.' + (personal ? '\n' + personal.trim() : '')
+      : 'Commissions are open — your choice 💰\n• Every product carries a suggested 1–10 KWD commission.\n• You pick yours: selling price = platform price + commission.\nCredited automatically via your link (30-day window), withdrawable anytime.' + (personal ? '\n' + personal.trim() : '');
+  }
+  if (/سحب|اسحب|أستلم|استلم|محفظة|محفظتي|متى.*فلوس|withdraw|payout/i.test(q)) {
+    return AR
+      ? 'المحفظة والمحاسبة شفافة 100% 📊\nعمولتك تتحسب لحظة تسليم كل طلب، وتشوف رصيدك (المتاح وقيد التحصيل) في تبويب «عمولاتي والسحب» — تطلب السحب من نفس الصفحة بدون حد أدنى معقد ولا رسوم خفية.' + (personal ? '\n' + personal.trim() : '')
+      : 'Your wallet is 100% transparent 📊\nCommission credits on delivery; see balances in the Commissions tab and request a payout anytime — no hidden fees.' + (personal ? '\n' + personal.trim() : '');
+  }
+  if (/رابط|كود|ref|share|شارك|انسب/i.test(q)) {
+    return AR
+      ? 'كل مسوّق عنده كود ورابط خاص 🖇️\nافتح أي منتج واضغط «انسخ رابط التسويق» — أي زائر يطلب خلال 30 يوم من رابطك يتحسب لك تلقائياً. روّجه في سناب وتيك توك وإنستا وستوريات واتساب.'
+      : 'Every marketer gets a unique code & link 🖇️\nCopy any product link with ?ref=YOURCODE — orders within 30 days count for you automatically. Share on Snapchat, TikTok, Instagram, WhatsApp.';
+  }
+  if (/حملة|دعاية|دعايه|إعلان|اعلان|سناب|تيك|انستا|إنستا|خطة|ads|campaign/i.test(q)) {
+    return AR
+      ? 'خلاصة الدعاية بالكويت 🎯\n1) سناب شات الملك محلياً — ابدأ 2–3 د.ك/يوم بفيديو قصير.\n2) تيك توك أرخص CPM — للمنتجات الوظيفية.\n3) إنستقرام للجمال والفخامة.\nميزانية 70/20/10: 70% الرابح المثبت، 20% تجارب، 10% سوايب جريئة — ووقف أي إعلان بعد 1,000 مشاهدة بدون تفاعل.'
+      : 'Kuwait ads in a nutshell 🎯\n1) Snapchat is king — start 2–3 KWD/day with short video.\n2) TikTok cheapest CPM — for functional products.\n3) Instagram for beauty & premium.\nBudget 70/20/10 and kill any ad after 1,000 cold views.';
+  }
+  if (/رمضان|عيد|موسم|مواسم|وطني|هلا|نوفمبر|جمعة|مدارس|شتاء/i.test(q)) {
+    return AR
+      ? 'المواسم الكويتية منجم ذهب 💡\n• رمضان والأعياد: كل شي مرتبط بالبيت والضيافة.\n• العودة للمدارس (أغسطس/سبتمبر): مستلزمات الأطفال.\n• اليوم الوطني 25–26 فبراير: إكسسوارات وعروض كويتية.\n• الهلا نوفمبر + الجمعة البيضاء: أقوى أسبوعين بالسنة — جهّز قبلها بأسبوعين.'
+      : 'Kuwaiti seasons are gold 💡\n• Ramadan & Eid: home & hospitality.\n• Back to school (Aug/Sep): kids supplies.\n• National Days (Feb 25–26): accessories.\n• Hala November + White Friday: prepare 2 weeks ahead.';
   }
   if (products.length) {
     return AR
-      ? 'لقيت لك هذي المنتجات — كل واحد عليه عمولته ودراسته التسويقية 👇'
-      : 'Found these for you 👇';
+      ? 'لقيت لك هذي المنتجات — كل واحد عليه عمولته ودراسته التسويقية (سعر مقترح + مستوى الطلب + أنسب قناة) 👇'
+      : 'Found these for you — each with commission and its marketing study 👇';
   }
   return AR
-    ? 'جرّب كلمة أبسط أو تصفح الكتالوج 👇'
-    : 'Try a simpler word or browse the catalog 👇';
+    ? 'ما لقيت تطابق مباشر — جرّب كلمة أبسط (مثلاً «عجلة» أو «مكواة شعر») أو تصفح الكتالوج 👇\nوتذكّر: تقدر تفتح متجرك الخاص ببلاش من «متجري المجاني» 🏪'
+    : 'No direct match — try a simpler word or browse the catalog 👇\nAnd remember: you can open your own free store 🏪';
 }
 
 /**
