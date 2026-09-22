@@ -385,3 +385,36 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     duplicate: false,
   };
 }
+
+// ── المرحلة 1 (تكامل Garfix ERP): بث حدث إنشاء الطلب إلى الـ ERP ──
+// fire-and-forget: لا يعطّل الطلب أبداً، والفشل يسجَّل فقط. الـ idempotency
+// في مستقبِل ERP (externalRef فريد) يجعل الإرسال المتكرر آمناً تماماً.
+export async function notifyErpOrderCreated(
+  order: { orderNumber: string; subtotal: number; shipping: number; total: number; affiliateCode?: string | null; items: { name: string; quantity: number; price: number }[]; customer?: { name?: string | null; phone?: string | null } | null; governorate?: string | null; area?: string | null; address?: string | null },
+  storefront?: { slug: string; name: string } | null,
+): Promise<void> {
+  try {
+    const { emitGarfixWebhook } = await import('@/lib/webhooks');
+    await emitGarfixWebhook('order.created', {
+      store: storefront ? { slug: storefront.slug, name: storefront.name } : null,
+      order: {
+        number: order.orderNumber,
+        customer: {
+          name: order.customer?.name || order.customer?.phone || 'عميل',
+          phone: order.customer?.phone || null,
+          governorate: order.governorate || null,
+          area: order.area || null,
+          address: order.address || null,
+        },
+        items: order.items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price })),
+        subtotal: order.subtotal,
+        shipping: order.shipping,
+        total: order.total,
+        currency: 'KWD',
+        affiliateCode: order.affiliateCode || null,
+      },
+    });
+  } catch (e) {
+    console.warn('[create-order] ERP notify failed:', (e as Error).message);
+  }
+}

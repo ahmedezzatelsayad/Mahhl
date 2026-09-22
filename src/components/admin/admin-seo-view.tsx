@@ -165,7 +165,7 @@ export function AdminSeoView() {
                 onChange={(e) => setForm((f) => f && { ...f, titleTemplate: e.target.value })}
               />
               <p className="text-[11px] text-muted-foreground">
-                استخدم %s لموضع اسم الصفحة — مثال: &quot;%s | محل شوب&quot;
+                استخدم %s لموضع اسم الصفحة — مثال: &quot;%s | متاجر جارفكس&quot;
               </p>
             </div>
             <div className="space-y-1.5">

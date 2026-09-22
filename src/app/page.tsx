@@ -30,7 +30,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   ]);
 
   const ogBase = {
-    siteName: 'محل شوب',
+    siteName: 'متاجر جارفكس',
     locale: 'ar_KW',
     type: 'website' as const,
   };
@@ -76,13 +76,13 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
       const canonical = `${siteUrl}/?cat=${encodeURIComponent(c.slug)}`;
       return {
         title: withBrand(`${c.name} — تسوق أونلاين بأفضل الأسعار في الكويت`),
-        description: `تصفح منتجات ${c.name} في محل شوب بأسعار بالدينار الكويتي. دفع عند الاستلام وتوصيل سريع لجميع محافظات الكويت.`,
-        keywords: [c.name, `${c.name} الكويت`, 'تسوق أونلاين', 'محل شوب', 'أسعار الكويت'],
+        description: `تصفح منتجات ${c.name} في متاجر جارفكس بأسعار بالدينار الكويتي. دفع عند الاستلام وتوصيل سريع لجميع محافظات الكويت.`,
+        keywords: [c.name, `${c.name} الكويت`, 'تسوق أونلاين', 'متاجر جارفكس', 'أسعار الكويت'],
         alternates: { canonical },
         robots: INDEX_FOLLOW,
         openGraph: {
           ...ogBase,
-          title: `${c.name} | محل شوب`,
+          title: `${c.name} | متاجر جارفكس`,
           description: `منتجات ${c.name} بأسعار تنافسية — توصيل لكل الكويت ودفع عند الاستلام.`,
           url: canonical,
         },
@@ -98,7 +98,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
       )}`;
       return {
         title: page.title,
-        description: `${page.title} — عرض خاص من محل شوب الكويت: أسعار بالدينار الكويتي، دفع عند الاستلام، وتوصيل سريع لجميع المحافظات.`,
+        description: `${page.title} — عرض خاص من متاجر جارفكس الكويت: أسعار بالدينار الكويتي، دفع عند الاستلام، وتوصيل سريع لجميع المحافظات.`,
         alternates: { canonical },
         robots: INDEX_FOLLOW,
         openGraph: { ...ogBase, title: page.title, url: canonical },
@@ -109,18 +109,18 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
       return { title: `نتائج البحث: ${page.q}`, robots: { index: false, follow: true } };
     case 'account':
       return {
-        title: 'حسابي — طلباتي ومتابعة الطلب | محل شوب',
+        title: 'حسابي — طلباتي ومتابعة الطلب | متاجر جارفكس',
         description: 'سجل دخولك برقم هاتفك وتابع طلباتك خطوة بخطوة — كلمة المرور الافتراضية هي رقم هاتفك.',
         alternates: { canonical: `${siteUrl}/?account=1` },
         robots: NO_INDEX,
       };
     case 'track':
       return {
-        title: 'تتبع طلبك — وين وصل شحنتك؟ | محل شوب',
-        description: 'اكتب رقم الطلب ورقم هاتفك وشوف حالة طلبك من محل شوب: تم الاستلام، تم الشحن، وفي الطريق إليك.',
+        title: 'تتبع طلبك — وين وصل شحنتك؟ | متاجر جارفكس',
+        description: 'اكتب رقم الطلب ورقم هاتفك وشوف حالة طلبك من متاجر جارفكس: تم الاستلام، تم الشحن، وفي الطريق إليك.',
         alternates: { canonical: `${siteUrl}/?track=1` },
         robots: INDEX_FOLLOW,
-        openGraph: { ...ogBase, title: 'تتبع طلبك | محل شوب', url: `${siteUrl}/?track=1` },
+        openGraph: { ...ogBase, title: 'تتبع طلبك | متاجر جارفكس', url: `${siteUrl}/?track=1` },
       };
     case 'wishlist':
       return { title: 'المفضلة', robots: NO_INDEX };
@@ -135,7 +135,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     case 'admin':
       return {
         title: String(one0('view') || '').startsWith('affiliate')
-          ? 'بوابة المسوقين — محل شوب'
+          ? 'بوابة المسوقين — متاجر جارفكس'
           : 'دخول الإدارة',
         robots: NO_INDEX,
       };

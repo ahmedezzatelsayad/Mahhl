@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const prompt = `أنت خبير كتابة إعلانات وصفحات هبوط (Landing Pages) لمتجر إلكتروني كويتي اسمه "محل شوب".
+    const prompt = `أنت خبير كتابة إعلانات وصفحات هبوط (Landing Pages) لمتجر إلكتروني كويتي اسمه "متاجر جارفكس".
 
 موضوع الصفحة: ${topic}
 ${audience ? `الجمهور المستهدف: ${audience}` : ''}

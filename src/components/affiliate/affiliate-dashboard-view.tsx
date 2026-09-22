@@ -100,7 +100,7 @@ function ReferralBox({ code }: { code: string }) {
 
   function whatsapp() {
     const text = encodeURIComponent(
-      `سوّق واربح مع محل شوب 🛍️ منتجات أصلية بأسعار مميزة مع توصيل سريع لكل الكويت:\n${link}`
+      `سوّق واربح مع متاجر جارفكس 🛍️ منتجات أصلية بأسعار مميزة مع توصيل سريع لكل الكويت:\n${link}`
     );
     window.open(`https://wa.me/?text=${text}`, '_blank');
   }

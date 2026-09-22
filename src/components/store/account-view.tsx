@@ -438,7 +438,7 @@ export function AccountView() {
           </button>
           <span className="text-muted-foreground/30">|</span>
           <a
-            href={waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I need help with my account 🙏' : 'هلا محل شوب، أحتاج مساعدة بحسابي 🙏')}
+            href={waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I need help with my account 🙏' : 'هلا متاجر جارفكس، أحتاج مساعدة بحسابي 🙏')}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1 text-green-600 hover:text-green-500"

@@ -5,7 +5,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { createOrder } from '@/lib/create-order';
+import { createOrder, notifyErpOrderCreated } from '@/lib/create-order';
 import { loadPublicStorefront, storefrontPrice } from '@/lib/storefront';
 
 export const dynamic = 'force-dynamic';
@@ -66,6 +66,9 @@ export async function POST(
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
+
+  // المرحلة 1 (تكامل ERP): فاتورة تلقائية في الـ ERP — fire-and-forget
+  void notifyErpOrderCreated(result.order, { slug: store.slug, name: store.name });
 
   return NextResponse.json({
     ok: true,

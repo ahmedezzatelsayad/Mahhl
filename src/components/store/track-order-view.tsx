@@ -123,7 +123,7 @@ export function TrackOrderView() {
         <p>{t('tr.noNumber')}</p>
         <div className="flex justify-center gap-2">
           <a
-            href={waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I am looking for my order number 🙏' : 'هلا محل شوب، أدور على رقم طلبي 🙏')}
+            href={waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I am looking for my order number 🙏' : 'هلا متاجر جارفكس، أدور على رقم طلبي 🙏')}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 hover:bg-green-500 text-white px-4 py-2 font-medium transition-colors"

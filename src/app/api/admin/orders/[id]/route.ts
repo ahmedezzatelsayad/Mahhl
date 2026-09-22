@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requirePermission } from '@/lib/auth';
 import { AFFILIATE_ORDER_STATUSES, ensureEarnedEntry, ensureReversalEntry } from '@/lib/commission';
+import { emitGarfixWebhook } from '@/lib/webhooks';
 
 const ALLOWED = [
   'pending',
@@ -52,6 +53,14 @@ export async function PATCH(
         ['delivered', 'commission_received'].includes(current.status)
       ) {
         await ensureReversalEntry(id, `عكس العمولة — الطلب أصبح ${body.status}`);
+      }
+
+      // المرحلة 1 (تكامل ERP): بث تغير الحالة — delivered تسجّل دفعة COD
+      // في فاتورة الطلب، وcancelled/returned تُلغيها إن لم تُحصّل — fire-and-forget
+      if (body.status !== current.status) {
+        void emitGarfixWebhook('order.status_changed', {
+          order: { number: order.orderNumber, status: body.status },
+        });
       }
 
       return NextResponse.json(order);

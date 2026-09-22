@@ -520,7 +520,7 @@ export function FloatingWidgets() {
       <div className="float-stack fixed bottom-4 left-3 sm:left-4 z-50 flex flex-col gap-2.5 transition-transform duration-200">
         {/* WhatsApp — founder-requested: sits above the AI bubble */}
         <a
-          href={waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I have a question 🙏' : 'هلا محل شوب، عندي استفسار 🙏')}
+          href={waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I have a question 🙏' : 'هلا متاجر جارفكس، عندي استفسار 🙏')}
           target="_blank"
           rel="noopener noreferrer"
           className="h-[52px] w-[52px] rounded-full bg-green-600 hover:bg-green-500 shadow-lg flex items-center justify-center transition-colors"

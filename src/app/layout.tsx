@@ -34,14 +34,14 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(siteUrl),
     title: {
       default: seo.siteTitle,
-      template: seo.titleTemplate.includes('%s') ? seo.titleTemplate : `%s | محل شوب`,
+      template: seo.titleTemplate.includes('%s') ? seo.titleTemplate : `%s | متاجر جارفكس`,
     },
     description: seo.description,
     keywords,
     authors: [{ name: "Mahal Shop", url: siteUrl }],
     creator: "Mahal Shop",
-    publisher: "محل شوب",
-    applicationName: "محل شوب",
+    publisher: "متاجر جارفكس",
+    applicationName: "متاجر جارفكس",
     category: "shopping",
     formatDetection: { telephone: true, address: false, email: false },
     alternates: {
@@ -71,7 +71,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     openGraph: {
       type: "website",
-      siteName: "محل شوب",
+      siteName: "متاجر جارفكس",
       title: seo.siteTitle,
       description: seo.description,
       url: siteUrl,

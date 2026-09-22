@@ -236,7 +236,7 @@ async function enrichWithAI(
         ? `المنتج الحالي: ${ctx.triggerName}`
         : 'تصفح عام';
 
-  const prompt = `أنت مسوّق محترف لمنصة دروب شيبنج كويتية (محل شوب).
+  const prompt = `أنت مسوّق محترف لمنصة دروب شيبنج كويتية (متاجر جارفكس).
 معلومات العميل:
 - النوع: ${ctx.persona}
 - درجة النية للشراء: ${ctx.intentScore}/1

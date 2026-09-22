@@ -216,7 +216,7 @@ export default function StorefrontClient({
           <p className="font-bold text-stone-700">{store.name}</p>
           <p>الدفع عند الاستلام · توصيل لكل المحافظات · خدمة زبائن سريعة</p>
           <p className="text-[10px] text-stone-400">
-            هذا المتجر يعمل بمنصة <span className="font-bold">محل شوب</span> — دروب شيبنج الكويت
+            هذا المتجر يعمل بمنصة <span className="font-bold">متاجر جارفكس</span> — دروب شيبنج الكويت
           </p>
         </div>
       </footer>

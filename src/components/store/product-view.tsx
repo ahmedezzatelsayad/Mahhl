@@ -101,7 +101,7 @@ export function ProductView() {
           // title; English falls back to the translated product name.
           document.title = `${
             lang === 'en' ? data.product.name : (data.product.metaTitle || data.product.name)
-          } | ${lang === 'en' ? 'Mahal Shop' : 'محل شوب'}`;
+          } | ${lang === 'en' ? 'Mahal Shop' : 'متاجر جارفكس'}`;
           // record in recently-viewed rail
           pushRecentlyViewed({
             slug: data.product.slug,

@@ -76,7 +76,7 @@ export function AffiliateLoginView() {
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
             <Handshake className="h-8 w-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold">منصة دروب شيبنج — محل شوب</h1>
+          <h1 className="text-2xl font-bold">منصة دروب شيبنج — متاجر جارفكس</h1>
           <p className="text-muted-foreground text-sm mt-1">
             سوّق آلاف المنتجات واربح عمولة مقترحة من 1 إلى 10 د.ك على كل منتج — وإنت تختار عمولتك بمزاجك، بدون رأس مال وبدون هم الشحن
           </p>

@@ -162,7 +162,7 @@ export function InfoView() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <a
-              href={waMsg('هلا محل شوب، عندي استفسار 🙏', 'Hi Mahal Shop, I have a question 🙏')}
+              href={waMsg('هلا متاجر جارفكس، عندي استفسار 🙏', 'Hi Mahal Shop, I have a question 🙏')}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-xl border bg-card p-5 hover:border-green-500 transition-colors"
@@ -413,7 +413,7 @@ export function InfoView() {
                   a: 'من صفحة «تتبع طلبك» في الفوتر — اكتب رقم الطلب ورقم هاتفك وشوف حالة الطلب خطوة بخطوة، أو سجل دخولك من «حسابي» وشوف كل طلباتك.',
                 },
                 {
-                  q: 'شلون أربح من محل شوب كم مسوّق (دروب شيبنج)؟',
+                  q: 'شلون أربح من متاجر جارفكس كم مسوّق (دروب شيبنج)؟',
                   a: 'سجّل مجاناً من زر «سوّق معنا» — بياصلك كود ورابط خاص فيك. شارك أي منتج مع عملائك، وكل طلب يوصَل عبر رابطك يتحسبلك عمولة تُضاف فوق سعر المنتج — المقترحة من 1 إلى 10 د.ك وإنت حر تختار عمولتك بمزاجك — بدون رأس مال، وإحنا نتكفل بالشحن والتحصيل.',
                 },
                 {
@@ -536,7 +536,7 @@ export function InfoView() {
           <p className="rounded-xl bg-accent/10 border border-accent/20 px-4 py-3 text-sm leading-7">
             {L(
               lang,
-              'برنامج التسويق بالعمولة في محل شوب: شارك، سوّق، واربح — عمولة مقترحة من 1 إلى 10 د.ك على كل منتج تختارها بمزاجك، وتتحسب على كل طلب يوصَل عبر رابطك الخاص. بدون رأس مال، بدون مخزون، وبدون هم الشحن أو تحصيل الفلوس — إحنا نتكفّل بكل شي وأنت تربح من تسويقك بس.',
+              'برنامج التسويق بالعمولة في متاجر جارفكس: شارك، سوّق، واربح — عمولة مقترحة من 1 إلى 10 د.ك على كل منتج تختارها بمزاجك، وتتحسب على كل طلب يوصَل عبر رابطك الخاص. بدون رأس مال، بدون مخزون، وبدون هم الشحن أو تحصيل الفلوس — إحنا نتكفّل بكل شي وأنت تربح من تسويقك بس.',
               'Mahal Shop’s affiliate program: share, promote, earn — a suggested commission of 1–10 KWD per product (you pick your own), credited on every order delivered through your own link. No capital, no inventory, no shipping or payment hassle — we handle everything while you earn from your marketing.'
             )}
           </p>
@@ -701,7 +701,7 @@ export function InfoView() {
           {L(lang, 'فريقنا يرد عليك بأسرع وقت على الواتساب', 'Our team replies fastest on WhatsApp')}
         </p>
         <a
-          href={waMsg('هلا محل شوب، عندي سؤال 🙏', 'Hi Mahal Shop, I have a question 🙏')}
+          href={waMsg('هلا متاجر جارفكس، عندي سؤال 🙏', 'Hi Mahal Shop, I have a question 🙏')}
           target="_blank"
           rel="noopener noreferrer"
           className="relative inline-flex items-center gap-2 rounded-lg bg-green-600 hover:bg-green-500 text-white px-5 py-2.5 text-sm font-bold transition-colors"

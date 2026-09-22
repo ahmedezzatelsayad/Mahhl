@@ -121,7 +121,7 @@ export function AdminSliderView() {
     if (slides.length >= MAX_SLIDES) return notify('err', `الحد الأقصى ${MAX_SLIDES} شرائح`);
     const s: SliderSlide = {
       id: `s_${Date.now().toString(36)}`,
-      eyebrow: '✨ جديد محل شوب',
+      eyebrow: '✨ جديد متاجر جارفكس',
       title: 'عنوان الشريحة',
       highlight: 'كلمة مميزة',
       subtitle: 'وصف قصير وواضح يشرح العرض أو القسم.',

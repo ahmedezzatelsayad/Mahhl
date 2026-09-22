@@ -100,7 +100,7 @@ export function AdminSettingsView() {
           Authorization: `Bearer ${adminToken}`,
         },
         body: JSON.stringify({
-          siteName: identity.siteName.trim() || 'محل شوب',
+          siteName: identity.siteName.trim() || 'متاجر جارفكس',
           announcement: identity.announcement.trim(),
           whatsapp: identity.whatsapp.replace(/\D/g, ''),
           logo: identity.logo,
@@ -241,7 +241,7 @@ export function AdminSettingsView() {
               <Input
                 value={identity.siteName}
                 onChange={(e) => setIdentity((p) => ({ ...p, siteName: e.target.value }))}
-                placeholder="محل شوب"
+                placeholder="متاجر جارفكس"
               />
             </div>
 

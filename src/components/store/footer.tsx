@@ -83,7 +83,7 @@ export function Footer() {
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <a
-                href={waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I have a question 🙏' : 'هلا محل شوب، عندي استفسار 🙏')}
+                href={waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I have a question 🙏' : 'هلا متاجر جارفكس، عندي استفسار 🙏')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-lg bg-green-600 hover:bg-green-500 text-white px-4 py-2 text-sm font-bold transition-colors"
@@ -203,7 +203,7 @@ export function Footer() {
             </span>
           </div>
           <a
-            href={waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I have a question about my order 🙏' : 'هلا محل شوب، عندي استفسار عن الطلب 🙏')}
+            href={waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I have a question about my order 🙏' : 'هلا متاجر جارفكس، عندي استفسار عن الطلب 🙏')}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 rounded-lg border border-primary-foreground/10 px-4 py-3 hover:border-primary-foreground/30 transition-colors"

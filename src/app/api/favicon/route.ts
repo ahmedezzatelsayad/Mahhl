@@ -3,7 +3,7 @@ import { getSiteIdentityCached } from '@/lib/site-identity';
 
 /**
  * Dynamic browser icon. Serves the uploaded favicon (data-URL) from the admin
- * "Site Identity" page, or a generated محل شوب gold-badge SVG as fallback.
+ * "Site Identity" page, or a generated متاجر جارفكس gold-badge SVG as fallback.
  */
 export async function GET() {
   const identity = await getSiteIdentityCached();

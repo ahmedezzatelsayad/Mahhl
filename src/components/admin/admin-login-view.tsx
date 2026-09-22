@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppStore } from '@/lib/stores/app-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Lock, Mail, Store, User } from 'lucide-react';
+import { Lock, Mail, ShieldCheck, Store, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { firstPermittedAdminView, ROLE_LABELS_AR, normalizeRole } from '@/lib/permissions';
 
@@ -16,6 +16,44 @@ export function AdminLoginView() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [ssoBusy, setSsoBusy] = useState(false);
+
+  // المرحلة 1 (SSO): رجعنا من ERP بتذكرة لمرة واحدة؟ استبدلها بجلسة أدمن
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const ticket = sp.get('sso_ticket');
+    const ssoError = sp.get('sso_error');
+    if (ssoError) {
+      toast.error(ssoError);
+      sp.delete('sso_error');
+      window.history.replaceState({}, '', `${window.location.pathname}?${sp.toString()}`);
+    }
+    if (!ticket) return;
+    sp.delete('sso_ticket');
+    window.history.replaceState({}, '', `${window.location.pathname}?${sp.toString()}`);
+    setSsoBusy(true);
+    (async () => {
+      try {
+        const res = await fetch('/api/auth/sso/consume', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticket }),
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          loginAdmin(data.token, data.user);
+          setView(firstPermittedAdminView(data.user?.role) as never);
+          toast.success(`مرحباً ${data.user?.name || data.user?.email} — تم الدخول عبر Garfix`);
+        } else {
+          toast.error(data.error || 'فشل الدخول الموحد');
+        }
+      } catch {
+        toast.error('فشل الاتصال بالدخول الموحد');
+      } finally {
+        setSsoBusy(false);
+      }
+    })();
+  }, [loginAdmin, setView]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -84,8 +122,28 @@ export function AdminLoginView() {
               autoComplete="current-password"
             />
           </div>
-          <Button type="submit" className="w-full" size="lg" disabled={loading}>
+          <Button type="submit" className="w-full" size="lg" disabled={loading || ssoBusy}>
             {loading ? 'جاري الدخول...' : 'تسجيل الدخول'}
+          </Button>
+
+          {/* المرحلة 1: الدخول الموحد عبر حساب Garfix (ERP هو مالك الهوية) */}
+          <div className="flex items-center gap-3" aria-hidden="true">
+            <span className="h-px bg-border flex-1" />
+            <span className="text-xs text-muted-foreground">أو</span>
+            <span className="h-px bg-border flex-1" />
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            size="lg"
+            disabled={ssoBusy}
+            onClick={() => {
+              window.location.href = '/api/auth/sso/login?portal=admin';
+            }}
+          >
+            <ShieldCheck className="h-4 w-4 ml-1" />
+            {ssoBusy ? 'جاري إتمام الدخول...' : 'الدخول عبر حساب Garfix'}
           </Button>
           <div className="text-xs text-muted-foreground bg-muted/30 p-3 rounded text-center leading-relaxed">
             <Store className="h-3.5 w-3.5 inline ml-1" />

@@ -75,7 +75,7 @@ export default function ErrorPage({
         </div>
 
         <p className="text-[11px] text-muted-foreground/60">
-          {en ? ' محل شوب — Mahhl Shop ' : ' محل شوب — Mahhl Shop '}
+          {en ? ' متاجر جارفكس — Garfix Stores ' : ' متاجر جارفكس — Garfix Stores '}
         </p>
       </div>
     </div>

@@ -24,7 +24,7 @@ export const DICT: Dict = {
   'hdr.searchPh': { ar: 'تدور على شنو؟ اكتبه هنا…', en: 'What are you looking for? Type it here…' },
   'hdr.allProducts': { ar: 'كل المنتجات', en: 'All Products' },
   'hdr.accountLogin': { ar: 'حسابي / تسجيل', en: 'My Account / Sign in' },
-  'hdr.whatsapp': { ar: 'واتساب محل شوب', en: 'WhatsApp Us' },
+  'hdr.whatsapp': { ar: 'واتساب متاجر جارفكس', en: 'WhatsApp Us' },
   'hdr.home': { ar: 'الرئيسية', en: 'Home' },
   'hdr.tagline': { ar: 'منصة دروب شيبنج — الكويت', en: 'Kuwait’s Dropshipping Platform' },
   'hdr.langSwitch': { ar: 'EN', en: 'عربي' },
@@ -70,7 +70,7 @@ export const DICT: Dict = {
   'home.browseAll': { ar: 'تصفح كل المنتجات', en: 'Browse all products' },
   'home.shopNow': { ar: 'تسوق الآن', en: 'Shop Now' },
   'home.discover': { ar: 'اكتشف العرض', en: 'Discover the Deal' },
-  'home.faq': { ar: 'الأسئلة الشائعة عن محل شوب', en: 'Mahal Shop FAQ' },
+  'home.faq': { ar: 'الأسئلة الشائعة عن متاجر جارفكس', en: 'Mahal Shop FAQ' },
   'home.landingBadge': { ar: 'عرض خاص لفترة محدودة', en: 'Limited-time special offer' },
 
   /* ===== shop ===== */
@@ -200,7 +200,7 @@ export const DICT: Dict = {
   'ch.title': { ar: 'تحدث مع المحل', en: 'Chat with Mahal' },
   'ch.sub': { ar: 'اكتب اللي تدور عليه — نجيبه لك', en: 'Tell us what you need — we got you' },
   'ch.welcome': {
-    ar: 'هلا والله! 👋 أنا «المحل» — مساعدك الذكي في محل شوب.\nاكتب لي شنو تدور عليه (مثلاً: ساعة رجالية، لعبة للأطفال، عطر) وأجيبه لك بأحسن سعر 🛒',
+    ar: 'هلا والله! 👋 أنا «المحل» — مساعدك الذكي في متاجر جارفكس.\nاكتب لي شنو تدور عليه (مثلاً: ساعة رجالية، لعبة للأطفال، عطر) وأجيبه لك بأحسن سعر 🛒',
     en: "Hey there! 👋 I'm Mahal — your smart shopping assistant at Mahal Shop.\nTell me what you're looking for (e.g. men's watch, kids toy, perfume) and I'll find it at the best price 🛒",
   },
   'ch.placeholder': { ar: 'اكتب اللي تدور عليه...', en: 'Type what you need...' },
@@ -212,10 +212,10 @@ export const DICT: Dict = {
   'ch.sug3': { ar: 'لعبة أطفال', en: "Kids' toys" },
   'ch.sug4': { ar: 'إكسسوارات موبايل', en: 'Mobile accessories' },
   'ch.sugOrder': { ar: 'أبي ألاقي منتج أربح منه 💰', en: 'Find me a product to sell 💰' },
-  'ch.agentTitle': { ar: 'مساعد محل شوب الذكي', en: 'Mahal Shop AI Assistant' },
+  'ch.agentTitle': { ar: 'مساعد متاجر جارفكس الذكي', en: 'Mahal Shop AI Assistant' },
   'ch.agentSub': { ar: 'يدوّر لك منتجات تربح منها — عمولات من 1 إلى 10 د.ك', en: 'Finds winning products for you — commissions 1–10 KWD' },
   'ch.agentWelcome': {
-    ar: 'هلا والله! 👋 أنا مساعد محل شوب — أول منصة دروب شيبنج في الكويت.\nالموقع ما يبيع مباشرة — هنا تختار منتج، تحط عليه عمولتك (من 1 إلى 10 د.ك بمزاجك)، وتبيعه لجمهورك برابطك الخاص 💰\nقل لي شنو مجالك أو جمهورك (عطور، أدوات منزلية، ألعاب..) وأرشح لك منتجات عليها عمولة حلوة، أو اسألني عن أي شيء بالمنصة ✅',
+    ar: 'هلا والله! 👋 أنا مساعد متاجر جارفكس — أول منصة دروب شيبنج في الكويت.\nالموقع ما يبيع مباشرة — هنا تختار منتج، تحط عليه عمولتك (من 1 إلى 10 د.ك بمزاجك)، وتبيعه لجمهورك برابطك الخاص 💰\nقل لي شنو مجالك أو جمهورك (عطور، أدوات منزلية، ألعاب..) وأرشح لك منتجات عليها عمولة حلوة، أو اسألني عن أي شيء بالمنصة ✅',
     en: "Hey there! 👋 I'm your Mahal Shop assistant — Kuwait's dropshipping platform.\nWe don't sell directly — you pick a product, add your own commission (1–10 KWD, your choice), and sell it to your audience with your own link 💰\nTell me your niche or audience (perfumes, home tools, toys..) and I'll recommend products with great commissions, or ask me anything about the platform ✅",
   },
   'ch.agentPlaceholder': { ar: 'شنو مجالك؟ أو شنو المنتج اللي تدور عليه؟', en: 'What is your niche? Or what product are you looking for?' },
@@ -236,14 +236,14 @@ export const DICT: Dict = {
   'mkt.sug4': { ar: 'خطة دعاية بميزانية صغيرة 📱', en: 'Ads plan on a small budget 📱' },
 
   /* ===== footer ===== */
-  'f.about': { ar: 'عن محل شوب', en: 'About Mahal Shop' },
+  'f.about': { ar: 'عن متاجر جارفكس', en: 'About Mahal Shop' },
   'f.links': { ar: 'روابط سريعة', en: 'Quick Links' },
   'f.contact': { ar: 'تواصل معنا', en: 'Contact Us' },
   'f.rights': { ar: 'جميع الحقوق محفوظة', en: 'All rights reserved' },
 
   /* ===== hero slider ===== */
-  'hs.label': { ar: 'عروض محل شوب', en: 'Mahal Shop offers' },
-  'hs.loading': { ar: 'محل شوب…', en: 'Mahal Shop…' },
+  'hs.label': { ar: 'عروض متاجر جارفكس', en: 'Mahal Shop offers' },
+  'hs.loading': { ar: 'متاجر جارفكس…', en: 'Mahal Shop…' },
   'hs.prev': { ar: 'الشريحة السابقة', en: 'Previous slide' },
   'hs.next': { ar: 'الشريحة التالية', en: 'Next slide' },
   'hs.pause': { ar: 'إيقاف التنقل التلقائي', en: 'Pause autoplay' },
@@ -295,7 +295,7 @@ export const DICT: Dict = {
   },
   'ck.received': { ar: 'تم استلام طلبك بنجاح!', en: 'Your order has been received!' },
   'ck.thanks': {
-    ar: 'شكراً لتسوقك من محل شوب. سيتواصل معك فريقنا لتأكيد الطلب، وطلبك يُشحن تلقائياً كل يوم الساعة 10 صباحاً.',
+    ar: 'شكراً لتسوقك من متاجر جارفكس. سيتواصل معك فريقنا لتأكيد الطلب، وطلبك يُشحن تلقائياً كل يوم الساعة 10 صباحاً.',
     en: 'Thank you for shopping at Mahal Shop. Our team will call you to confirm, and orders ship automatically every day at 10 AM.',
   },
   'ck.orderNo': { ar: 'رقم الطلب:', en: 'Order number:' },
@@ -383,7 +383,7 @@ export const DICT: Dict = {
   /* ===== home FAQ ===== */
   'faq.q1': { ar: 'هل يوجد توصيل لجميع محافظات الكويت؟', en: 'Do you deliver to all Kuwait governorates?' },
   'faq.a1': {
-    ar: 'نعم — محل شوب يوصّل لجميع محافظات الكويت الست (العاصمة، حولي، الفروانية، الأحمدي، الجهراء، مبارك الكبير). سعر التوصيل {price} د.ك{free}',
+    ar: 'نعم — متاجر جارفكس يوصّل لجميع محافظات الكويت الست (العاصمة، حولي، الفروانية، الأحمدي، الجهراء، مبارك الكبير). سعر التوصيل {price} د.ك{free}',
     en: 'Yes — Mahal Shop delivers to all six Kuwait governorates (Capital, Hawalli, Farwaniya, Ahmadi, Jahra, Mubarak Al-Kabeer). Delivery is {price} KWD{free}',
   },
   'faq.a1Free': { ar: ' والتوصيل مجاني للطلبات من {v} د.ك فأكثر', en: ' and shipping is FREE for orders of {v} KWD or more' },
@@ -393,18 +393,18 @@ export const DICT: Dict = {
     ar: 'الدفع عند الاستلام (COD) — تدفع نقداً للمندوب عند وصول طلبك. جميع الأسعار المعروضة بالدينار الكويتي دون أي رسوم خفية.',
     en: 'Cash on Delivery (COD) — pay the courier in cash when your order arrives. All prices are shown in Kuwaiti Dinar with no hidden fees.',
   },
-  'faq.q3': { ar: 'كم عدد المنتجات والفئات في محل شوب؟', en: 'How many products and categories does Mahal Shop have?' },
+  'faq.q3': { ar: 'كم عدد المنتجات والفئات في متاجر جارفكس؟', en: 'How many products and categories does Mahal Shop have?' },
   'faq.a3': {
     ar: 'أكثر من 2,600 منتج في 38 فئة تشمل: الأجهزة الكهربائية، مستلزمات المطبخ، الأحزمة والمشدات، الألعاب، العناية الشخصية، الأدوات المنزلية وغيرها.',
     en: 'Over 2,600 products across 38 categories including: appliances, kitchen essentials, belts and supports, toys, personal care, household tools and more.',
   },
-  'faq.q4': { ar: 'كيف أطلب من محل شوب؟', en: 'How do I order from Mahal Shop?' },
+  'faq.q4': { ar: 'كيف أطلب من متاجر جارفكس؟', en: 'How do I order from Mahal Shop?' },
   'faq.a4': {
     ar: 'اختر المنتج المطلوب، اضغط "أضف للسلة"، ثم أكمل الطلب بكتابة اسمك ورقم هاتفك والمحافظة والمنطقة والعنوان — سنتصل بك لتأكيد الطلب قبل التوصيل.',
     en: 'Pick a product, tap "Add to Cart", then complete the order with your name, phone, governorate, area and address — we call you to confirm before delivery.',
   },
   'faq.q5': {
-    ar: 'شلون أربح من محل شوب كم مسوّق؟',
+    ar: 'شلون أربح من متاجر جارفكس كم مسوّق؟',
     en: 'How do I earn as a marketer on Mahal Shop?',
   },
   'faq.a5': {
@@ -434,7 +434,7 @@ export const DICT: Dict = {
   'tr.noNumber': { ar: 'ما عندك رقم الطلب؟ فريقنا يساعدك فوراً 👇', en: "Don't have your order number? Our team will help right away 👇" },
   'tr.whatsapp': { ar: 'واتساب', en: 'WhatsApp' },
   'tr.loginHint': { ar: 'سجل دخولك وشوف كل طلباتك', en: 'Sign in to see all your orders' },
-  'tr.waMsg': { ar: 'هلا محل شوب، أدور على رقم طلبي 🙏', en: 'Hi Mahal Shop, I am looking for my order number 🙏' },
+  'tr.waMsg': { ar: 'هلا متاجر جارفكس، أدور على رقم طلبي 🙏', en: 'Hi Mahal Shop, I am looking for my order number 🙏' },
   'tr.pending': { ar: 'تم استلام الطلب', en: 'Order received' },
   'tr.confirmed': { ar: 'تم التأكيد', en: 'Confirmed' },
   'tr.shipped': { ar: 'تم الشحن', en: 'Shipped' },

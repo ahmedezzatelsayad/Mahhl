@@ -19,7 +19,7 @@ interface Brand {
 }
 
 const DEFAULT_BRAND: Brand = {
-  siteName: 'محل شوب',
+  siteName: 'متاجر جارفكس',
   announcement: 'منصة دروب شيبنج رقم 1 في الكويت 🇰🇼 — عمولات مقترحة من 1 إلى 10 د.ك على كل منتج، وإنت تختار عمولتك',
   logo: '',
   whatsapp: '66046358',
@@ -222,7 +222,7 @@ export function Header() {
                 { label: t('hdr.wishlist'), action: () => setView('wishlist') },
                 {
                   label: t('hdr.whatsapp'),
-                  action: () => window.open(waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I have a question 🙏' : 'هلا محل شوب، عندي استفسار 🙏'), '_blank'),
+                  action: () => window.open(waHref(brand.whatsapp, lang === 'en' ? 'Hi Mahal Shop, I have a question 🙏' : 'هلا متاجر جارفكس، عندي استفسار 🙏'), '_blank'),
                 },
               ].map((item) => (
                 <Button
